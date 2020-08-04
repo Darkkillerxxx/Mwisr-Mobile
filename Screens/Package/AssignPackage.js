@@ -1,5 +1,5 @@
 import React from 'react'
-import {View, StyleSheet,Picker,ActivityIndicator,TouchableOpacity,FlatList} from 'react-native'
+import {View, StyleSheet,Picker,ActivityIndicator,TouchableOpacity,FlatList, ToastAndroid} from 'react-native'
 import Container from '../../Components/Container'
 import NormalText from '../../Components/NormalText'
 import {NavigationEvents} from 'react-navigation';
@@ -35,7 +35,7 @@ const customStyles = {
     currentStepLabelColor: '#28262B'
   }
 
-const AddStep = ["Select User","Assign Package","UnAssign Package"];
+const AddStep = ["Select User","Un-Assigned Packages","Assigned Packages"];
 
 
 class AssignPackage extends React.Component{
@@ -84,7 +84,16 @@ class AssignPackage extends React.Component{
                 this.setState({ButtonLoading:true})
                 this.fetchPackage()
             }
+            else if(this.state.AssignPart === 1)
+            {
+                this.AssignPackage()
+            }
         }
+    }
+
+    HandleBackButton=()=>{
+        this.setState({AssignPart:this.state.AssignPart - 1})
+        this.setState({StepState:this.state.StepState - 1})
     }
 
     validation=()=>{
@@ -95,6 +104,10 @@ class AssignPackage extends React.Component{
                 this.setState({ErrCode:1})
                 return false
             }
+            return true
+        }
+        else if(this.state.AssignPart === 1)
+        {
             return true
         }
         else if(this.state.AssignPart === 2)
@@ -155,9 +168,18 @@ class AssignPackage extends React.Component{
                           </View>
 
                           <View style={{width:'80%',alignItems:'center',justifyContent:'center'}}>
-                                <MiniPackage style={{borderLeftColor:getPackageFontColor(itemData.item.PackageTypeName)}} Package={itemData.item} />       
+                                <MiniPackage ShowClose={false} style={{borderLeftColor:getPackageFontColor(itemData.item.PackageTypeName)}} Package={itemData.item} />       
                           </View>
                    </View>
+        )
+    }
+
+    ShowAssignedPackages=(itemData)=>{
+        return(
+            <View style={{width:'48%',alignItems:'center',justifyContent:'center',margin:5}}>
+                <MiniPackage ShowClose={true} style={{borderLeftColor:getPackageFontColor(itemData.item.PackageTypeName)}} Package={itemData.item} />
+            </View>
+          
         )
     }
 
@@ -183,6 +205,8 @@ class AssignPackage extends React.Component{
         })
     }
 
+//Code Reduction Posible Here...Can make fetchAssignPackage and Fetch Package into ine function
+
     fetchAssignPackage=()=>{
         const {AuthHeader,IsOwner,UserId,SuperOwnerId}=this.props.loginState
         let payload={
@@ -200,7 +224,7 @@ class AssignPackage extends React.Component{
         get_packages(payload).then(result=>{
             if(result.IsSuccess)
             {
-                this.setState({AssignPackage:result.Data},()=>{    
+                this.setState({AssignedPackages:result.Data},()=>{    
                     this.setState({ButtonLoading:false},()=>{
                         this.setState({AssignPart:this.state.AssignPart + 1})
                         this.setState({StepState:this.state.StepState + 1})
@@ -277,16 +301,27 @@ class AssignPackage extends React.Component{
                     </View>}
 
                </View>:
+               this.state.StepState === 1 ?
                <View style={{flex:1,width:"100%"}}>
                    <FlatList
+                    key={1}
                     keyExtractor={(item,index)=>index.toString()}
                     data={this.state.Packages}
                     renderItem={this.ShowUnAssignedPackages}/>
-               </View>}
+               </View>:
+               <View style={{flex:1,width:"100%"}}>
+                   <FlatList
+                    key={2}
+                    keyExtractor={(item,index)=>index.toString()}
+                    data={this.state.AssignedPackages}
+                    renderItem={this.ShowAssignedPackages}
+                    numColumns={2}/>
+               </View>
+               }
                <View style={{height:50,width:'100%',alignItems:'center',justifyContent:'space-evenly',flexDirection:'row'}}>
                     {
-                        this.state.AssignPart === 1 ? 
-                        <TouchableOpacity style={{width:'45%'}} onPress={()=>this.Proceed()}>
+                        this.state.AssignPart === 1 || this.state.AssignPart === 2 ? 
+                        <TouchableOpacity style={{width:'45%'}} onPress={()=>this.HandleBackButton()}>
                             <CustomButton style={{width:'100%'}}>
                                 <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Back</NormalText>
                             </CustomButton>
@@ -297,9 +332,8 @@ class AssignPackage extends React.Component{
                             {
                                 this.state.ButtonLoading ?
                                 <ActivityIndicator size="small" color="white" />:
-                                <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>{this.state.AssignPart === 0 ? "Proceed":this.state.AssignPart === 1 ? "Assign":"Un-Assign"}</NormalText>
+                                <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>{this.state.AssignPart === 0 ? "Proceed":this.state.AssignPart === 1 ? "Assign":"Proceed"}</NormalText>
                             }
-                            
                         </CustomButton>
                     </TouchableOpacity>
                </View>

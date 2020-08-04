@@ -3,6 +3,8 @@ import { View, StyleSheet } from 'react-native'
 import Card from '../Components/Card'
 import NormalText from './NormalText'
 import {getPackageFontColor} from '../Utils/api'
+import { FontAwesome } from '@expo/vector-icons';
+import { TouchableOpacity } from 'react-native-gesture-handler'
 class MiniPackage extends React.Component{
 
 
@@ -14,6 +16,11 @@ class MiniPackage extends React.Component{
                     <NormalText style={{marginBottom:5,color:'black',fontSize:12}}>Package : {this.props.Package.PackageName}</NormalText>
                     <NormalText style={{marginBottom:5,color:'black',fontSize:12}}>Exchanges : {this.props.Package.ForExchanges}</NormalText>
                     <NormalText style={{marginBottom:5,color:'black',fontSize:12}}>Type : {this.props.Package.PackageTypeName}</NormalText>
+                </View>
+                <View style={{width:'10%',alignItems:'center',justifyContent:'flex-start'}} >
+                    {this.props.ShowClose ?                     <TouchableOpacity>
+                        <FontAwesome name="close" size={12} color="black" />
+                    </TouchableOpacity>:null}
                 </View>
             </View>
         )
