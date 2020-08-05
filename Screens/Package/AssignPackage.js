@@ -9,6 +9,7 @@ import CustomButton from '../../Components/Button'
 import StepIndicator from 'react-native-step-indicator';
 import {Checkbox} from 'react-native-paper'
 import MiniPackage from '../../Components/MiniPackage';
+
 import {get_packages,getPackageFontColor} from '../../Utils/api'
 
 const customStyles = {
@@ -35,7 +36,7 @@ const customStyles = {
     currentStepLabelColor: '#28262B'
   }
 
-const AddStep = ["Select User","Un-Assigned Packages","Assigned Packages"];
+const AddStep = ["Select User","Select Packages","Review Packages"];
 
 
 class AssignPackage extends React.Component{
@@ -112,23 +113,38 @@ class AssignPackage extends React.Component{
         }
         else if(this.state.AssignPart === 2)
         {
-            return true
+            this.props.navigation.navigate('PackagePermission',{
+                RouteNo:1,
+                SelectedUser:this.state.SelectedUser
+            })
         }
     }
 
 
     Inititialize=()=>{
+        this.setState({AssignPart:0})
+        this.setState({StepState:0})
         this.setState({isLoading:true})
-        console.log(this.props.loginState)
         get_sub_list(null,this.state.SelectedUserType,true,this.props.loginState.AuthHeader).then(result=>{
             if(result.IsSuccess)
             {
-                this.setState({User:result.Data},()=>{
+                    this.setState({User:result.Data},()=>{
                     this.setState({SelectedUser:result.Data[0].UserId})
                     this.setState({isLoading:false})
                 })
             }
         })
+    }
+
+    LoseFocus=()=>{
+   
+        this.setState({AssignPart:0})
+        this.setState({StepState:0})
+        this.setState({Packages:[]})
+        this.setState({AssignedPackages:[]})
+        this.setState({AssignedPackagesId:[]})
+        this.setState({SelectedPackage:[]})
+        this.setState({SelectedUser:null})    
     }
 
     fetchPackage=()=>{
@@ -161,14 +177,13 @@ class AssignPackage extends React.Component{
     ShowUnAssignedPackages=(itemData)=>{
         return(
             <View style={{width:'100%',flexDirection:'row',marginVertical:5}}>
+                          <View style={{width:'80%',alignItems:'center',justifyContent:'center'}}>
+                                <MiniPackage ShowClose={false} style={{borderLeftColor:getPackageFontColor(itemData.item.PackageTypeName)}} Package={itemData.item} />       
+                          </View>
                           <View style={{width:'15%',alignItems:'center',justifyContent:'center'}}>
                             <Checkbox 
                                 status={this.state.SelectedPackage.includes(itemData.item.PackageId) ? "checked":"unchecked"}
                                 onPress={() => this.SelectUnSelectPackage(itemData.item.PackageId)}/>  
-                          </View>
-
-                          <View style={{width:'80%',alignItems:'center',justifyContent:'center'}}>
-                                <MiniPackage ShowClose={false} style={{borderLeftColor:getPackageFontColor(itemData.item.PackageTypeName)}} Package={itemData.item} />       
                           </View>
                    </View>
         )
@@ -269,7 +284,7 @@ class AssignPackage extends React.Component{
        
         return(
            <Container style={styles.AssignContainer}>
-               <NavigationEvents onDidFocus={()=> this.Inititialize()}/>
+               <NavigationEvents onDidFocus={()=> this.Inititialize()} onWillBlur={()=>this.LoseFocus()}/>
                <View style={{width:'100%',height:75}}>
                 <StepIndicator
                     customStyles={customStyles}

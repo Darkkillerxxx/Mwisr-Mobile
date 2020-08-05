@@ -31,7 +31,8 @@ const endpoint_url={
     UpsertPackage:base_url_wealthyFox+"Analyst/UpsertPackage",
     GetCallDetails:base_url_wealthyFox+"AnalystQuery/GetCallDetail",
     GetResearchReports:base_url_wealthyFox+"ResearchReport/GetResearchReport",
-    AssignPackage:base_url_wealthyFox+"Analyst/AssignPackage"
+    AssignPackage:base_url_wealthyFox+"Analyst/AssignPackage",
+    UpsertPackagePermission:base_url_wealthyFox + "/AnalystRegistration/UpsertPackagePermission",
 }
 
 /********* Normal Functions **********/
@@ -655,4 +656,11 @@ export function assign_Package(authHeader,payload)
     return JSON.parse(data)
     })
     .catch(err => err);
+}
+
+export function upsert_package_permisssion(authHeader,payload)
+{
+  return apiCall(endpoint_url['UpsertPackagePermission'],"POST",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
 }
