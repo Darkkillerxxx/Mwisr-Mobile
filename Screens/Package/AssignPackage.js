@@ -72,6 +72,7 @@ class AssignPackage extends React.Component{
             AssignedPackages:[],
             AssignedPackagesId:[],
             SelectedPackage:[],
+            SelectedPackageArray:[],
             ButtonLoading:false,
             ErrCode:null
         }
@@ -86,6 +87,12 @@ class AssignPackage extends React.Component{
                 this.fetchPackage()
             }
             else if(this.state.AssignPart === 1)
+            {
+                // this.AssignPackage()
+                this.setState({AssignPart:2})
+                this.setState({StepState:2})
+            }
+            if(this.state.AssignPart === 2)
             {
                 this.AssignPackage()
             }
@@ -113,10 +120,9 @@ class AssignPackage extends React.Component{
         }
         else if(this.state.AssignPart === 2)
         {
-            this.props.navigation.navigate('PackagePermission',{
-                RouteNo:1,
-                SelectedUser:this.state.SelectedUser
-            })
+          return true
+
+    
         }
     }
 
@@ -183,7 +189,7 @@ class AssignPackage extends React.Component{
                           <View style={{width:'15%',alignItems:'center',justifyContent:'center'}}>
                             <Checkbox 
                                 status={this.state.SelectedPackage.includes(itemData.item.PackageId) ? "checked":"unchecked"}
-                                onPress={() => this.SelectUnSelectPackage(itemData.item.PackageId)}/>  
+                                onPress={() => this.SelectUnSelectPackage(itemData.item.PackageId,itemData.item)}/>  
                           </View>
                    </View>
         )
@@ -194,30 +200,70 @@ class AssignPackage extends React.Component{
             <View style={{width:'48%',alignItems:'center',justifyContent:'center',margin:5}}>
                 <MiniPackage ShowClose={true} style={{borderLeftColor:getPackageFontColor(itemData.item.PackageTypeName)}} Package={itemData.item} />
             </View>
-          
         )
+    }
+
+    StringifyOwnerIds=(UserId)=>{
+        let TempOwnerIds=[]
+
+        this.state.SelectedPackageArray.forEach(Id=>{
+            TempOwnerIds.push(UserId)
+        })
+
+        return TempOwnerIds.toString()
+
+    }
+
+    StringifyPackageIds=()=>{
+        return this.state.SelectedPackage.toString()
+    }
+
+    StringifyUserIds=(SelectedUser)=>{
+        let TempUserIds=[]
+        this.state.SelectedPackageArray.forEach(Id=>{
+            TempUserIds.push(SelectedUser)
+        })
+
+        return TempUserIds.toString()
+
+    }
+
+    StringifyDurations=()=>{
+        let TempDurations=[]
+        this.state.SelectedPackageArray.forEach(Duration=>{
+            TempDurations.push(Duration.ValidTo)
+        })
+
+        return TempDurations.toString()
     }
 
     AssignPackage=()=>{
         this.setState({ButtonLoading:true})
         const {AuthHeader,IsOwner,UserId,SuperOwnerId}=this.props.loginState
         let payload={
-            "ForOwnerIds":IsOwner ? UserId:SuperOwnerId,
-            "PackageIds":this.state.SelectedPackage.toString(),
-            "AssignedToUserIds":this.state.SelectedUser,
-            "Durations":"23-10-2021"
+            "ForOwnerIds":IsOwner ? this.StringifyOwnerIds(UserId):this.StringifyOwnerIds(SuperOwnerId),
+            "PackageIds":this.StringifyPackageIds(),
+            "AssignedToUserIds":this.StringifyUserIds(this.state.SelectedUser),
+            "Durations":this.StringifyDurations()
         }
 
         assign_Package(AuthHeader,payload).then(result=>{
             if(result.IsSuccess)
             {
-                this.fetchAssignPackage()
+                this.setState({ButtonLoading:false})
+                  this.props.navigation.navigate('PackagePermission',{
+                    RouteNo:1,
+                    SelectedUser:this.state.SelectedUser
+                })
             }
             else
             {
+                ToastAndroid.show("Error Assigning Packages",ToastAndroid.SHORT)
                 //show Error for Assigning Packages
             }
         })
+
+        console.log("Asssign Payload",payload)
     }
 
 //Code Reduction Posible Here...Can make fetchAssignPackage and Fetch Package into ine function
@@ -249,12 +295,17 @@ class AssignPackage extends React.Component{
         })
     }
 
-    SelectUnSelectPackage=(Id)=>{
+    SelectUnSelectPackage=(Id,Packages)=>{
         let Temp=this.state.SelectedPackage
+        let Temp2=this.state.SelectedPackageArray
+        console.log("261",Packages)
         if(!Temp.includes(Id))
         {
             Temp.push(Id)
+            Packages.ValidTo="23-10-2021"
+            Temp2.push(Packages)
             this.setState({SelectedPackage:Temp})
+            this.setState({SelectedPackageArray:Temp2})
         }
         else
         {
@@ -262,8 +313,10 @@ class AssignPackage extends React.Component{
             if(pos >= 0)
             {
                 Temp.splice(pos,1)
+                Temp2.splice(pos,1)
             }
             this.setState({SelectedPackage:Temp})
+            this.setState({SelectedPackageArray:Temp2})
         }
     }
 
@@ -328,7 +381,7 @@ class AssignPackage extends React.Component{
                    <FlatList
                     key={2}
                     keyExtractor={(item,index)=>index.toString()}
-                    data={this.state.AssignedPackages}
+                    data={this.state.SelectedPackageArray}
                     renderItem={this.ShowAssignedPackages}
                     numColumns={2}/>
                </View>
