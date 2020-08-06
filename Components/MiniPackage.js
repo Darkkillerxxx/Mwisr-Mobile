@@ -5,8 +5,20 @@ import NormalText from './NormalText'
 import {getPackageFontColor} from '../Utils/api'
 import { FontAwesome } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler'
+import DatePicker from 'react-native-datepicker'
 class MiniPackage extends React.Component{
 
+    constructor(){
+        super()
+        this.state={
+            Date:"23-01-2021"
+        }
+    }
+
+    onChangeDate=(date,Id)=>{
+        this.setState({Date:date})
+        this.props.onDateChange(date,Id)
+    }
 
     render()
     {
@@ -18,12 +30,42 @@ class MiniPackage extends React.Component{
                     <NormalText style={{marginBottom:5,color:'black',fontSize:12}}>Package : {this.props.Package.PackageName}</NormalText>
                     <NormalText style={{marginBottom:5,color:'black',fontSize:12}}>Exchanges : {this.props.Package.ForExchanges}</NormalText>
                     <NormalText style={{marginBottom:5,color:'black',fontSize:12}}>Type : {this.props.Package.PackageTypeName}</NormalText>
-                    <View style={{flexDirection:'row',alignItems:'center'}}>
-                        <NormalText style={{marginBottom:0,color:'black',fontSize:12,marginRight:10}}>Valid Till : {this.props.Package.ValidTill === undefined ? "23-10-2021":this.props.Package.ValidTill}</NormalText>
-                        <TouchableOpacity onPress={()=>{}}>
-                            <FontAwesome name="pencil" size={12} color="black" />
-                        </TouchableOpacity>
-                    </View>
+                    {this.props.ShowDate ?
+                    <View style={{flexDirection:'row',alignItems:'center',marginTop:-10}}>
+                        <NormalText style={{marginBottom:0,color:'black',fontSize:12,marginRight:10}}>Valid Till : {this.state.Date}</NormalText>
+                            
+                                
+                                <DatePicker
+                                    style={{width: 200}}
+                                    date={"23-10-2021"}
+                                    mode="date"
+                                    placeholder="select date"
+                                    format="DD-MM-YYYY"
+                                    minDate="01-05-2016"
+                                    maxDate="01-05-2025"
+                                    confirmBtnText="Confirm"
+                                    cancelBtnText="Cancel"
+                                    hideText={true}
+                                    customStyles={{
+                                    dateIcon: {
+                                        position: 'absolute',
+                                        left: 0,
+                                        top: 4,
+                                        marginLeft: 0,
+                                        width:20,
+                                        height:20,
+                                        marginTop:5
+                                    },
+                                    dateInput: {
+                                        height: 0,
+                                        width: 0,
+                                        marginRight: -30
+                                    }
+                                    }}
+                                    onDateChange={(date) => this.onChangeDate(date,this.props.Package.PackageId)}
+                                />
+                   
+                    </View>:null}
                     
                 </View>
                 <View style={{width:'10%',alignItems:'center',justifyContent:'flex-start'}} >
@@ -54,3 +96,30 @@ const styles=StyleSheet.create({
 
 
 export default MiniPackage
+
+
+// <DatePicker
+// style={{width: 200}}
+// date={"23-10-2021"}
+// mode="date"
+// placeholder="select date"
+// format="DD-MM-YYYY"
+// minDate="01-05-2016"
+// maxDate="01-05-2020"
+// confirmBtnText="Confirm"
+// cancelBtnText="Cancel"
+// customStyles={{
+// dateIcon: {
+//     position: 'absolute',
+//     left: 0,
+//     top: 4,
+//     marginLeft: 0
+// },
+// dateInput: {
+//     marginLeft: 36,
+//     borderWidth:0
+// }
+// // ... You can check the source to find the other keys.
+// }}
+// onDateChange={(date) => {}}
+// />

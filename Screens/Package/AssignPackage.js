@@ -10,6 +10,7 @@ import StepIndicator from 'react-native-step-indicator';
 import {Checkbox} from 'react-native-paper'
 import MiniPackage from '../../Components/MiniPackage';
 
+
 import {get_packages,getPackageFontColor} from '../../Utils/api'
 
 const customStyles = {
@@ -180,11 +181,24 @@ class AssignPackage extends React.Component{
         })
     }
 
+    onDateEdit=(date,id)=>{
+        console.log("Date",date,id)
+        let TempSelectedPackages=this.state.SelectedPackageArray
+        TempSelectedPackages.forEach(element=>{
+            if(parseInt(element.PackageId)  === parseInt(id))
+            {
+                element.ValidTo = date
+            }
+        })
+
+        this.setState({SelectedPackageArray:TempSelectedPackages})
+    }
+
     ShowUnAssignedPackages=(itemData)=>{
         return(
             <View style={{width:'100%',flexDirection:'row',marginVertical:5}}>
                           <View style={{width:'80%',alignItems:'center',justifyContent:'center'}}>
-                                <MiniPackage ShowClose={false} style={{borderLeftColor:getPackageFontColor(itemData.item.PackageTypeName)}} Package={itemData.item} />       
+                                <MiniPackage ShowDate={false} ShowClose={false} style={{borderLeftColor:getPackageFontColor(itemData.item.PackageTypeName)}} Package={itemData.item} />       
                           </View>
                           <View style={{width:'15%',alignItems:'center',justifyContent:'center'}}>
                             <Checkbox 
@@ -198,7 +212,7 @@ class AssignPackage extends React.Component{
     ShowAssignedPackages=(itemData)=>{
         return(
             <View style={{width:'48%',alignItems:'center',justifyContent:'center',margin:5}}>
-                <MiniPackage ShowClose={true} style={{borderLeftColor:getPackageFontColor(itemData.item.PackageTypeName)}} Package={itemData.item} />
+                <MiniPackage onDateChange={this.onDateEdit} ShowDate={true} ShowClose={true} style={{borderLeftColor:getPackageFontColor(itemData.item.PackageTypeName)}} Package={itemData.item} />
             </View>
         )
     }
