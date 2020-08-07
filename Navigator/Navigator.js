@@ -22,6 +22,7 @@ import { sub } from 'react-native-reanimated';
 import ViewReports from '../Screens/Reports/ViewReports'
 import AssignPackage from '../Screens/Package/AssignPackage'
 import PackagePermission from '../Screens/Permissions/PackagePermission'
+import AddUser from '../Screens/Users/AddUser'
 
 const Drawer=createDrawerNavigator({
     Home:createBottomTabNavigator({
@@ -89,6 +90,9 @@ const Drawer=createDrawerNavigator({
     },
     PackagePermission:{
         screen:PackagePermission
+    },
+    AddUser:{
+        screen:AddUser
     }
 },{
     contentComponent:CustomDrawer,

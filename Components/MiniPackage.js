@@ -6,6 +6,7 @@ import {getPackageFontColor} from '../Utils/api'
 import { FontAwesome } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import DatePicker from 'react-native-datepicker'
+
 class MiniPackage extends React.Component{
 
     constructor(){

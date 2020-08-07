@@ -87,6 +87,7 @@ class CustomDrawer extends React.Component{
                             isVisible:true
                         },
                         {
+                            Key:"AddUser",
                             Name:"Add User",
                             isVisible:true
                         }
