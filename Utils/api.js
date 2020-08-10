@@ -33,6 +33,9 @@ const endpoint_url={
     GetResearchReports:base_url_wealthyFox+"ResearchReport/GetResearchReport",
     AssignPackage:base_url_wealthyFox+"Analyst/AssignPackage",
     UpsertPackagePermission:base_url_wealthyFox + "/AnalystRegistration/UpsertPackagePermission",
+    AddUser:base_url_wealthyFox+"/AnalystRegistration/AddUser",
+    GetUserPermissionSet:base_url_wealthyFox+"/AnalystRegistration/GetUserPermissionSet",
+    UpsertUserPermission:base_url_wealthyFox + "/AnalystRegistration/UpsertPermission",
 }
 
 /********* Normal Functions **********/
@@ -661,6 +664,27 @@ export function assign_Package(authHeader,payload)
 export function upsert_package_permisssion(authHeader,payload)
 {
   return apiCall(endpoint_url['UpsertPackagePermission'],"POST",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function add_user(authHeader,payload)
+{
+  return apiCall(endpoint_url['AddUser'],"POST",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function get_user_permission_set(authHeader,payload)
+{
+  return apiCall(endpoint_url['GetUserPermissionSet'],"GET",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function upsert_user_permission(authHeader,payload)
+{
+  return apiCall(endpoint_url['UpsertUserPermission'],"POST",payload,authHeader).then(data => {
     return JSON.parse(data)
   }).catch(err => err)
 }

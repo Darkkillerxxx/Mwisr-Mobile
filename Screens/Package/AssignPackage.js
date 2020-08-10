@@ -38,6 +38,7 @@ const customStyles = {
   }
 
 const AddStep = ["Select User","Select Packages","Review Packages"];
+const AddUserStep=["Select Packages","Review Packages"]
 
 
 class AssignPackage extends React.Component{
@@ -121,26 +122,39 @@ class AssignPackage extends React.Component{
         }
         else if(this.state.AssignPart === 2)
         {
-          return true
-
-    
+          return true    
         }
     }
 
 
     Inititialize=()=>{
-        this.setState({AssignPart:0})
-        this.setState({StepState:0})
-        this.setState({isLoading:true})
-        get_sub_list(null,this.state.SelectedUserType,true,this.props.loginState.AuthHeader).then(result=>{
-            if(result.IsSuccess)
-            {
-                    this.setState({User:result.Data},()=>{
-                    this.setState({SelectedUser:result.Data[0].UserId})
-                    this.setState({isLoading:false})
+        const {UserId,OwnerId,route}=this.props.navigation.state.params
+        console.log("Route",route)
+        if(route === 2)
+         {
+                this.setState({SelectedUser:UserId},()=>{
+                    this.setState({AssignPart:1},()=>{
+                        this.setState({StepState:0},()=>{
+                            this.fetchPackage()
+                        })
+                    })
                 })
-            }
-        })
+         }
+         else
+         {
+            this.setState({AssignPart:0})
+            this.setState({StepState:0})
+            this.setState({isLoading:true})
+            get_sub_list(null,this.state.SelectedUserType,true,this.props.loginState.AuthHeader).then(result=>{
+                if(result.IsSuccess)
+                {
+                        this.setState({User:result.Data},()=>{
+                        this.setState({SelectedUser:result.Data[0].UserId})
+                        this.setState({isLoading:false})
+                    })
+                }
+            })
+         }
     }
 
     LoseFocus=()=>{
@@ -149,18 +163,21 @@ class AssignPackage extends React.Component{
         this.setState({StepState:0})
         this.setState({Packages:[]})
         this.setState({AssignedPackages:[]})
-        this.setState({AssignedPackagesId:[]})
+        this.setState({AssignedPackagesId
+            :[]})
         this.setState({SelectedPackage:[]})
         this.setState({SelectedUser:null})    
     }
 
     fetchPackage=()=>{
         const {AuthHeader,IsOwner,UserId,SuperOwnerId}=this.props.loginState
+        const {OwnerId,route}=this.props.navigation.state.params
+
         let payload1={
             forOwnerId:IsOwner ? UserId:SuperOwnerId,
             userTypeId:"",
-            assignedToMe:false,
-            forUserId:this.state.SelectedUser,
+            assignedToMe:route === null ? false:"",//temp soln.
+            forUserId:route === null ? this.state.SelectedUser:"",//temp soln.
             AuthHeader:AuthHeader,
             createdByMe:"",
             currentPage:"1",
@@ -171,11 +188,16 @@ class AssignPackage extends React.Component{
         get_packages(payload1).then(result=>{
             if(result.IsSuccess)
             {
+                console.log("Payload",payload1);
+                console.log("Result",result.Data);
                 this.setState({Packages:result.Data},()=>{    
+                   if(route === null)
+                   {
                     this.setState({ButtonLoading:false},()=>{
                         this.setState({AssignPart:this.state.AssignPart + 1})
                         this.setState({StepState:this.state.StepState + 1})
                     })
+                   }
                 })
             }
         })
@@ -267,7 +289,8 @@ class AssignPackage extends React.Component{
                 this.setState({ButtonLoading:false})
                   this.props.navigation.navigate('PackagePermission',{
                     RouteNo:1,
-                    SelectedUser:this.state.SelectedUser
+                    SelectedUser:this.state.SelectedUser,
+                    OwnerId:null
                 })
             }
             else
@@ -284,6 +307,7 @@ class AssignPackage extends React.Component{
 
     fetchAssignPackage=()=>{
         const {AuthHeader,IsOwner,UserId,SuperOwnerId}=this.props.loginState
+       
         let payload={
             forOwnerId:IsOwner ? UserId:SuperOwnerId,
             userTypeId:"",
@@ -356,11 +380,11 @@ class AssignPackage extends React.Component{
                 <StepIndicator
                     customStyles={customStyles}
                     currentPosition={this.state.StepState}
-                    labels={AddStep}
-                    stepCount={3}
+                    labels={this.props.navigation.state.params.route === null  ? AddStep:AddUserStep}
+                    stepCount={this.props.navigation.state.params.route ==null ? 3:2}
                    />
                </View>
-               {this.state.StepState === 0 ?
+               {this.state.AssignPart === 0 ?
                <View style={{flex:1,width:'100%'}}>
                     <NormalText style={{fontSize:14,color:'black'}}>Choose User Type : </NormalText>
                     <View style={styles.CustomPicker}>
@@ -383,7 +407,7 @@ class AssignPackage extends React.Component{
                     </View>}
 
                </View>:
-               this.state.StepState === 1 ?
+               this.state.AssignPart === 1 ?
                <View style={{flex:1,width:"100%"}}>
                    <FlatList
                     key={1}

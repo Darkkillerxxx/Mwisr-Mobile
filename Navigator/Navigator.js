@@ -23,6 +23,7 @@ import ViewReports from '../Screens/Reports/ViewReports'
 import AssignPackage from '../Screens/Package/AssignPackage'
 import PackagePermission from '../Screens/Permissions/PackagePermission'
 import AddUser from '../Screens/Users/AddUser'
+import UserPermission from '../Screens/Permissions/UserPermission'
 
 const Drawer=createDrawerNavigator({
     Home:createBottomTabNavigator({
@@ -93,6 +94,9 @@ const Drawer=createDrawerNavigator({
     },
     AddUser:{
         screen:AddUser
+    },
+    UserPermission:{
+        screen:UserPermission
     }
 },{
     contentComponent:CustomDrawer,

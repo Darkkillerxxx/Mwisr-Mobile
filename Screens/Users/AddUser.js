@@ -1,5 +1,5 @@
 import React from 'react'
-import { View,StyleSheet, ScrollView,Picker, TextInput,TouchableOpacity,Switch } from 'react-native'
+import { View,StyleSheet, ScrollView,Picker, TextInput,TouchableOpacity,Switch,ToastAndroid } from 'react-native'
 import Container from '../../Components/Container';
 import Card from '../../Components/Card';
 import NormalText from '../../Components/NormalText';
@@ -11,6 +11,7 @@ import { connect }from 'react-redux'
 import CustomButton from '../../Components/Button';
 import DatePicker from 'react-native-datepicker'
 import {Checkbox} from 'react-native-paper'
+import {add_user} from '../../Utils/api'
 
 class AddUser extends React.Component{
     constructor()
@@ -27,10 +28,11 @@ class AddUser extends React.Component{
             Contact2:'',
             isTrial:false,
             Investment:null,
-            Date:'23-01-2020',
+            Date:'2030-02-28',
             SelectedSegments:[],
             SelectedAreas:[],
-            SelectedDuration:[]
+            SelectedDuration:[],
+            ErrorCode:0
         }
     }
 
@@ -112,6 +114,73 @@ class AddUser extends React.Component{
         }
     }
 
+    onAddUser=()=>{
+        const {IsOwner,AuthHeader,OwnerId,SuperOwnerId}=this.props.loginState
+       
+        if(this.validation())
+        {
+            this.setState({ErrorCode:0})
+            let payload = {
+                ForOwnerId: SuperOwnerId,
+                UserTypeId: this.state.SelectedUserType,
+                FirstName: this.state.FirstName,
+                LastName: this.state.LastName,
+                mobileNo: this.state.Contact,
+                IsTrial: this.state.isTrial,
+                Phone1: this.state.Contact1,
+                Phone2: this.state.Contact2,
+                InvestmentAmt: 0,
+                Segments: this.state.SelectedSegments.toString(),
+                EffectiveTo:`${this.state.Date} 00:00:00.000`,
+                EMailId: "",
+                InterestAreas: this.state.SelectedAreas.toString(),
+                Password: null,
+                TradingDuration: this.state.SelectedDuration.toString()
+              };
+    
+              add_user(AuthHeader,payload).then(result=>{
+                console.log(result); 
+                if(result.Success)
+                  {
+                      ToastAndroid.show("User Added",ToastAndroid.SHORT)
+                      if(this.state.SelectedUserType !== 7)
+                      {
+                        this.props.navigation.navigate("UserPermission",{
+                            UserId:result.Id,
+                            OwnerId:this.state.SelectedOwner
+                          })
+                      }
+                  }
+                  else
+                  {
+                    ToastAndroid.show(result.DisplayMsg,ToastAndroid.SHORT)
+                  }
+              })
+        }     
+    }
+
+    validation=()=>{
+        if(this.state.SelectedUserType !== 7)
+        {
+            if(this.state.FirstName.length <= 3)
+            {
+                this.setState({ErrorCode:1})
+                return false
+            }
+            else if(this.state.LastName.length <= 3)
+            {
+                this.setState({ErrorCode:2})
+                return false
+            }
+            else if(this.state.Contact.length !== 10)
+            {
+                this.setState({ErrorCode:3})
+                return false
+            }
+
+            return true
+        }
+    }
 
 
     render() {
@@ -144,20 +213,20 @@ class AddUser extends React.Component{
                             </Picker>
                         </View>
 
-                        <NormalText style={{marginVertical:15,color:'black'}}>(*) First Name</NormalText>
+                        <NormalText style={{marginVertical:15,color:`${this.state.ErrorCode === 1 ? 'red':'black'}`}}>{this.state.ErrorCode === 1 ? "First Name Should Be Valid" :"(*) First Name"}</NormalText>
                         <View style={styles.CustomTextInputs}>
                             <TextInput placeholder='First Name' onChangeText={(e)=>this.setState({FirstName:e})}  />
                         </View>
 
                         
-                        <NormalText style={{marginVertical:15,color:'black'}}>(*) Last Name</NormalText>
+                        <NormalText style={{marginVertical:15,color:`${this.state.ErrorCode === 2 ? 'red':'black'}`}}>{this.state.ErrorCode === 2 ? "Last Name Should Be Valid" :"(*) Last Name"}</NormalText>
                         <View style={styles.CustomTextInputs}>
                             <TextInput placeholder='Last Name'  onChangeText={(e) => this.setState({LastName:e})}/>
                         </View>
 
                         {this.state.SelectedUserType !== 7 ? 
                         <View style={{width:'100%'}}>
-                            <NormalText style={{marginVertical:15,color:'black'}}>(*) Contact No</NormalText>
+                            <NormalText style={{marginVertical:15,color:`${this.state.ErrorCode === 3 ? 'red':'black'}`}}>{this.state.ErrorCode === 3 ? "Contact No Should be Valid" :"(*) Contact No."}</NormalText>
                             <View style={styles.CustomTextInputs}>
                                 <TextInput placeholder='Contact No.' keyboardType='phone-pad' onChangeText={(e) => this.setState({Contact:e})}  />
                             </View>
@@ -363,7 +432,7 @@ class AddUser extends React.Component{
                         </View>}
                     </Card>
 
-                    <TouchableOpacity style={{paddingBottom:10}}>
+                    <TouchableOpacity style={{paddingBottom:10}} onPress={() => this.onAddUser()}>
                         <CustomButton style={{alignSelf:'center'}}>
                             <NormalText style={{marginBottom:0,color:'white'}}>Add User</NormalText>
                         </CustomButton> 
