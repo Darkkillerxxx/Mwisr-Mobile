@@ -4,7 +4,7 @@ import { StyleSheet,View } from 'react-native';
 
 const RBContainer = (props)=>{
     return(
-        <View style={style.RBContainer}>
+        <View style={{...style.RBContainer,...props.style}}>
             {props.children}
         </View>
     )

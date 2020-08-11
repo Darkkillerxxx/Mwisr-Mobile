@@ -1,5 +1,5 @@
 import React from 'react'
-import { Text,View, StyleSheet, Image,FlatList,Modal,ActivityIndicator} from 'react-native'
+import { Text,View, StyleSheet, Image,FlatList,Modal,ActivityIndicator,TouchableHighlight} from 'react-native'
 import Card from './Card'
 import BoldText from './BoldText'
 import NormalText from './NormalText'
@@ -99,6 +99,10 @@ class Users extends React.Component{
         }
     }
 
+    onUserSelect=(UserId,SuperOwnerId)=>{
+        this.props.onSelectUser(UserId,SuperOwnerId)
+    }
+
     ShowCards=(itemData)=>(
         this.CheckCardsDisplay(itemData.item) ?
 
@@ -134,9 +138,11 @@ class Users extends React.Component{
                                 <NormalText style={styles.MobileNo}>+91{itemData.item.MobileNo}</NormalText>
                             </View>
                             <View style={styles.CardTopRightRight}>
-                                <View style={{...styles.PackagesOuter,...{borderColor:this.props.UserColor}}}>
-                                    <NormalText style={{...styles.PackageText,...{color:this.props.UserColor}}}>Packages({itemData.item.Packages.split(',').length-1})</NormalText>
-                                </View>
+                                <TouchableOpacity onPress={() => this.onUserSelect(itemData.item.UserId,itemData.item.SuperOwnerId)}>
+                                    <View style={{...styles.PackagesOuter,...{borderColor:this.props.UserColor}}}>
+                                        <NormalText style={{...styles.PackageText,...{color:this.props.UserColor}}}>View Profile</NormalText>
+                                    </View>
+                                </TouchableOpacity>
                             </View>
                         </View>
                         
@@ -289,7 +295,7 @@ const styles = StyleSheet.create({
         borderColor:'black',
         borderWidth:1,
         padding:10,
-        borderRadius:15
+        borderRadius:5
     },
     PackageText:{
         fontSize:12,

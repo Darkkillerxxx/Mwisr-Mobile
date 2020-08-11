@@ -21,6 +21,10 @@ import CallDetails from '../Screens/Calls/CallDetails'
 import { sub } from 'react-native-reanimated';
 import ViewReports from '../Screens/Reports/ViewReports'
 import AssignPackage from '../Screens/Package/AssignPackage'
+import PackagePermission from '../Screens/Permissions/PackagePermission'
+import AddUser from '../Screens/Users/AddUser'
+import UserPermission from '../Screens/Permissions/UserPermission'
+import UserDetails from '../Screens/Users/UserDetails'
 
 const Drawer=createDrawerNavigator({
     Home:createBottomTabNavigator({
@@ -85,6 +89,18 @@ const Drawer=createDrawerNavigator({
     },
     AssignPackage:{
         screen:AssignPackage
+    },
+    PackagePermission:{
+        screen:PackagePermission
+    },
+    AddUser:{
+        screen:AddUser
+    },
+    UserPermission:{
+        screen:UserPermission
+    },
+    UserDetails:{
+        screen:UserDetails
     }
 },{
     contentComponent:CustomDrawer,

@@ -1,5 +1,6 @@
 import React from 'react'
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet,TouchableOpacity } from 'react-native';
+
 
 class RadioBtn extends React.Component{
     constructor()
@@ -10,7 +11,7 @@ class RadioBtn extends React.Component{
     render()
     {
         return(
-            <View style={style.RBContainer}>
+            <View style={{...style.RBContainer,...this.props.style}}>
                <View style={style.RadioButtonOuter}>
                    <View style={this.props.Selected ? style.RBSelected:{}}>
                       

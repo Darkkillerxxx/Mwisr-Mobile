@@ -52,7 +52,12 @@ class CustomDrawer extends React.Component{
                         {
                             Key:"AssignPackage",
                             Name:"Assign Packages",
-                            isVisible:true
+                            isVisible:true,
+                            info:{
+                                route:null,
+                                UserId:null,
+                                OwnerId:null
+                            }
                         }
                     ],
                     Chevron:true,
@@ -87,6 +92,7 @@ class CustomDrawer extends React.Component{
                             isVisible:true
                         },
                         {
+                            Key:"AddUser",
                             Name:"Add User",
                             isVisible:true
                         }
@@ -243,7 +249,7 @@ class CustomDrawer extends React.Component{
         this.setState({MenuContent:TempMenuContents})
     }
 
-    NavigateToRoute=(Route)=>{
+    NavigateToRoute=(Route,Info)=>{
         if(Route === "LogOut")
         {
             this.props.onSetRoute("")
@@ -255,7 +261,7 @@ class CustomDrawer extends React.Component{
         else
         {
             this.props.onSetRoute(Route)
-            this.props.navigation.navigate(Route)
+            this.props.navigation.navigate(Route,Info === undefined ? null:Info)
         }
     }
 
@@ -275,7 +281,7 @@ class CustomDrawer extends React.Component{
                         <View style={{width:'33.33%',alignItems:'flex-start'}}>
                             {
                                   !data.Chevron ? 
-                                  <TouchableOpacity onPress={()=>data.Key !== undefined ? this.NavigateToRoute(data.Key):null}>
+                                  <TouchableOpacity onPress={()=>data.Key !== undefined ? this.NavigateToRoute(data.Key,data.info):null}>
                                         <NormalText style={{color:'white',fontSize:14}}>{data.Name}</NormalText>
                                    </TouchableOpacity>:
                                    <NormalText style={{color:'white',fontSize:14}}>{data.Name}</NormalText>
@@ -299,7 +305,7 @@ class CustomDrawer extends React.Component{
                                 <View key={index} style={{width:'80%',alignItems:'flex-end'}}>
                                     <TouchableOpacity onPress={()=>{
                                         data.Key !== undefined ? 
-                                        this.NavigateToRoute(data.Key)
+                                        this.NavigateToRoute(data.Key,data.info)
                                         :null
                                         }}>
                                         <NormalText style={{color:`${this.props.routeState === data.Key ? "yellow":"white"}`,fontSize:14,textAlign:'left'}}>{data.Name}</NormalText>
