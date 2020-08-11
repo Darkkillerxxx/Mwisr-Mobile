@@ -130,7 +130,7 @@ class AssignPackage extends React.Component{
     Inititialize=()=>{
         const {UserId,OwnerId,route}=this.props.navigation.state.params
         console.log("Route",route)
-        if(route === 2)
+        if(route === 2 || route === 3)
          {
                 this.setState({SelectedUser:UserId},()=>{
                     this.setState({AssignPart:1},()=>{
@@ -287,11 +287,15 @@ class AssignPackage extends React.Component{
             if(result.IsSuccess)
             {
                 this.setState({ButtonLoading:false})
-                  this.props.navigation.navigate('PackagePermission',{
-                    RouteNo:1,
-                    SelectedUser:this.state.SelectedUser,
-                    OwnerId:null
-                })
+                ToastAndroid.show("Packages Assigned",ToastAndroid.SHORT)
+                if(this.props.navigation.state.params.route !==3)
+                {
+                    this.props.navigation.navigate('PackagePermission',{
+                        RouteNo:1,
+                        SelectedUser:this.state.SelectedUser,
+                        OwnerId:null
+                    })
+                } 
             }
             else
             {

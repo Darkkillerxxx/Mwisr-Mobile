@@ -1,5 +1,5 @@
 import React from 'react'
-import { View,StyleSheet, ScrollView,Picker, TextInput,TouchableOpacity,Switch,ToastAndroid } from 'react-native'
+import { View,StyleSheet, ScrollView,Picker, TextInput,TouchableOpacity,Switch,ToastAndroid,ActivityIndicator} from 'react-native'
 import Container from '../../Components/Container';
 import Card from '../../Components/Card';
 import NormalText from '../../Components/NormalText';
@@ -32,7 +32,8 @@ class AddUser extends React.Component{
             SelectedSegments:[],
             SelectedAreas:[],
             SelectedDuration:[],
-            ErrorCode:0
+            ErrorCode:0,
+            ButtonLoad:false
         }
     }
 
@@ -119,6 +120,7 @@ class AddUser extends React.Component{
        
         if(this.validation())
         {
+            this.setState({ButtonLoad:true})
             this.setState({ErrorCode:0})
             let payload = {
                 ForOwnerId: SuperOwnerId,
@@ -138,14 +140,24 @@ class AddUser extends React.Component{
                 TradingDuration: this.state.SelectedDuration.toString()
               };
     
+              console.log("Customer Add Payload",payload);
               add_user(AuthHeader,payload).then(result=>{
                 console.log(result); 
                 if(result.Success)
                   {
+                    this.setState({ButtonLoad:false})
                       ToastAndroid.show("User Added",ToastAndroid.SHORT)
                       if(this.state.SelectedUserType !== 7)
                       {
                         this.props.navigation.navigate("UserPermission",{
+                            UserId:result.Id,
+                            OwnerId:this.state.SelectedOwner
+                          })
+                      }
+                      else
+                      {
+                        this.props.navigation.navigate("AssignPackage",{
+                            route:3,
                             UserId:result.Id,
                             OwnerId:this.state.SelectedOwner
                           })
@@ -160,8 +172,6 @@ class AddUser extends React.Component{
     }
 
     validation=()=>{
-        if(this.state.SelectedUserType !== 7)
-        {
             if(this.state.FirstName.length <= 3)
             {
                 this.setState({ErrorCode:1})
@@ -178,8 +188,37 @@ class AddUser extends React.Component{
                 return false
             }
 
-            return true
-        }
+            if(this.state.SelectedUserType === 7)
+            {
+               if(this.state.Investment === 0 || this.state.Investment < 100000)
+               {
+                 this.setState({ErrorCode:4})
+                 return false
+               }
+               else if(this.state.SelectedSegments.length === 0)
+               {
+                 this.setState({ErrorCode:5})
+                 return false
+               }
+               else if(this.state.SelectedAreas.length === 0)
+               {
+                 this.setState({ErrorCode:6})
+                 return false
+               }
+               else if(this.state.SelectedDuration.length === 0)
+               {
+                 this.setState({ErrorCode:7})
+                 return false
+               }
+               else
+               {
+                 return true
+               }
+            }
+            else
+            {
+                return true
+            }
     }
 
 
@@ -224,15 +263,17 @@ class AddUser extends React.Component{
                             <TextInput placeholder='Last Name'  onChangeText={(e) => this.setState({LastName:e})}/>
                         </View>
 
-                        {this.state.SelectedUserType !== 7 ? 
                         <View style={{width:'100%'}}>
                             <NormalText style={{marginVertical:15,color:`${this.state.ErrorCode === 3 ? 'red':'black'}`}}>{this.state.ErrorCode === 3 ? "Contact No Should be Valid" :"(*) Contact No."}</NormalText>
                             <View style={styles.CustomTextInputs}>
                                 <TextInput placeholder='Contact No.' keyboardType='phone-pad' onChangeText={(e) => this.setState({Contact:e})}  />
                             </View>
-                        </View>:
+                        </View>
+
+                        {this.state.SelectedUserType === 7 ? 
+                      
                         <View style={{width:'100%'}}>
-                                <NormalText style={{marginVertical:15,color:'black'}}>(*) Contact No. 1</NormalText>
+                                <NormalText style={{marginVertical:15,color:'black'}}>Contact No. 1</NormalText>
                                 <View style={styles.CustomTextInputs}>
                                     <TextInput placeholder='Contact No 1' keyboardType='phone-pad' onChangeText={(e) => this.setState({Contact1:e})}  />
                                 </View>
@@ -252,9 +293,9 @@ class AddUser extends React.Component{
                                     value={this.state.isTrial}
                                 />
 
-                                    <NormalText style={{marginVertical:15,color:'black'}}>(*) Investment Amount</NormalText>
+                                    <NormalText style={{marginVertical:15,color:`${this.state.ErrorCode === 4 ? 'red':'black'}`}}>{this.state.ErrorCode === 4 ? "Investment Should be Above 1,00,000 Rs" :"(*) Contact No."}</NormalText>
                                     <View style={styles.CustomTextInputs}>
-                                        <TextInput placeholder='Investment Amount' keyboardType='phone-pad' onChangeText={(e) => this.setState({Investment:e})}  />
+                                        <TextInput placeholder='Investment Amount' keyboardType='phone-pad' onChangeText={(e) => this.setState({Investment:e})} />
                                     </View>
 
                                     {this.state.isTrial ? 
@@ -265,7 +306,7 @@ class AddUser extends React.Component{
                                                 date={this.state.Date}
                                                 mode="date"
                                                 placeholder="select date"
-                                                format="DD-MM-YYYY"
+                                                format="YYYY-MM-DD"
                                                 minDate="01-05-2016"
                                                 maxDate="01-05-2025"
                                                 confirmBtnText="Confirm"
@@ -288,11 +329,11 @@ class AddUser extends React.Component{
                                                     borderRadius:5
                                                 }
                                                 }}
-                                                onDateChange={(date) => this.onChangeDate(date,this.props.Package.PackageId)}
+                                                onDateChange={(date) => this.setState({Date: date})}
                                             />
                                         </View>:null}
                                         
-                                        <NormalText style={{marginVertical:15,color:'black'}}>(*) Segments</NormalText>
+                                        <NormalText style={{marginVertical:15,color:`${this.state.ErrorCode === 5 ? 'red':'black'}`}}>{this.state.ErrorCode === 5 ? "Should Select Atleast One Segment" :"(*) Select Segments."}</NormalText>
                                         <View style={{width:'100%',flexDirection:'row'}}>        
                                             <View style={styles.CheckboxContainer}>
                                                 <Checkbox 
@@ -324,7 +365,7 @@ class AddUser extends React.Component{
                                             </View>
                                         </View>
 
-                                        <NormalText style={{marginVertical:15,color:'black'}}>(*) Intrested Areas</NormalText>
+                                        <NormalText style={{marginVertical:15,color:`${this.state.ErrorCode === 6 ? 'red':'black'}`}}>{this.state.ErrorCode === 7 ? "Should Select Atleast One Area" :"(*) Select Interested Areas"}</NormalText>
                                         <View style={{width:'100%',flexDirection:'row'}}>        
                                             <View style={styles.CheckboxContainer}>
                                                 <Checkbox 
@@ -356,7 +397,7 @@ class AddUser extends React.Component{
                                             </View>
                                         </View>
 
-                                        <NormalText style={{marginVertical:15,color:'black'}}>(*) Durations</NormalText>
+                                        <NormalText style={{marginVertical:15,color:`${this.state.ErrorCode === 7 ? 'red':'black'}`}}>{this.state.ErrorCode === 7 ? "Should Select Atleast One Duration" :"(*) Duration"}</NormalText>
                                         <View style={{width:'100%',flexDirection:'row'}}>        
                                             <View style={styles.CheckboxContainer}>
                                                 <Checkbox 
@@ -429,12 +470,15 @@ class AddUser extends React.Component{
 
 
                                 </View>
-                        </View>}
+                        </View>:null}
                     </Card>
 
                     <TouchableOpacity style={{paddingBottom:10}} onPress={() => this.onAddUser()}>
                         <CustomButton style={{alignSelf:'center'}}>
-                            <NormalText style={{marginBottom:0,color:'white'}}>Add User</NormalText>
+                            {this.state.ButtonLoad ?
+                                <ActivityIndicator size="small" color="white" />:
+                                <NormalText style={{marginBottom:0,color:'white'}}>Add User</NormalText>
+                            }
                         </CustomButton> 
                     </TouchableOpacity>
                         

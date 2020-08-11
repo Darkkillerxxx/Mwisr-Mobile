@@ -14,11 +14,19 @@ class Sub extends React.Component{
         }
     }
 
+    onUserSelected=(UserId,OwnerId)=>{
+        this.props.navigation.navigate('UserDetails',{
+            UserId:UserId,
+            OwnerId:OwnerId,
+            UserType:2
+        })
+    }
+
     render()
     {
         return(
             <Container style={styles.SubContainer}>
-                <Users UserColor="#16d39a" UserType={2} AuthHeader={this.props.loginState.AuthHeader}/>
+                <Users onSelectUser={this.onUserSelected} UserColor="#16d39a" UserType={2} AuthHeader={this.props.loginState.AuthHeader}/>
             </Container>
         )
     }
