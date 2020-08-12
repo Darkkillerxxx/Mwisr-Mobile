@@ -138,7 +138,7 @@ class Users extends React.Component{
                                 <NormalText style={styles.MobileNo}>+91{itemData.item.MobileNo}</NormalText>
                             </View>
                             <View style={styles.CardTopRightRight}>
-                                <TouchableOpacity onPress={() => this.onUserSelect(itemData.item.UserId,itemData.item.SuperOwnerId)}>
+                                <TouchableOpacity onPress={() => this.onUserSelect(itemData.item.UserId,itemData.item.SuperOwner)}>
                                     <View style={{...styles.PackagesOuter,...{borderColor:this.props.UserColor}}}>
                                         <NormalText style={{...styles.PackageText,...{color:this.props.UserColor}}}>View Profile</NormalText>
                                     </View>

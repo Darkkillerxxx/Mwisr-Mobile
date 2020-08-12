@@ -53,7 +53,7 @@ const styles=StyleSheet.create({
         shadowRadius: 2,  
         elevation: 5,
         justifyContent:'center',
-        alignItems:'center',
+        alignItems:'center'
     },
     CustomCardHeading:{
         width:'100%',

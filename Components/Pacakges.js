@@ -44,7 +44,15 @@ class Packages extends React.Component{
 
     componentDidMount() 
     {
-        this.getPackages("","",this.props.loginState.UserTypeId === 7 ? true:"",this.props.loginState.UserId,this.props.loginState.UserTypeId === 7 ? "":true);
+        if(this.props.UserProfile === false || this.props.UserProfile === undefined)
+        {
+            this.getPackages("","",this.props.loginState.UserTypeId === 7 ? true:"",this.props.loginState.UserId,this.props.loginState.UserTypeId === 7 ? "":true);
+        }
+        else
+        {
+           this.getPackages("","","",this.props.UserId,this.props.createdByMe)
+        }
+        
     }
 
     componentDidUpdate(prevProps,prevState,ss)
@@ -152,7 +160,7 @@ class Packages extends React.Component{
                 this.state.ReceivedPacakgeList.length > 0 ?
                    
                     <FlatList 
-                        keyExtractor={(item, index) => item.PackageId.toString()}
+                        keyExtractor={(item, index) => index.toString()}
                         data={this.state.ReceivedPacakgeList}
                         renderItem={this.PacakgeList}/>
                         : 

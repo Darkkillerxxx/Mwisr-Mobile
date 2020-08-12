@@ -151,7 +151,8 @@ class AddUser extends React.Component{
                       {
                         this.props.navigation.navigate("UserPermission",{
                             UserId:result.Id,
-                            OwnerId:this.state.SelectedOwner
+                            OwnerId:this.state.SelectedOwner,
+                            Route:1
                           })
                       }
                       else
