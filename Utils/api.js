@@ -36,6 +36,8 @@ const endpoint_url={
     AddUser:base_url_wealthyFox+"/AnalystRegistration/AddUser",
     GetUserPermissionSet:base_url_wealthyFox+"/AnalystRegistration/GetUserPermissionSet",
     UpsertUserPermission:base_url_wealthyFox + "/AnalystRegistration/UpsertPermission",
+    GetSubDetail:base_url_wealthyFox+"MwisrQueries/GetSubDetail",
+    GetPackageDetails:base_url_wealthyFox +"AnalystQuery/GetPackageDetail"
 }
 
 /********* Normal Functions **********/
@@ -685,6 +687,20 @@ export function get_user_permission_set(authHeader,payload)
 export function upsert_user_permission(authHeader,payload)
 {
   return apiCall(endpoint_url['UpsertUserPermission'],"POST",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function get_sub_detail(authHeader,payload)
+{
+  return apiCall(endpoint_url['GetSubDetail'],"POST",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function get_pacakge_details(authHeader,payload)
+{
+  return apiCall(endpoint_url['GetPackageDetails'],"GET",payload,authHeader).then(data => {
     return JSON.parse(data)
   }).catch(err => err)
 }

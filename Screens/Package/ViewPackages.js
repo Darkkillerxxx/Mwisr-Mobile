@@ -64,6 +64,15 @@ class ViewPackages extends React.Component{
         }
     }  
 
+    MoveToPackageDetails=(OwnerId,PackageId,PackageName)=>{
+        console.log(OwnerId,PackageId,PackageName)
+        this.props.navigation.navigate("PackageDetails",{
+            OwnerId:OwnerId,
+            PackageId:PackageId,
+            PackageName:PackageName
+        })
+    }
+
  
     ChangeTabs=(Tab)=>{
         this.setState({SelectedTab:Tab})
@@ -132,7 +141,7 @@ class ViewPackages extends React.Component{
                 </View>
 
                 <View style={styles.PackageContainer}> 
-                    <Packages Segments={this.state.Segments} SelectedTab={this.state.SelectedTab} />
+                    <Packages SelectPackage={this.MoveToPackageDetails} Segments={this.state.Segments} SelectedTab={this.state.SelectedTab} />
                 </View>
             </Container>
         )

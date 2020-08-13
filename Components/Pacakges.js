@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, StyleSheet,FlatList,ActivityIndicator,Image } from 'react-native'
+import { View, StyleSheet,FlatList,ActivityIndicator,Image,TouchableOpacity} from 'react-native'
 import { connect }from 'react-redux'
 import {get_packages,getPackageBackColor,getPackageFontColor} from '../Utils/api'
 import {FontAwesome}  from '@expo/vector-icons';
@@ -44,7 +44,15 @@ class Packages extends React.Component{
 
     componentDidMount() 
     {
-        this.getPackages("","",this.props.loginState.UserTypeId === 7 ? true:"",this.props.loginState.UserId,this.props.loginState.UserTypeId === 7 ? "":true);
+        if(this.props.UserProfile === false || this.props.UserProfile === undefined)
+        {
+            this.getPackages("","",this.props.loginState.UserTypeId === 7 ? true:"",this.props.loginState.UserId,this.props.loginState.UserTypeId === 7 ? "":true);
+        }
+        else
+        {
+           this.getPackages("","","",this.props.UserId,this.props.createdByMe)
+        }
+        
     }
 
     componentDidUpdate(prevProps,prevState,ss)
@@ -96,51 +104,57 @@ class Packages extends React.Component{
         return Selected
     }
 
+    onSelectedPackage=(OwnerId,PackageId,PackageName)=>{
+        this.props.SelectPackage(OwnerId,PackageId,PackageName)
+    }
+
     PacakgeList=(itemData)=>{
         return(
-            <Card style={styles.PackageCard}>
-                <View style={{...styles.PackageTopContainer,...{backgroundColor:getPackageBackColor(itemData.item.PackageTypeName)}}}>
-                    <View style={styles.PackageTopLeft}>
-                        <FontAwesome name="dropbox" size={38} color={getPackageFontColor(itemData.item.PackageTypeName)} />
-                        <NormalText style={{color:`${getPackageFontColor(itemData.item.PackageTypeName)}`,marginBottom:0}}>Created By</NormalText>
-                        <NormalText style={{color:`${getPackageFontColor(itemData.item.PackageTypeName)}`}}>{itemData.item.DelegatedUserName}</NormalText>
+            <TouchableOpacity onPress={()=>this.onSelectedPackage(itemData.item.SuperOwnerId,itemData.item.PackageId,itemData.item.PackageName)}>
+                <Card style={styles.PackageCard}>
+                    <View style={{...styles.PackageTopContainer,...{backgroundColor:getPackageBackColor(itemData.item.PackageTypeName)}}}>
+                        <View style={styles.PackageTopLeft}>
+                            <FontAwesome name="dropbox" size={38} color={getPackageFontColor(itemData.item.PackageTypeName)} />
+                            <NormalText style={{color:`${getPackageFontColor(itemData.item.PackageTypeName)}`,marginBottom:0}}>Created By</NormalText>
+                            <NormalText style={{color:`${getPackageFontColor(itemData.item.PackageTypeName)}`}}>{itemData.item.DelegatedUserName}</NormalText>
+                        </View>
+                        <View style={styles.PackageTopRight}>
+                            <NormalText style={{color:`${getPackageFontColor(itemData.item.PackageTypeName)}`,marginBottom:0}}>{itemData.item.PackageName}</NormalText>
+                            <NormalText style={{color:`${getPackageFontColor(itemData.item.PackageTypeName)}`,marginBottom:0}}>{itemData.item.Profit} ₹</NormalText>
+                            <NormalText style={{color:`${getPackageFontColor(itemData.item.PackageTypeName)}`,marginBottom:0}}>{itemData.item.PackageTypeName}</NormalText>
+                        </View>
                     </View>
-                    <View style={styles.PackageTopRight}>
-                        <NormalText style={{color:`${getPackageFontColor(itemData.item.PackageTypeName)}`,marginBottom:0}}>{itemData.item.PackageName}</NormalText>
-                        <NormalText style={{color:`${getPackageFontColor(itemData.item.PackageTypeName)}`,marginBottom:0}}>{itemData.item.Profit} ₹</NormalText>
-                        <NormalText style={{color:`${getPackageFontColor(itemData.item.PackageTypeName)}`,marginBottom:0}}>{itemData.item.PackageTypeName}</NormalText>
+                    <View style={styles.PackageMidContainer}>
+                        <View style={styles.PacakgeMidLeft}>
+                            <NormalText style={{marginBottom:0}}>Total Calls</NormalText>
+                            <NormalText style={{marginBottom:0}}>{itemData.item.TotalCalls}</NormalText>
+                        </View>
+                        <View style={styles.PackageMidRight}>
+                            <NormalText style={{marginBottom:0}}>Total ROI</NormalText>
+                            <NormalText style={{marginBottom:0}}>{itemData.item.AvgROI} %</NormalText>
+                        </View>
                     </View>
-                </View>
-                <View style={styles.PackageMidContainer}>
-                    <View style={styles.PacakgeMidLeft}>
-                        <NormalText style={{marginBottom:0}}>Total Calls</NormalText>
-                        <NormalText style={{marginBottom:0}}>{itemData.item.TotalCalls}</NormalText>
-                    </View>
-                    <View style={styles.PackageMidRight}>
-                        <NormalText style={{marginBottom:0}}>Total ROI</NormalText>
-                        <NormalText style={{marginBottom:0}}>{itemData.item.AvgROI} %</NormalText>
-                    </View>
-                </View>
-                <View style={styles.PackageBottomContainer}>
-                    <View style={styles.PacakgeBottomLeft}>
-                        <View style={styles.PacakgeBottomLeftLeft}>
-                            <NormalText style={{marginBottom:0}}>Risk</NormalText>
-                            <NormalText style={{marginBottom:0}}>{itemData.item.RiskAvg}</NormalText>
+                    <View style={styles.PackageBottomContainer}>
+                        <View style={styles.PacakgeBottomLeft}>
+                            <View style={styles.PacakgeBottomLeftLeft}>
+                                <NormalText style={{marginBottom:0}}>Risk</NormalText>
+                                <NormalText style={{marginBottom:0}}>{itemData.item.RiskAvg}</NormalText>
+                            </View>
+                            <View style={styles.PacakgeBottomRightRight}>
+                                <NormalText style={{marginBottom:0}}>Reward</NormalText>
+                                <NormalText style={{marginBottom:0}}>{itemData.item.RewardAvg}</NormalText>
+                            </View>
                         </View>
                         <View style={styles.PacakgeBottomRightRight}>
-                            <NormalText style={{marginBottom:0}}>Reward</NormalText>
-                            <NormalText style={{marginBottom:0}}>{itemData.item.RewardAvg}</NormalText>
+                            <View style={{width:'100%',flexDirection:'row',justifyContent:'space-between',paddingHorizontal:5}}>
+                                <NormalText style={{marginBottom:5}}>Accuracy</NormalText>
+                                <NormalText style={{marginBottom:5}}>{itemData.item.Accuracy} %</NormalText>
+                            </View>
+                            <Progress.Bar progress={itemData.item.Accuracy / 100} color={getPackageFontColor(itemData.item.PackageTypeName)}/>
                         </View>
                     </View>
-                    <View style={styles.PacakgeBottomRightRight}>
-                        <View style={{width:'100%',flexDirection:'row',justifyContent:'space-between',paddingHorizontal:5}}>
-                            <NormalText style={{marginBottom:5}}>Accuracy</NormalText>
-                            <NormalText style={{marginBottom:5}}>{itemData.item.Accuracy} %</NormalText>
-                        </View>
-                        <Progress.Bar progress={itemData.item.Accuracy / 100} color={getPackageFontColor(itemData.item.PackageTypeName)}/>
-                    </View>
-                </View>
-            </Card>
+                </Card>
+            </TouchableOpacity>
         )
     }
 
@@ -152,7 +166,7 @@ class Packages extends React.Component{
                 this.state.ReceivedPacakgeList.length > 0 ?
                    
                     <FlatList 
-                        keyExtractor={(item, index) => item.PackageId.toString()}
+                        keyExtractor={(item, index) => index.toString()}
                         data={this.state.ReceivedPacakgeList}
                         renderItem={this.PacakgeList}/>
                         : 

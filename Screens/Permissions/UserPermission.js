@@ -126,11 +126,14 @@ class UserPermission extends React.Component{
                 {
                     const {UserId,OwnerId}=this.props.navigation.state.params
                     ToastAndroid.show("Permissions Assigned",ToastAndroid.SHORT)
-                    this.props.navigation.navigate('AssignPackage',{
-                        route:2,
-                        UserId:UserId,
-                        OwnerId:OwnerId
-                    })
+                    if(this.props.navigation.state.params.Route === 1)
+                    {
+                        this.props.navigation.navigate('AssignPackage',{
+                            route:2,
+                            UserId:UserId,
+                            OwnerId:OwnerId
+                        })
+                    }
                 }
                 else
                 {
