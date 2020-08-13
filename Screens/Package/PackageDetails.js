@@ -34,6 +34,7 @@ class PackageDetails extends React.Component{
         })
     }
 
+    //////
     render(){
         
         return(
