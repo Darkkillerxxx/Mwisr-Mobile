@@ -14,11 +14,21 @@ class Analyst extends React.Component{
         }
     }
 
+    
+    onUserSelected=(UserId,OwnerId)=>{
+        this.props.navigation.navigate('UserDetails',{
+            UserId:UserId,
+            OwnerId:OwnerId,
+            UserType:6,
+            UserColor:"#1890ff"
+        })
+    }
+
     render()
     {
         return(
             <Container style={styles.SubContainer}>
-                <Users UserColor="#1890ff" UserType={6} AuthHeader={this.props.loginState.AuthHeader}/>
+                <Users onSelectUser={this.onUserSelected} UserColor="#1890ff" UserType={6} AuthHeader={this.props.loginState.AuthHeader}/>
             </Container>
         )
     }

@@ -173,7 +173,7 @@ const styles=StyleSheet.create({
         marginBottom:0
     },
     ProfitContainer:{
-        width:'25%',
+        width:'22%',
         marginLeft:5,
         alignItems:'center',
         justifyContent:'space-evenly'

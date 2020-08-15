@@ -9,6 +9,7 @@ import {get_sub_list} from '../Utils/api'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import UsersFilter from '../Components/UsersFilter'
 import UserFilter from '../Components/UsersFilter'
+import {NavigationEvents} from 'react-navigation'
 
 class Users extends React.Component{
     constructor()
@@ -26,8 +27,14 @@ class Users extends React.Component{
         }
     }
 
-    componentDidMount()
-    {   
+    componentDidMount(){
+        if(this.props.Type === 2)
+        {
+            this.fetchUsers()
+        }
+    }
+
+    fetchUsers=()=>{
         this.setState({isLoading:true})
         get_sub_list(null,this.props.UserType,true,this.props.AuthHeader).then(result=>{
             if(result.IsSuccess)
@@ -186,6 +193,7 @@ class Users extends React.Component{
         console.log(this.state.Filter)
         return(
             <View style={styles.UserContainer}>
+                <NavigationEvents onDidFocus={()=> this.fetchUsers()}/>
                <View style={{width:'100%',height:50,alignItems:'flex-end',paddingHorizontal:10,justifyContent:'flex-end'}}>
                     <TouchableOpacity onPress={()=>this.setState({ShowFilters:!this.state.ShowFilters})}>
                         <View style={{flexDirection:'row',width:100,justifyContent:'space-evenly',borderRadius:5,padding:5,backgroundColor:this.props.UserColor,elevation:1}}>
@@ -204,8 +212,6 @@ class Users extends React.Component{
                          <View style={{flex:1,alignSelf:'stretch',alignItems:'center',justifyContent:'center'}}>
                              <ActivityIndicator size="large" color={this.props.UserColor} />
                         </View>  
-                        
-
                 }
 
             

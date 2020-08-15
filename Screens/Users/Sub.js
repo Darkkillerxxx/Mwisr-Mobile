@@ -18,7 +18,8 @@ class Sub extends React.Component{
         this.props.navigation.navigate('UserDetails',{
             UserId:UserId,
             OwnerId:OwnerId,
-            UserType:2
+            UserType:2,
+            UserColor:"#16d39a"
         })
     }
 

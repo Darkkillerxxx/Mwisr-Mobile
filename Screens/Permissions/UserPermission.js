@@ -1,5 +1,5 @@
 import React from 'react';
-import { View,StyleSheet,FlatList,ScrollView, TouchableOpacity,ToastAndroid } from 'react-native';
+import { View,StyleSheet,FlatList,ScrollView, TouchableOpacity,ToastAndroid,ActivityIndicator } from 'react-native';
 import {NavigationEvents} from 'react-navigation'
 import {get_user_permission_set,upsert_user_permission} from '../../Utils/api'
 import { connect }from 'react-redux'
@@ -14,12 +14,15 @@ class UserPermission extends React.Component{
     constructor(){
         super()
         this.state={
-            ReceivedPermissions:[]
+            ReceivedPermissions:[],
+            ButtonLoader:false,
+            isLoading:false
         }
     }
 
 
     onInitialize=()=>{
+        this.setState({isLoading:true})
         const {AuthHeader}=this.props.loginState
         const {UserId,OwnerId}=this.props.navigation.state.params
         let payload={
@@ -30,10 +33,13 @@ class UserPermission extends React.Component{
         get_user_permission_set(AuthHeader,payload).then(res => {
             if(res.IsSuccess)
             {
-                this.setState({ReceivedPermissions:res.Data})
+                this.setState({ReceivedPermissions:res.Data},()=>{
+                    this.setState({isLoading:false})
+                })
             }
             else
             {
+                this.setState({isLoading:false})
                 ToastAndroid.show("Error Showing Permissions",ToastAndroid.SHORT)
             }
         })
@@ -98,6 +104,7 @@ class UserPermission extends React.Component{
         }
 
     onApplyPermissions=()=>{
+        this.setState({ButtonLoading:true})
         let finalPayload=[]
         this.state.ReceivedPermissions.forEach(element => {
             let samplePayload={
@@ -119,60 +126,57 @@ class UserPermission extends React.Component{
             "Limit": 100
             }
             finalPayload.push(samplePayload)
-
-
-            upsert_user_permission(this.props.loginState.AuthHeader,finalPayload).then(result=>{
-                if(result.IsSuccess)
-                {
-                    const {UserId,OwnerId}=this.props.navigation.state.params
-                    ToastAndroid.show("Permissions Assigned",ToastAndroid.SHORT)
-                    if(this.props.navigation.state.params.Route === 1)
-                    {
-                        this.props.navigation.navigate('AssignPackage',{
-                            route:2,
-                            UserId:UserId,
-                            OwnerId:OwnerId
-                        })
-                    }
-                }
-                else
-                {
-                    ToastAndroid.show("Error Assigning Permissions",ToastAndroid.SHORT)
-                }
-            })
-
         });
+        upsert_user_permission(this.props.loginState.AuthHeader,finalPayload).then(result=>{
+            if(result.IsSuccess)
+            {
+                this.setState({ButtonLoading:false})
+                const {UserId,OwnerId}=this.props.navigation.state.params
+                ToastAndroid.show("Permissions Assigned",ToastAndroid.SHORT)
+                if(this.props.navigation.state.params.Route === 1)
+                {
+                    this.props.navigation.navigate('AssignPackage',{
+                        route:2,
+                        UserId:UserId,
+                        OwnerId:OwnerId
+                    })
+                }
+            }
+            else
+            {
+                this.setState({ButtonLoading:false})
+                ToastAndroid.show("Error Assigning Permissions",ToastAndroid.SHORT)
+            }
+        })
     }
       
-
-
     render() {
         let ShowPermissionCards=this.state.ReceivedPermissions.map((result,index)=>{
             return(
-                <CollapsibleCard style={styles.CustomCollapsible} Heading={`${result.GroupName} Permission`}>
+                <CollapsibleCard key={index} style={styles.CustomCollapsible} Heading={`${result.GroupName} Permission`}>
                     <View style={styles.CardContent}>
                         <NormalText style={{marginBottom:0,color:'black'}}>{`Access to ${result.OwnerName} ${result.GroupName}`}</NormalText>
                         {result.PossibleStates !== 1 ? 
                         <View style={styles.CardOptions}>
                             <MwisrSelector value={`${index},${1},${1}`} onSelect={this.onChangePermissions} Text={'Manage & View'} Selected={result.CanManageOnlyOwn ? true:false}/>
-                            <MwisrSelector value={`${index},${1},${2}`} onSelect={this.onChangePermissions} Text={'View'} Selected={!result.CanManageOnlyOwn && result.CanViewOnlyOwn  ? true:false}/>
+                            <MwisrSelector value={`${index},${1},${2}`} onSelect={this.onChangePermissions} Text={'View Only'} Selected={!result.CanManageOnlyOwn && result.CanViewOnlyOwn  ? true:false}/>
                             <MwisrSelector value={`${index},${1},${3}`} onSelect={this.onChangePermissions} Text={'None'} Selected={!result.CanManageOnlyOwn && !result.CanViewOnlyOwn ? true:false}/>
                         </View>:
                         <View style={styles.CardOptions}>
-                            <MwisrSelector value={`${index},${1},${1}`} onSelect={this.onChangePermissions} Text={'Yes'} Selected={!result.CanManageOnlyOwn && result.CanViewOnlyOwn  || result.CanManageOnlyOwn ? true:false}/>
-                            <MwisrSelector value={`${index},${1},${3}`} onSelect={this.onChangePermissions} Text={'No'} Selected={!result.CanManageOnlyOwn && result.CanViewOnlyOwn  ? true:false}/>
+                            <MwisrSelector value={`${index},${1},${1}`} onSelect={this.onChangePermissions} Text={result.GroupName === "MIS" ?  'View Only':'Yes'} Selected={!result.CanManageOnlyOwn && result.CanViewOnlyOwn  || result.CanManageOnlyOwn ? true:false}/>
+                            <MwisrSelector value={`${index},${1},${3}`} onSelect={this.onChangePermissions} Text={result.GroupName === "MIS" ?  'None':'No'} Selected={!result.CanManageOnlyOwn && result.CanViewOnlyOwn  ? true:false}/>
                         </View>}
 
                         <NormalText style={{marginBottom:0,color:'black'}}>{`Access to ${result.UserName} ${result.GroupName}`}</NormalText>
                         {result.PossibleStates !== 1 ? 
                         <View style={styles.CardOptions}>
                             <MwisrSelector value={`${index},${0},${1}`} onSelect={this.onChangePermissions}  Text={'Manage & View'} Selected={result.CanManage ? true:false}/>
-                            <MwisrSelector value={`${index},${0},${2}`} onSelect={this.onChangePermissions} Text={'View'} Selected={!result.CanManage && result.CanView ? true:false}/>
+                            <MwisrSelector value={`${index},${0},${2}`} onSelect={this.onChangePermissions} Text={'View Only'} Selected={!result.CanManage && result.CanView ? true:false}/>
                             <MwisrSelector value={`${index},${0},${3}`} onSelect={this.onChangePermissions} Text={'None'} Selected={!result.CanManage && !result.CanView ? true:false}/>
                         </View>:
                         <View style={styles.CardOptions}>
-                            <MwisrSelector value={`${index},${0},${1}`} onSelect={this.onChangePermissions} Text={'Yes'} Selected={!result.CanManage && result.CanView  || result.CanManage ? true:false}/>
-                            <MwisrSelector value={`${index},${0},${3}`} onSelect={this.onChangePermissions} Text={'No'} Selected={!result.CanManage && !result.CanView  ? true:false}/>
+                            <MwisrSelector value={`${index},${0},${1}`} onSelect={this.onChangePermissions} Text={result.GroupName === "MIS" ?  'View Only':'Yes'} Selected={!result.CanManage && result.CanView  || result.CanManage ? true:false}/>
+                            <MwisrSelector value={`${index},${0},${3}`} onSelect={this.onChangePermissions} Text={result.GroupName === "MIS" ?  'None':'No'} Selected={!result.CanManage && !result.CanView  ? true:false}/>
                         </View>
                         }
                     </View>
@@ -183,13 +187,22 @@ class UserPermission extends React.Component{
         return(
           <Container>
               <NavigationEvents onDidFocus={()=> this.onInitialize()}/>
-              <ScrollView>
-                {ShowPermissionCards}
+              <ScrollView style={{height:'100%'}}>
+                  {this.state.isLoading ?
+                    // <View style={{height:'100%',width:'100%',alignItems:'center',justifyContent:'center'}}>
+                    //     <ActivityIndicator size="large" color="#F0B22A" />
+                    // </View>
+                    null
+                    : 
+                    ShowPermissionCards}
               </ScrollView>
               <View style={styles.ButtonContainer}>
                     <TouchableOpacity onPress={()=>this.onApplyPermissions()} style={{width:300}}>
                         <CustomButton style={{alignSelf:'center'}}>
-                            <NormalText style={{marginBottom:0,color:'white'}}>Apply Permissions</NormalText>
+                            {this.state.ButtonLoading ? 
+                            <ActivityIndicator size="small" color="white" /> 
+                                :
+                            <NormalText style={{marginBottom:0,color:'white'}}>Apply Permissions</NormalText>}
                         </CustomButton>
                     </TouchableOpacity>
               </View>

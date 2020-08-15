@@ -38,7 +38,22 @@ class AddUser extends React.Component{
     }
 
     onSelectorChange=(id)=>{
-        this.setState({SelectedUserType:id})
+        this.setState({SelectedUserType:id},()=>{
+            this.setState({ 
+                FirstName:'',
+                LastName:'',
+                Contact:'',
+                Contact1:'',
+                Contact2:'',
+                isTrial:false,
+                Investment:null,
+                Date:'2030-02-28',
+                SelectedSegments:[],
+                SelectedAreas:[],
+                SelectedDuration:[],
+                ErrorCode:0,
+                ButtonLoad:false})
+        })
     }
 
     onInitialize=()=>{
@@ -166,6 +181,7 @@ class AddUser extends React.Component{
                   }
                   else
                   {
+                    this.setState({ButtonLoad:false})
                     ToastAndroid.show(result.DisplayMsg,ToastAndroid.SHORT)
                   }
               })
@@ -255,19 +271,19 @@ class AddUser extends React.Component{
 
                         <NormalText style={{marginVertical:15,color:`${this.state.ErrorCode === 1 ? 'red':'black'}`}}>{this.state.ErrorCode === 1 ? "First Name Should Be Valid" :"(*) First Name"}</NormalText>
                         <View style={styles.CustomTextInputs}>
-                            <TextInput placeholder='First Name' onChangeText={(e)=>this.setState({FirstName:e})}  />
+                            <TextInput value={this.state.FirstName} placeholder='First Name' onChangeText={(e)=>this.setState({FirstName:e})}  />
                         </View>
 
                         
                         <NormalText style={{marginVertical:15,color:`${this.state.ErrorCode === 2 ? 'red':'black'}`}}>{this.state.ErrorCode === 2 ? "Last Name Should Be Valid" :"(*) Last Name"}</NormalText>
                         <View style={styles.CustomTextInputs}>
-                            <TextInput placeholder='Last Name'  onChangeText={(e) => this.setState({LastName:e})}/>
+                            <TextInput placeholder='Last Name' value={this.state.LastName} onChangeText={(e) => this.setState({LastName:e})}/>
                         </View>
 
                         <View style={{width:'100%'}}>
                             <NormalText style={{marginVertical:15,color:`${this.state.ErrorCode === 3 ? 'red':'black'}`}}>{this.state.ErrorCode === 3 ? "Contact No Should be Valid" :"(*) Contact No."}</NormalText>
                             <View style={styles.CustomTextInputs}>
-                                <TextInput placeholder='Contact No.' keyboardType='phone-pad' onChangeText={(e) => this.setState({Contact:e})}  />
+                                <TextInput placeholder='Contact No.' value={this.state.Contact} keyboardType='phone-pad' onChangeText={(e) => this.setState({Contact:e})}  />
                             </View>
                         </View>
 
@@ -276,12 +292,12 @@ class AddUser extends React.Component{
                         <View style={{width:'100%'}}>
                                 <NormalText style={{marginVertical:15,color:'black'}}>Contact No. 1</NormalText>
                                 <View style={styles.CustomTextInputs}>
-                                    <TextInput placeholder='Contact No 1' keyboardType='phone-pad' onChangeText={(e) => this.setState({Contact1:e})}  />
+                                    <TextInput placeholder='Contact No 1' keyboardType='phone-pad' value={this.state.Contact1} onChangeText={(e) => this.setState({Contact1:e})}  />
                                 </View>
 
                                 <NormalText style={{marginVertical:15,color:'black'}}>Contact No. 2</NormalText>
                                 <View style={styles.CustomTextInputs}>
-                                    <TextInput placeholder='Contact No 2' keyboardType='phone-pad' onChangeText={(e) => this.setState({Contact2:e})}  />
+                                    <TextInput placeholder='Contact No 2' keyboardType='phone-pad' value={this.state.Contact2} onChangeText={(e) => this.setState({Contact2:e})}  />
                                 </View>
 
                                 <NormalText style={{marginVertical:15,color:'black'}}>Is Customer on Trial ? </NormalText>
@@ -296,7 +312,7 @@ class AddUser extends React.Component{
 
                                     <NormalText style={{marginVertical:15,color:`${this.state.ErrorCode === 4 ? 'red':'black'}`}}>{this.state.ErrorCode === 4 ? "Investment Should be Above 1,00,000 Rs" :"(*) Contact No."}</NormalText>
                                     <View style={styles.CustomTextInputs}>
-                                        <TextInput placeholder='Investment Amount' keyboardType='phone-pad' onChangeText={(e) => this.setState({Investment:e})} />
+                                        <TextInput placeholder='Investment Amount' keyboardType='phone-pad' value={this.state.Investment} onChangeText={(e) => this.setState({Investment:e})} />
                                     </View>
 
                                     {this.state.isTrial ? 
@@ -308,8 +324,8 @@ class AddUser extends React.Component{
                                                 mode="date"
                                                 placeholder="select date"
                                                 format="YYYY-MM-DD"
-                                                minDate="01-05-2016"
-                                                maxDate="01-05-2025"
+                                                minDate="2016-05-01"
+                                                maxDate="2025-01-05"
                                                 confirmBtnText="Confirm"
                                                 cancelBtnText="Cancel"
                                                 customStyles={{

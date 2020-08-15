@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, StyleSheet,Picker, ScrollView, FlatList,TouchableOpacity,ToastAndroid} from 'react-native'
+import { View, StyleSheet,Picker, ScrollView, FlatList,TouchableOpacity,ToastAndroid,ActivityIndicator} from 'react-native'
 import Container from '../../Components/Container'
 import NormalText from '../../Components/NormalText'
 import CollapsibleCard from '../../Components/CollapsibleCard'
@@ -89,7 +89,8 @@ class PackagePermission extends React.Component{
               PackagePermissionStatus:1,
               ShowOwnerContactDetails:true,
               SelectedPackage:null,
-              AssignedPackages:[]
+              AssignedPackages:[],
+              ButtonLoader:false
         }
         console.disableYellowBox = true
     }
@@ -162,22 +163,24 @@ class PackagePermission extends React.Component{
     }
 
     ApplyPackagePermission=(payload)=>{
-        console.log("In 3")
+        this.setState({ButtonLoader:true})
         upsert_package_permisssion(this.props.loginState.AuthHeader,payload).then(result => {
             console.log(result);
             if(result.IsSuccess)
             {
-                console.log(result.Data)
+                this.setState({ButtonLoader:false});
                 ToastAndroid.show("Permissioned Assigned",ToastAndroid.SHORT)
             }
             else
             {
+                this.setState({ButtonLoader:false});
                 ToastAndroid.show("Error Assigning Permissions",ToastAndroid.SHORT)
             }
         })
     }
 
     onSubmitPermissions=()=>{
+        this.setState({ButtonLoader:true})
        const {RouteNo,SelectedUser}=this.props.navigation.state.params
         if(RouteNo === 1)
         {
@@ -383,7 +386,9 @@ class PackagePermission extends React.Component{
                 <View style={styles.ApplyPermissionsContainer}>
                     <TouchableOpacity onPress={()=>this.onSubmitPermissions()}>
                         <CustomButton style={{width:250}}> 
-                            <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Apply Permissions</NormalText>
+                        {this.state.ButtonLoader ? 
+                            <ActivityIndicator size="small" color="white" />
+                            :<NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Apply Permissions</NormalText>}
                         </CustomButton>
                     </TouchableOpacity>
                 </View>

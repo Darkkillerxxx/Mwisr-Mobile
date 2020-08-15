@@ -1,5 +1,5 @@
 import React from 'react';
-import { View,StyleSheet,TouchableOpacity, ScrollView,Image,FlatList } from 'react-native';
+import { View,StyleSheet,TouchableOpacity, ScrollView,Image,FlatList,ActivityIndicator} from 'react-native';
 import Container from '../../Components/Container';
 import NormalText from '../../Components/NormalText';
 import { connect }from 'react-redux'
@@ -67,6 +67,12 @@ class UserDetails extends React.Component {
         })
     }
 
+    resetDetails=()=>{
+        this.setState({SelectedTab:"",
+                       UserDetails:[],
+                       Reports:[]})
+    }
+
     ShowReports=(itemData)=>{
         return(
             <ReportsCard report={itemData.item}/>
@@ -85,19 +91,19 @@ class UserDetails extends React.Component {
     {
         return(
            <Container style={styles.CustomContainer}>
-               <NavigationEvents onDidFocus={() => this.onInitialize()}/>
+               <NavigationEvents onDidFocus={() => this.onInitialize()} onDidBlur={()=>this.resetDetails()}/>
                <View style={styles.ProfileHeading}>
                     {this.state.UserDetails.length > 0 ? 
                     <View style={{width:'100%',height:125,flexDirection:'row',alignItems:'center',paddingHorizontal:10}}>
                         <View style={{width:'30%',alignItems:'flex-start',justifyContent:'center'}}>
                             <View>
-                                <NormalText style={{...styles.AccuracyNo,...{backgroundColor:"#16d39a"}}}>{parseInt(this.state.UserDetails[0].Accuracy)}</NormalText>
+                                <NormalText style={{...styles.AccuracyNo,...{backgroundColor:this.props.navigation.state.params.UserColor}}}>{parseInt(this.state.UserDetails[0].Accuracy)}</NormalText>
                             </View>
                             <AnimatedCircularProgress
                                 size={80}
                                 width={5}
                                 fill={parseInt(this.state.UserDetails[0].Accuracy)}
-                                tintColor={"#16d39a"}
+                                tintColor={this.props.navigation.state.params.UserColor}
                                 onAnimationComplete={() =>{}}
                                 backgroundColor="white"
                                 rotation={180}>
@@ -107,7 +113,7 @@ class UserDetails extends React.Component {
                                         )
                                     }
                             </AnimatedCircularProgress>
-                            <NormalText style={{...styles.AccuracyText,...{backgroundColor:"#16d39a"}}}>Accuracy</NormalText>
+                            <NormalText style={{...styles.AccuracyText,...{backgroundColor:this.props.navigation.state.params.UserColor}}}>Accuracy</NormalText>
                         </View>
                         <View style={{width:'70%'}}>
                             <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>{this.state.UserDetails[0].Name}</NormalText>
@@ -124,7 +130,11 @@ class UserDetails extends React.Component {
                                 </CustomButton>    
                             </View>
                         </View>
-                    </View>:null}
+                    </View>:
+                    <View style={{height:'100%',width:'100%',align:'center',justifyContent:'center'}}>
+                        <ActivityIndicator size="large" color="white" />
+                    </View>   
+                    }
                     {this.state.UserDetails.length > 0 ? 
                     <View style={{width:'100%',height:75,borderWidth:1,borderColor:'#25395D',flexDirection:'row'}}>
                         <View style={{width:'33%',alignItems:'center',justifyContent:'center'}}>
@@ -263,20 +273,23 @@ class UserDetails extends React.Component {
                                     </View>
                                 </View>
                             </CollapsibleCard>
-                        </ScrollView>:null
+                        </ScrollView>:
+                        <View style={{height:'100%',width:'100%',align:'center',justifyContent:'center'}}>
+                            <ActivityIndicator size="large" color="#F0B22A" />
+                        </View>
                         :
                         this.state.SelectedTab === "2" ? 
-                            <Packages  SelectedTab={"2"} UserProfile={true} UserId={this.props.navigation.state.params.UserId} OwnerId={this.props.navigation.state.params.OwnerId} assignedToMe={false} createdByMe={true} />
+                            <Packages Type={2} SelectedTab={"2"} UserProfile={true} UserId={this.props.navigation.state.params.UserId} OwnerId={this.props.navigation.state.params.OwnerId} assignedToMe={false} createdByMe={true} />
                         :
                         this.state.SelectedTab === "3" ? 
-                            <FlatList 
+                        <FlatList 
                             keyExtractor={(item, index) => index.toString()}
                             data={this.state.Reports}
                             renderItem={this.ShowReports}
                             showsVerticalScrollIndicator={true}/>
                         : 
                         this.state.SelectedTab === "4" ? 
-                            <Users UserColor="#16d39a" UserType={2} AuthHeader={this.props.loginState.AuthHeader}/>       
+                            <Users UserColor="#16d39a" UserType={2} AuthHeader={this.props.loginState.AuthHeader} Type={2}/>       
                         : null}
                 </View>
 

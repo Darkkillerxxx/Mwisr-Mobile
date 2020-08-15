@@ -77,7 +77,6 @@ class PackageDetails extends React.Component{
         )
     }
 
-   
 
    HandleCreatedDate=(date)=>{
     let DateArray=date.split('T')

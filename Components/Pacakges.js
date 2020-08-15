@@ -7,6 +7,7 @@ import NormalText from '../Components/NormalText'
 import BoldText from '../Components/BoldText'
 import * as Progress from 'react-native-progress'; 
 import Card from '../Components/Card'
+import {NavigationEvents} from 'react-navigation'
 
 class Packages extends React.Component{
     constructor()
@@ -42,8 +43,15 @@ class Packages extends React.Component{
         });
       }
 
-    componentDidMount() 
-    {
+      componentDidMount() {
+        if(this.props.Type === 2)
+        {
+            this.fetchPackages()
+        }
+      }
+
+    fetchPackages=()=>{
+        console.log("Hello Packages")
         if(this.props.UserProfile === false || this.props.UserProfile === undefined)
         {
             this.getPackages("","",this.props.loginState.UserTypeId === 7 ? true:"",this.props.loginState.UserId,this.props.loginState.UserTypeId === 7 ? "":true);
@@ -52,7 +60,6 @@ class Packages extends React.Component{
         {
            this.getPackages("","","",this.props.UserId,this.props.createdByMe)
         }
-        
     }
 
     componentDidUpdate(prevProps,prevState,ss)
@@ -161,8 +168,9 @@ class Packages extends React.Component{
     render()
     {
         return(
-            !this.state.isLoading ?
-
+            <View>
+                <NavigationEvents onDidFocus={()=> this.fetchPackages()}/>
+            {!this.state.isLoading ?
                 this.state.ReceivedPacakgeList.length > 0 ?
                    
                     <FlatList 
@@ -171,12 +179,14 @@ class Packages extends React.Component{
                         renderItem={this.PacakgeList}/>
                         : 
                         <View style={{flex:1,width:'100%',alignItems:'center',justifyContent:'center'}}>
-                            <Image source={require('../assets/Images/searching.png')} style={{width:'30%',height:'30%',resizeMode:'contain'}}/>
+                            <Image source={require('../assets/Images/searching.png')} style={{width:125,height:125,resizeMode:'contain'}}/>
                             <NormalText style={{marginTop:10,marginBottom:0,fontSize:16}}>No Packages Were Found</NormalText>
                         </View>
                         :
             
-                        <ActivityIndicator size="large" color="#f5bb18" />
+                        <ActivityIndicator size="large" color="#f5bb18" />}
+            </View>
+
         )
 
     }
