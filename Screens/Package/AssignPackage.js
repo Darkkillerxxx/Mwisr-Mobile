@@ -4,7 +4,7 @@ import Container from '../../Components/Container'
 import NormalText from '../../Components/NormalText'
 import {NavigationEvents} from 'react-navigation';
 import { connect }from 'react-redux'
-import {get_sub_list, assign_Package} from '../../Utils/api'
+import {get_sub_list, assign_Package,verbose} from '../../Utils/api'
 import CustomButton from '../../Components/Button'
 import StepIndicator from 'react-native-step-indicator';
 import {Checkbox} from 'react-native-paper'
@@ -297,7 +297,7 @@ class AssignPackage extends React.Component{
             if(result.IsSuccess)
             {
                 this.setState({ButtonLoading:false})
-                ToastAndroid.show("Packages Assigned",ToastAndroid.SHORT)
+                verbose(true,"Package Assigned","Selected Packages Were Assigned Successfully")
                 if(this.props.navigation.state.params.route !==3)
                 {
                     this.props.navigation.navigate('PackagePermission',{

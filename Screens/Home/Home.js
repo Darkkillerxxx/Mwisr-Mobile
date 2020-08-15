@@ -1,7 +1,7 @@
 import React from 'react'
 import { View,AsyncStorage, StyleSheet,TouchableOpacity} from 'react-native';
 import { connect }from 'react-redux'
-import {login_call, GetAuthHeader,get_calls,ArrangeCalls} from '../../Utils/api.js'
+import {verbose,login_call, GetAuthHeader,get_calls,ArrangeCalls} from '../../Utils/api.js'
 import {setLogin} from '../../store/Actions/ActionLogin'
 import {setMiniDetails} from '../../store/Actions/ActionCallDetails'
 import Container from '../../Components/Container.js';
@@ -16,6 +16,7 @@ class Home extends React.Component{
             SelectedTab:""
         }
     }
+
 
     SelectTab=(Tab)=>{
         this.setState({SelectedTab:Tab})

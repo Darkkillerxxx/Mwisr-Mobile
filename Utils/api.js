@@ -2,7 +2,7 @@ import Convert from "./System/System.Convert";
 import RSA from "./System/System.Security.Cryptography.RSA";
 import Text from "./System/System.Text";
 import store from '../store/store'
-import {setMsg} from '../store/Actions/ActionLogin'
+import {setMsg,setNrmlMsg} from '../store/Actions/ActionLogin'
 
 // store.dispatch(setMsg("This is a Test Message"))
 const base_url_wealthyFox="https://wfanalytics.mwisr.com//api//"
@@ -174,6 +174,18 @@ export let getPackageFontColor=(segment)=>{
   {
     return "#455a64"
   }
+}
+
+export function verbose(isSuccess,Heading,Description)
+{
+    let Msg={
+      isSuccess:isSuccess,
+      Heading:Heading,
+      Description:Description
+    }
+
+    store.dispatch(setNrmlMsg(JSON.stringify(Msg)))
+    
 }
 /**********Normal Functions Ends Here ******/
 
