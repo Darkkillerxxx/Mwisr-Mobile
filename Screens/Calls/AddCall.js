@@ -1,21 +1,31 @@
 import React from 'react'
-import { View,StyleSheet,ScrollView,TouchableOpacity} from 'react-native';
+import { View,StyleSheet,ScrollView,TouchableOpacity,TextInput,FlatList,Picker} from 'react-native';
 import { connect }from 'react-redux'
-import {login_call, GetAuthHeader,CheckWhereToGo} from '../../Utils/api.js'
+import {get_package_addCall,get_similar_package,verbose} from '../../Utils/api.js'
 import {setLogin} from '../../store/Actions/ActionLogin'
 import Container from '../../Components/Container'
 import NormalText from '../../Components/NormalText'
 import MwisrSelector from '../../Components/MwisrSelector'
 import CollapsibleCard from '../../Components/CollapsibleCard'
 import { FontAwesome } from '@expo/vector-icons';
+import Card from '../../Components/Card'
+import CustomButton from '../../Components/Button'
 
 class AddCall extends React.Component{
     constructor()
     {
         super();
         this.state={
-            IsQuickAddCall:true
+            IsQuickAddCall:true,
+            SelectPackagePart:1,
+            PackageSearchText:"",
+            SelectedBasePackageId:null,
+            Packages:[],
+            SelectedPackages:[],
+            SelectedPackageIndex:null,
+            SimilarPackages:[]
         }
+        console.disableYellowBox = true;
     }
 
 
@@ -26,11 +36,70 @@ class AddCall extends React.Component{
 
     componentDidMount()
     {
-
+        get_package_addCall(this.props.loginState.AuthHeader).then(result=>{
+            if(result.IsSuccess)
+            {
+                this.setState({Packages:result.Data})
+            }
+            else
+            {
+                verbose(false,"Error Fetching Packages",result.DisplayMsg)
+            }
+        })
     }
+
+    getSimilarPackage=()=>
+    {
+        let payload={
+            forMarketExchangeCodes:this.state.Packages[this.state.SelectedPackageIndex].ForExchanges,
+            forMarketSegmentId:this.state.Packages[this.state.SelectedPackageIndex].MarketSegmentId
+        }
+
+        get_similar_package(this.props.loginState.AuthHeader,payload).then(result =>{
+            console.log("Similar Package",result)
+            if(result.IsSuccess)
+            {
+                this.setState({SimilarPackages:result.Data})    
+            }
+            else
+            {
+                verbose(false,"Error Fetching Similar Packages",result.DisplayMsg)
+            }
+        })
+    }
+
+    onPackageSelected=(Id)=>{
+        if(this.state.SelectedBasePackageId === null)
+        {
+            let temp=[];
+            temp.push(Id)
+            this.setState({SelectedBasePackageId:Id})
+            this.setState({SelectedPackages:temp})
+        }
+    }
+
+    ChangePackageSearchText=(e)=>{
+        this.setState({PackageSearchText:e})
+    }
+
+   
 
     render()
     {
+        let ShowPackages=this.state.Packages.map((result,index) => {
+            return(
+                result.PackageName.includes(this.state.PackageSearchText) ?
+                <TouchableOpacity style={{width:'100%'}} onPress={()=>this.onPackageSelected(result.PackageId)}>
+                <View style={{flexDirection:'row',width:'100%',padding:5}}>
+                <NormalText style={{width:'85%',color:`${this.state.SelectedPackages.includes(result.PackageId) ? 'grey':'black'}`,marginBottom:0,fontSize:14}}>{result.PackageName}</NormalText>
+                    <View style={{width:'15%',alignItems:'center'}}>
+                        {this.state.SelectedPackages.includes(result.PackageId) ? 
+                        <FontAwesome name="check" size={15} color="grey" />:null}
+                    </View>
+                </View>
+                </TouchableOpacity>:null
+            )
+        })
         return(
             <Container style={styles.CustomContainer}>
                 <ScrollView>
@@ -38,42 +107,56 @@ class AddCall extends React.Component{
                         <MwisrSelector onSelect={this.changeAddCallType} Selected={this.state.IsQuickAddCall ? true: false} Text={'Quick Add Call'} value={true}/>
                         <MwisrSelector onSelect={this.changeAddCallType} Selected={this.state.IsQuickAddCall ? false: true} Text={'Advanced Add Call'} value={false}/>
                     </View>
+                    
+                    {this.state.Packages.length > 0 ? 
+                    <View style={styles.AddContainer}>
+                      
+                            <Card style={styles.CustomCard}>
+                                {this.state.SelectPackagePart === 1 ? 
+                                  <TouchableOpacity style={{width:'100%'}} onPress={()=> this.setState({SelectPackagePart:2})}>
+                                    <View style={styles.SelectPackageContainer}>
+                                        <View style={{width:'15%'}}>
+                                            <FontAwesome name="search" size={20} color="black" />
+                                        </View>   
+                                        <View style={{width:'75%',alignItems:'flex-start'}}>
+                                            <NormalText style={{fontSize:14,marginBottom:0}}>Select A Package ...</NormalText>            
+                                        </View>
+                                        <View style={{width:'10%',alignItems:'center'}}>
+                                            <FontAwesome name="caret-down" size={20} color="black" />    
+                                        </View>
+                                    </View>
+                                    </TouchableOpacity>:
+                                    <View style={{width:'100%'}}>
+                                        <View style={styles.SelectPackageContainer}>
+                                            <View style={{width:'15%',justifyContent:'center',borderBottomWidth:1}}>
+                                                <FontAwesome name="search" size={20} color="black" />
+                                            </View>   
+                                            <View style={{width:'85%',alignItems:'flex-start'}}>
+                                                <TextInput placeholder="Search for Package ..." onChangeText={this.ChangePackageSearchText} style={{borderBottomWidth:1,borderBottomColor:'grey',height:45,width:'100%'}} />            
+                                            </View>
+                                        </View>
+                                        <View style={{width:'100%',padding:10,maxHeight:150,marginTop:0}}>
+                                            <ScrollView style={{width:'100%'}}>
+                                               {ShowPackages}
+                                            </ScrollView>
+                                        </View>
+                                        <View style={{width:'100%',flexDirection:'row',justifyContent:'space-evenly'}}>
+                                            <TouchableOpacity style={{width:'40%'}}>
+                                                <CustomButton style={{width:'100%'}}>
+                                                    <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Reset</NormalText>
+                                                </CustomButton>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity style={{width:'40%'}}>
+                                                <CustomButton style={{width:'100%'}}>
+                                                    <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Submit</NormalText>
+                                                </CustomButton>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                    }    
+                            </Card>
+                    </View>:null}
 
-                    <CollapsibleCard Heading="Select Package" style={{width:'100%',borderRadius:5}}>
-                        <View style={styles.SelectPackageContainer}>
-                            <View style={styles.SideArrowContainer}>
-                                <TouchableOpacity>
-                                    <View style={styles.ArrowContainer}>
-                                        <FontAwesome name="chevron-left" size={10} color="white" />
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
-                            <View style={styles.PackageContainer}>
-                                <View style={styles.UnSelectedPackage}>
-                                    <FontAwesome name="dropbox" size={20} color="#F0B22A" />
-                                    <NormalText style={{marginBottom:5,marginTop:5,textAlign:'center',color:"#F0B22A"}}>EQ-FUT</NormalText>
-                                    <NormalText style={{marginBottom:5,textAlign:'center',color:"#F0B22A"}}>CommodityFutures</NormalText>
-                                </View>
-                                <View style={styles.SelectedPackage}>
-                                    <FontAwesome name="dropbox" size={20} color="white" />
-                                    <NormalText style={{marginBottom:5,marginTop:5,textAlign:'center',color:'white'}}>EQ-FUT</NormalText>
-                                    <NormalText style={{marginBottom:5,textAlign:'center',color:'white'}}>CommodityFutures</NormalText>
-                                </View>
-                                <View style={styles.UnSelectedPackage}>
-                                    <FontAwesome name="dropbox" size={20} color="#F0B22A" />
-                                    <NormalText style={{marginBottom:5,marginTop:5,textAlign:'center',color:"#F0B22A"}}>EQ-FUT</NormalText>
-                                    <NormalText style={{marginBottom:5,textAlign:'center',color:"#F0B22A"}}>CommodityFutures</NormalText>
-                                </View>
-                            </View>
-                            <View style={styles.SideArrowContainer}>
-                            <TouchableOpacity>
-                                    <View style={styles.ArrowContainer}>
-                                        <FontAwesome name="chevron-right" size={10} color="white" />
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </CollapsibleCard>
                 </ScrollView>
                 
             </Container>
@@ -86,61 +169,37 @@ const styles=StyleSheet.create({
         alignItems:'center',
         justifyContent:'flex-start',
         padding:10,
-        backgroundColor:'#FAFAFA'
+        backgroundColor:'#EAEBF0'
     },
     IsQuickAddCallContainer:{
         width:'100%',
         flexDirection:'row',
         alignItems:'center',
         justifyContent:'space-evenly',
-        marginBottom:10
+        marginBottom:10,
+        height:50
+    },
+    AddContainer:{
+        flex:1,
+        width:'100%',
+        alignItems:'center',
+    },
+    CustomCard:{
+        width:'100%',
+        alignItems:'center',
+        padding:10
     },
     SelectPackageContainer:{
-        flexDirection:'row',
-        padding:5,
+        flexDirection:'row'
+    },
+    PackagePicker:{
+        borderRadius:10,
+        borderColor:'#d3d7dc',
+        borderWidth:1,
+        width:'100%',
+        marginTop:10,
+        height:40,
         justifyContent:'center',
-        marginTop:10
-    },
-    PackageContainer:{
-        width:'80%',
-        flexDirection:'row',
-        justifyContent:'flex-end'
-    },
-    UnSelectedPackage:{
-        width:'28%',
-        height:75,
-        alignItems:'center',
-        borderWidth:1,
-        borderRadius:5,
-        padding:5,
-        borderColor:'#F0B22A',
-        marginHorizontal:5
-    },
-    SelectedPackage:{
-        width:'33%',
-        height:85,
-        alignItems:'center',
-        borderWidth:1,
-        borderRadius:5,
-        padding:5,
-        borderColor:'#F0B22A',
-        backgroundColor:'#F0B22A',
-        marginHorizontal:5
-    },
-    SideArrowContainer:{
-        width:'10%',
-        justifyContent:'center',
-        alignItems:'center'
-    },
-    ArrowContainer:{
-        borderRadius:100,
-        width:25,
-        height:25,
-        borderWidth:1,
-        backgroundColor:'black',
-        opacity:0.5,
-        alignItems:'center',
-        justifyContent:'center'
     }
 })
 

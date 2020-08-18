@@ -41,6 +41,7 @@ const endpoint_url={
     GetAssignedUsers:base_url_wealthyFox+"/Analyst/GetAssignedUsers",
     GetPackagePermission:base_url_wealthyFox + "/AnalystRegistration/GetPackagePermissionSet",
     GetPackageListAddCall:base_url_wealthyFox + "/AnalystQuery/GetPackageForAddCall",
+    GetSimilarPackages:base_url_wealthyFox + "/RTTracker/GetSimilarPackages",
 }
 
 /********* Normal Functions **********/
@@ -733,3 +734,18 @@ export function get_package_permissions(authHeader,payload)
     return JSON.parse(data)
   }).catch(err => err)
 }
+
+export function get_package_addCall(authHeader)
+{
+  return apiCall(endpoint_url['GetPackageListAddCall'],"GET",{},authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function get_similar_package(authHeader,payload)
+{
+  return apiCall(endpoint_url['GetSimilarPackages'],"GET",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
