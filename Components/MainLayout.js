@@ -153,9 +153,9 @@ class MainLayout extends React.Component{
                     </View>
                 :null}
                 {this.state.Message.length > 0 ?
-                <View style={styles.Message}>
+                <View style={{...styles.Message,...{backgroundColor:`${this.state.Message[0].IsSuccess ? "#16d39a":"#ff6961"}`}}}>
                     <View style={styles.MessageLeft}>
-                        <FontAwesome name="check" size={36} color="white" />
+                        <FontAwesome name={this.state.Message[0].IsSuccess ? "check":"close"} size={36} color="white" />
                     </View>
                     <View style={styles.MessageRight}>
                         <NormalText style={styles.MessageHeading}>{this.state.Message[0].Heading}</NormalText>
@@ -207,7 +207,6 @@ const styles=StyleSheet.create({
         minHeight:80,
         width:'95%',
         position:'absolute',
-        backgroundColor:'#16d39a',
         elevation:1,
         borderRadius:10,
         alignSelf:'center',

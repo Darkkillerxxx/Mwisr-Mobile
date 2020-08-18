@@ -5,7 +5,7 @@ import { StyleSheet, Text, View,Image,TouchableOpacity } from 'react-native';
 const NormalText = (props) => {
 
     return(
-        <Text style={{...styles.NormalText,...props.style}}>
+        <Text lineBreakMode="tail" numberOfLines={1} style={{...styles.NormalText,...props.style}}>
             {props.children}
         </Text>
     )

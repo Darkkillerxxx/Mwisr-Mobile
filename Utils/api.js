@@ -37,7 +37,10 @@ const endpoint_url={
     GetUserPermissionSet:base_url_wealthyFox+"/AnalystRegistration/GetUserPermissionSet",
     UpsertUserPermission:base_url_wealthyFox + "/AnalystRegistration/UpsertPermission",
     GetSubDetail:base_url_wealthyFox+"MwisrQueries/GetSubDetail",
-    GetPackageDetails:base_url_wealthyFox +"AnalystQuery/GetPackageDetail"
+    GetPackageDetails:base_url_wealthyFox +"AnalystQuery/GetPackageDetail",
+    GetAssignedUsers:base_url_wealthyFox+"/Analyst/GetAssignedUsers",
+    GetPackagePermission:base_url_wealthyFox + "/AnalystRegistration/GetPackagePermissionSet",
+    GetPackageListAddCall:base_url_wealthyFox + "/AnalystQuery/GetPackageForAddCall",
 }
 
 /********* Normal Functions **********/
@@ -179,7 +182,7 @@ export let getPackageFontColor=(segment)=>{
 export function verbose(isSuccess,Heading,Description)
 {
     let Msg={
-      isSuccess:isSuccess,
+      IsSuccess:isSuccess,
       Heading:Heading,
       Description:Description
     }
@@ -713,6 +716,20 @@ export function get_sub_detail(authHeader,payload)
 export function get_pacakge_details(authHeader,payload)
 {
   return apiCall(endpoint_url['GetPackageDetails'],"GET",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function get_assigned_users(authHeader,payload)
+{
+  return apiCall(endpoint_url['GetAssignedUsers'],"GET",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function get_package_permissions(authHeader,payload)
+{
+  return apiCall(endpoint_url['GetPackagePermission'],"POST",payload,authHeader).then(data => {
     return JSON.parse(data)
   }).catch(err => err)
 }

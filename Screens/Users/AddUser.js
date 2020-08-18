@@ -5,7 +5,7 @@ import Card from '../../Components/Card';
 import NormalText from '../../Components/NormalText';
 import { RadioButton } from 'react-native-paper';
 import MwisrSelector from '../../Components/MwisrSelector'
-import {get_user_owners} from '../../Utils/api'
+import {get_user_owners,verbose} from '../../Utils/api'
 import {NavigationEvents} from 'react-navigation'
 import { connect }from 'react-redux'
 import CustomButton from '../../Components/Button';
@@ -161,7 +161,7 @@ class AddUser extends React.Component{
                 if(result.Success)
                   {
                     this.setState({ButtonLoad:false})
-                      ToastAndroid.show("User Added",ToastAndroid.SHORT)
+                    verbose(true,"User Added",`${this.state.FirstName} ${this.state.LastName} Has Been Added Successfully`)
                       if(this.state.SelectedUserType !== 7)
                       {
                         this.props.navigation.navigate("UserPermission",{
@@ -182,7 +182,7 @@ class AddUser extends React.Component{
                   else
                   {
                     this.setState({ButtonLoad:false})
-                    ToastAndroid.show(result.DisplayMsg,ToastAndroid.SHORT)
+                    verbose(false,"User Addition Failed",result.DisplayMsg)
                   }
               })
         }     

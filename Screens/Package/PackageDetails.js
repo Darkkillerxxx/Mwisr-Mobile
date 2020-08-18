@@ -77,6 +77,14 @@ class PackageDetails extends React.Component{
         )
     }
 
+    MoveToPackagePermission=()=>{
+
+        this.props.navigation.navigate('PackagePermission',{
+            RouteNo:2,
+            SelectedUser:this.props.navigation.state.params.OwnerId,
+            PackageId:this.props.navigation.state.params.PackageId
+        })
+    }
 
    HandleCreatedDate=(date)=>{
     let DateArray=date.split('T')
@@ -103,7 +111,7 @@ class PackageDetails extends React.Component{
                                             <NormalText style={{fontSize:10,color:'white',marginBottom:0}}>Assign Users</NormalText>
                                         </View>
                                     </TouchableOpacity>
-                                    <TouchableOpacity>
+                                    <TouchableOpacity onPress={() => this.MoveToPackagePermission()}>
                                         <View style={styles.TopRightButtons}>
                                             <NormalText style={{fontSize:10,color:'white',marginBottom:0}}>Package Permissions</NormalText>
                                         </View>
