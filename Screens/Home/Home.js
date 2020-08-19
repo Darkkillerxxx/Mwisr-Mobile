@@ -60,7 +60,7 @@ class Home extends React.Component{
                         </TouchableOpacity>
                     </View>
                 </View>
-                  <View style={{flex:1,width:'100%',backgroundColor:'#EBECF1',padding:10}}>
+                  <View style={{flex:1,width:'100%',backgroundColor:'#EBECF1',padding:5}}>
                     <View style={styles.CallsContainer}>
                         <ViewCalls 
                             AuthHeader={this.props.loginState.AuthHeader} 
