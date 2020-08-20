@@ -42,6 +42,8 @@ const endpoint_url={
     GetPackagePermission:base_url_wealthyFox + "/AnalystRegistration/GetPackagePermissionSet",
     GetPackageListAddCall:base_url_wealthyFox + "/AnalystQuery/GetPackageForAddCall",
     GetSimilarPackages:base_url_wealthyFox + "/RTTracker/GetSimilarPackages",
+    GetStrategyDuration:base_url_wealthyFox + "/RTTracker/GetStrategyDuration",
+    GetSymbol: base_url_wealthyFox+"AnalystQuery/GetSymbols",
 }
 
 /********* Normal Functions **********/
@@ -747,5 +749,19 @@ export function get_similar_package(authHeader,payload)
   return apiCall(endpoint_url['GetSimilarPackages'],"GET",payload,authHeader).then(data => {
     return JSON.parse(data)
   }).catch(err => err)
+}
+
+export function get_strategy_duration(authHeader)
+{
+  return apiCall(endpoint_url['GetStrategyDuration'],"GET",{},authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function get_symbol(authHeader,payload)
+{
+  return apiCall(endpoint_url['GetSymbol'],"GET",payload,authHeader).then(data => {
+    return parseCSV(data)
+  }).catch(err=>err)
 }
 

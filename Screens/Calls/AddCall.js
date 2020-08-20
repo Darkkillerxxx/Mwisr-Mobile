@@ -1,7 +1,7 @@
 import React from 'react'
 import { View,StyleSheet,ScrollView,TouchableOpacity,TextInput,FlatList,Picker,Switch} from 'react-native';
 import { connect }from 'react-redux'
-import {get_package_addCall,get_similar_package,verbose} from '../../Utils/api.js'
+import {get_package_addCall,get_similar_package,get_strategy_duration,verbose} from '../../Utils/api.js'
 import {setLogin} from '../../store/Actions/ActionLogin'
 import Container from '../../Components/Container'
 import NormalText from '../../Components/NormalText'
@@ -30,7 +30,11 @@ class AddCall extends React.Component{
             SelectedPackageIndex:null,
             SimilarPackages:[],
             StrategyDetails:[],
-            SelectedLegs:0
+            SelectedLegs:0,
+            Durations:[],
+            SelectedDuration:null,
+            Exchanges:[],
+            SelectedExchange:null
         }
         console.disableYellowBox = true;
     }
@@ -54,6 +58,17 @@ class AddCall extends React.Component{
             }
         })
 
+        get_strategy_duration(this.props.loginState.AuthHeader).then(result=>{
+            if(result.IsSuccess)
+            {
+                this.setState({Durations:result.Data})
+            }
+            else
+            {
+                verbose(false,"Error Fetching Durations",result.DisplayMsg)
+            }
+        })
+
         if(this.state.IsQuickAddCall)
         {
             this.AddStrategyQuickAddCall()
@@ -69,6 +84,7 @@ class AddCall extends React.Component{
             SelectedCMP:1,
             CallType:1,
             Symbol:"",
+            ExpiryDate:null,
             TriggerMin:"",
             TriggerMax:"",
             Target1:"",
@@ -106,21 +122,42 @@ class AddCall extends React.Component{
         })
     }
 
-    onPackageSelected=(Id)=>{
+    onPackageSelected=(Id,index,duration,Exchanges,MarketSegmentId)=>{
         if(this.state.SelectedBasePackageId === null)
         {
             if(this.state.IsQuickAddCall)
             {
+                
                 let temp=[];
                 temp.push(Id)
-                this.setState({SelectedBasePackageId:Id})
-                this.setState({SelectedPackages:temp})
+                this.setState({SelectedMarketSegmentId:MarketSegmentId});
+                this.setState({Exchanges:Exchanges.split(',')},()=>{
+                    this.setState({SelectedExchange:this.state.Exchanges[0]})
+                });
+                this.setState({SelectedDuration:duration})
+                this.setState({SelectedPackageIndex:index},()=>{
+                    this.setState({SelectedBasePackageId:Id},()=>{
+                        this.setState({SelectedPackages:temp},()=>{
+                            this.getSimilarPackage()
+                        })
+                    })
+                })
             }
+        }
+        else
+        {
+
         }
     }
 
     ChangePackageSearchText=(e)=>{
         this.setState({PackageSearchText:e})
+    }
+
+    onSimilarPackageSelected=(id)=>{
+        let temp=this.state.SelectedPackages
+        temp.push(id)
+        this.setState({SelectedPackages:temp})
     }
 
     EditLegs=(index,Type,val)=>{
@@ -174,6 +211,10 @@ class AddCall extends React.Component{
             case 12:
                 Temp[index].InvestmentAmt = val
                 break;
+
+            case 13:
+                Temp[index].TargetStoplossCount = val
+                break;
             
             default:
                 break;
@@ -182,15 +223,36 @@ class AddCall extends React.Component{
         this.setState({StrategyDetails:Temp})
     }
 
+    ResetPackages=()=>{
+        this.setState({SelectedPackages:1})
+        this.setState({PackageSearchText:""})
+        this.setState({SelectedBasePackageId:null})
+        this.setState({SelectedMarketSegmentId:null})
+        this.setState({SelectedPackages:[]})
+        this.setState({SelectedPackageIndex:[]})
+        this.setState({SimilarPackages:[]})
+    }
+
    
 
     render()
     {
+        let ShowExchanges=this.state.Exchanges.map(result => {
+            return(
+                <Picker.Item key={result} value={result} label={result} />
+            )
+        })
+
+        let ShowStrategyDurations=this.state.Durations.map(result => {
+            return(
+                <Picker.Item key={result.Id} label={result.Name} value={result.Id} />
+            )
+        })
         
         let ShowPackages=this.state.Packages.map((result,index) => {
             return(
                 result.PackageName.includes(this.state.PackageSearchText) ?
-                <TouchableOpacity style={{width:'100%'}} onPress={()=>this.onPackageSelected(result.PackageId)}>
+                <TouchableOpacity style={{width:'100%'}} onPress={()=>this.onPackageSelected(result.PackageId,index,result.TipDurationId,result.ForExchanges,result.MarketSegmentId)}>
                 <View style={{flexDirection:'row',width:'100%',padding:5}}>
                 <NormalText style={{width:'85%',color:`${this.state.SelectedPackages.includes(result.PackageId) ? 'grey':'black'}`,marginBottom:0,fontSize:14}}>{result.PackageName}</NormalText>
                     <View style={{width:'15%',alignItems:'center'}}>
@@ -201,6 +263,23 @@ class AddCall extends React.Component{
                 </TouchableOpacity>:null
             )
         })
+
+        let ShowSimilarPackages=this.state.SimilarPackages.map((result,index)=>{
+         return(
+            result.PackageName.includes(this.state.PackageSearchText) ?
+            <TouchableOpacity style={{width:'100%'}} onPress={()=>this.onSimilarPackageSelected(result.PackageId)}>
+                <View style={{flexDirection:'row',width:'100%',padding:5}}>
+                <NormalText style={{width:'85%',color:`${this.state.SelectedPackages.includes(result.PackageId) ? 'grey':'black'}`,marginBottom:0,fontSize:14}}>{result.PackageName}</NormalText>
+                    <View style={{width:'15%',alignItems:'center'}}>
+                        {this.state.SelectedPackages.includes(result.PackageId) ? 
+                        <FontAwesome name="check" size={15} color="grey" />:null}
+                    </View>
+                </View>
+            </TouchableOpacity>
+            :null
+            )
+        })
+
         return(
             <Container style={styles.CustomContainer}>
                 <ScrollView nestedScrollEnabled={true}>
@@ -238,36 +317,51 @@ class AddCall extends React.Component{
                                         </View>
                                         <View style={{width:'100%',padding:10,maxHeight:150,marginTop:0}}>
                                             <ScrollView nestedScrollEnabled={true} style={{width:'100%'}}>
-                                               {ShowPackages}
+                                               {
+                                                this.state.SimilarPackages.length === 0 ?
+                                                ShowPackages:ShowSimilarPackages
+                                               }
                                             </ScrollView>
                                         </View>
                                         <View style={{width:'100%',flexDirection:'row',justifyContent:'space-evenly'}}>
-                                            <TouchableOpacity style={{width:'40%'}}>
+                                            <TouchableOpacity onPress={()=>this.ResetPackages()} style={{width:'40%'}}>
                                                 <CustomButton style={{width:'100%'}}>
                                                     <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Reset</NormalText>
                                                 </CustomButton>
                                             </TouchableOpacity>
-                                            <TouchableOpacity style={{width:'40%'}}>
+                                            {/* <TouchableOpacity style={{width:'40%'}}>
                                                 <CustomButton style={{width:'100%'}}>
                                                     <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Submit</NormalText>
                                                 </CustomButton>
-                                            </TouchableOpacity>
+                                            </TouchableOpacity> */}
                                         </View>
                                     </View>
                                     }    
                             </Card>
 
                             <View style={styles.LegsContainer}>
+                                {this.state.Exchanges.length > 1 ?
+                                <Card style={{...styles.CustomCard,...{alignItems:'flex-start'}}}>
+                                    <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Select Exchanges</NormalText>
+                                    <View style={styles.TextInputContainer}>
+                                        <Picker selectedValue={this.state.SelectedExchange} onValueChange={(val)=>this.setState({SelectedExchange:val},()=> console.log(this.state.SelectedExchange))}>
+                                            {ShowExchanges}           
+                                        </Picker>
+                                    </View>
+                                </Card>  :null}
+                                
                                 <Card style={{...styles.CustomCard,...{alignItems:'flex-start'}}}>
                                     <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Select Duration</NormalText>
                                     <View style={styles.TextInputContainer}>
-                                        <Picker selectedValue={""} onValueChange={(val)=>this.setState({SelectedStrategyId:val})}>
-                                            
+                                        <Picker selectedValue={this.state.SelectedDuration} onValueChange={(val)=>this.setState({SelectedDurations:val})}>
+                                            {ShowStrategyDurations}
                                         </Picker>
                                     </View>
                                 </Card>   
                                 {this.state.StrategyDetails.length > 0 ?
+                                    
                                     <Legs 
+                                        AuthHeader={this.props.loginState.AuthHeader}
                                         Index={this.state.SelectedLegs} 
                                         CallType={this.state.StrategyDetails[0].CallType}
                                         Symbol={this.state.StrategyDetails[0].Symbol}
@@ -283,7 +377,9 @@ class AddCall extends React.Component{
                                         Stoploss1={this.state.StrategyDetails[0].Stoploss1}
                                         Stoploss2={this.state.StrategyDetails[0].Stoploss2}
                                         Stoploss3={this.state.StrategyDetails[0].Stoploss3}
-                                        InvestmentAmt={this.state.StrategyDetails[0].InvestmentAmt}/>  
+                                        InvestmentAmt={this.state.StrategyDetails[0].InvestmentAmt}
+                                        MarketSegmentId={this.state.SelectedMarketSegmentId}
+                                        Exchange={this.state.SelectedExchange} />  
                                 :null}
                             </View>
                     </View>

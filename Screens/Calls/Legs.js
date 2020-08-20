@@ -1,14 +1,10 @@
 import React from 'react'
 import {View,StyleSheet,ScrollView,TouchableOpacity,TextInput,FlatList,Picker,Switch} from 'react-native'
-import {get_package_addCall,get_similar_package,verbose} from '../../Utils/api.js'
+import {get_package_addCall,get_similar_package,verbose, get_symbol} from '../../Utils/api.js'
 import {setLogin} from '../../store/Actions/ActionLogin'
-import Container from '../../Components/Container'
 import NormalText from '../../Components/NormalText'
 import MwisrSelector from '../../Components/MwisrSelector'
-import CollapsibleCard from '../../Components/CollapsibleCard'
-import { FontAwesome } from '@expo/vector-icons';
 import Card from '../../Components/Card'
-import CustomButton from '../../Components/Button'
 import BoldText from '../../Components/BoldText'
 import { RadioButton } from 'react-native-paper';
 import RBContainer from '../../Components/RBContainer'
@@ -16,6 +12,10 @@ import RBContainer from '../../Components/RBContainer'
 class Legs extends React.Component{
     constructor(){
         super()
+        this.state={
+            Symbol:"",
+            ReceivedSymbols:[]
+        }
         
     }
 
@@ -30,7 +30,30 @@ class Legs extends React.Component{
         }
     }
 
+    // componentDidUpdate(prevProps,prevState,Ss)
+    // {
+    //     if(prevProps.SelectedExchange !== this.props.SelectedExchange)
+    //     {
+    //         console.log("Props Change",this.props.SelectedExchange)
+    //     }
+    // }
+
     onSymbolChange=(e)=>{
+        this.setState({Symbol:e},()=>{
+            if(this.state.Symbol.length > 2)
+            {
+                let payload={
+                    exchanges:this.props.Exchange,
+                    segmentIds:this.props.MarketSegmentId,
+                    symbolLike:this.state.Symbol
+                }
+                console.log(payload)
+
+                get_symbol(this.props.AuthHeader,payload).then(result => {
+                    this.setState({ReceivedSymbols:result})
+                })
+            }
+        })
         this.props.LegsEdit(this.props.Index,2,e)
     }
 
@@ -79,9 +102,25 @@ class Legs extends React.Component{
         this.props.LegsEdit(this.props.Index,12,e)
     }
 
+    onTSCountChange=(val)=>{
+        if(val >= 1 && val < 4)
+        {
+            this.props.LegsEdit(this.props.Index,13,val)    
+        }
+    }
+
     render()
     {
-        const {CMP,SelectedCMP,TriggerMin,TriggerMax,TargetStoplossCount,Target1,Target2,Target3,Stoploss1,Stoploss2,Stoploss3,InvestmentAmt} = this.props
+        let ShowSuggestions=this.state.ReceivedSymbols.map((result,index) => {
+            return(
+                index > 0 && index <=3 ? 
+                <View style={{width:'31%'}}>
+                    <MwisrSelector selected={false} Text={result.Symbol}/>
+                </View>:null
+            )
+        })
+
+        const {CMP,SelectedCMP,TriggerMin,TriggerMax,TargetStoplossCount,Target1,Target2,Target3,Stoploss1,Stoploss2,Stoploss3,InvestmentAmt,MarketSegmentId} = this.props
         return(
             <>
                 <Card style={styles.FlexContainer}>
@@ -112,7 +151,13 @@ class Legs extends React.Component{
                        <View style={styles.TextInputContainer}>
                            <TextInput value={this.props.Symbol} onChangeText={this.onSymbolChange}/>
                        </View>
+                     {this.state.ReceivedSymbols.length > 0 ? 
+                        <View style={{width:'100%',flexDirection:'row',justifyContent:'space-evenly',marginTop:10}}>
+                            {ShowSuggestions}
+                        </View>:null}
+        
                    </View>
+                   {MarketSegmentId !== 1 ? 
                    <View style={styles.SelectSymbolContainer}>
                        <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Select Expiry Date</NormalText>
                        <View style={styles.TextInputContainer}>
@@ -120,7 +165,9 @@ class Legs extends React.Component{
                            
                            </Picker>
                        </View>
-                   </View>
+                   </View>:null}
+
+                   {MarketSegmentId === 9 ||MarketSegmentId === 11 || MarketSegmentId === 12 ?
                    <View style={{...styles.FlexContainer,...{padding:0,borderRadius:0,marginVertical:10}}}>
                        <View style={{width:'50%',alignItems:'flex-start'}}>
                            <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Select Option Type</NormalText>
@@ -149,7 +196,7 @@ class Legs extends React.Component{
                                </Picker>
                            </View>
                        </View>
-                   </View>
+                   </View>:null}
                </Card>
 
                <Card style={{...styles.CustomCard,...{alignItems:'flex-start'}}}>
@@ -212,7 +259,7 @@ class Legs extends React.Component{
                         </View>
                     </View>
 
-                    {TargetStoplossCount === 2 ? 
+                    {TargetStoplossCount === 2 || TargetStoplossCount === 3  ? 
                     <View style={{...styles.FlexContainer,...{justifyContent:'space-evenly',padding:0,marginVertical:10}}}>
                         <View style={{width:'45%'}}>
                             <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Target 2</NormalText>
@@ -244,6 +291,24 @@ class Legs extends React.Component{
                         </View>
                     </View>:null}
                </Card>
+
+                <View style={{width:'100%',flexDirection:'row',justifyContent:'center',marginTop:-17,elevation:5}}>
+                        {TargetStoplossCount > 1 ? 
+                        <View style={{width:'50%',alignItems:'center'}}>
+                            <TouchableOpacity onPress={()=>this.onTSCountChange(TargetStoplossCount - 1)} >
+                                <View style={styles.CePeSelected}>
+                                    <NormalText style={styles.CePeSelectedText}>-</NormalText>
+                                </View>
+                            </TouchableOpacity>
+                        </View>:null}
+                        <View style={{width:'50%',alignItems:'center'}}>
+                            <TouchableOpacity onPress={()=>this.onTSCountChange(TargetStoplossCount + 1)}>
+                                <View style={styles.CePeSelected}>
+                                    <NormalText style={styles.CePeSelectedText}>+</NormalText>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                </View>
 
                <Card style={{...styles.CustomCard,...{alignItems:'flex-start'}}}>
                    <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Investment Amount</NormalText>
