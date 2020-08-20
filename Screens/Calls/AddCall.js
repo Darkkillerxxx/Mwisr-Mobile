@@ -13,6 +13,7 @@ import CustomButton from '../../Components/Button'
 import BoldText from '../../Components/BoldText'
 import { RadioButton } from 'react-native-paper';
 import RBContainer from '../../Components/RBContainer'
+import Legs from './Legs'
 
 class AddCall extends React.Component{
     constructor()
@@ -23,11 +24,13 @@ class AddCall extends React.Component{
             SelectPackagePart:1,
             PackageSearchText:"",
             SelectedBasePackageId:null,
+            SelectedMarketSegmentId:null,
             Packages:[],
             SelectedPackages:[],
             SelectedPackageIndex:null,
             SimilarPackages:[],
-            StrategyDetails:[]
+            StrategyDetails:[],
+            SelectedLegs:0
         }
         console.disableYellowBox = true;
     }
@@ -61,20 +64,26 @@ class AddCall extends React.Component{
         let temp=this.state.StrategyDetails;
 
         let QuickStrategy={
-            index:0,
-            CMPType:null,
-            CallType:null,
+            Index:0,
+            CMP:5,
+            SelectedCMP:1,
+            CallType:1,
             Symbol:"",
-            Target1:null,
-            Target2:null,
-            Target3:null,
-            Stoploss1:null,
-            Stoploss2:null,
-            Stoploss3:null,
-            InvestmentAmt:null,
-            InvestmentLot:null,
-            PackageTypeId:null
+            TriggerMin:"",
+            TriggerMax:"",
+            Target1:"",
+            Target2:"",
+            Target3:"",
+            Stoploss1:"",
+            Stoploss2:"",
+            Stoploss3:"",
+            InvestmentAmt:"",
+            PackageTypeId:null,
+            TargetStoplossCount:1
         }
+        temp.push(QuickStrategy)
+
+        this.setState({StrategyDetails:temp})
     }
 
     getSimilarPackage=()=>
@@ -114,10 +123,70 @@ class AddCall extends React.Component{
         this.setState({PackageSearchText:e})
     }
 
+    EditLegs=(index,Type,val)=>{
+        let Temp=this.state.StrategyDetails
+        switch(Type)
+        {
+            case 1:
+                Temp[index].CallType = val
+                break;
+
+            case 2:
+                Temp[index].Symbol = val
+                break;
+
+            case 3:
+                Temp[index].SelectedCMP = val
+                break;
+
+            case 4:
+                Temp[index].TriggerMin = val
+                break;
+
+            case 5:
+                Temp[index].TriggerMax = val
+                break;
+
+            case 6:
+                Temp[index].Target1 = val
+                break;
+            
+            case 7:
+                 Temp[index].Stoploss1 = val
+                 break;
+    
+            case 8:
+                Temp[index].Target2 = val
+                break;
+    
+            case 9:
+                Temp[index].Stoploss2 = val
+                break;
+    
+            case 10:
+                Temp[index].Target3 = val
+                break;
+    
+            case 11:
+                Temp[index].Stoploss3 = val
+                break;
+            
+            case 12:
+                Temp[index].InvestmentAmt = val
+                break;
+            
+            default:
+                break;
+        }
+
+        this.setState({StrategyDetails:Temp})
+    }
+
    
 
     render()
     {
+        
         let ShowPackages=this.state.Packages.map((result,index) => {
             return(
                 result.PackageName.includes(this.state.PackageSearchText) ?
@@ -196,139 +265,26 @@ class AddCall extends React.Component{
                                             
                                         </Picker>
                                     </View>
-                                </Card>
-
-                                <Card style={styles.FlexContainer}>
-                                    <View style={{width:'33%',alignItems:'flex-end'}}>
-                                        <BoldText style={{marginVertical:0}}>BUY</BoldText>
-                                    </View>
-                                    <View style={{width:'33%',alignItems:'center'}}>
-                                        <Switch
-                                            trackColor={{ false: "#767577", true: "#81b0ff" }}
-                                            thumbColor={true ? "#f5dd4b" : "#f4f3f4"}
-                                            ios_backgroundColor="#3e3e3e"
-                                            onValueChange={()=>{}}
-                                            value={true}
-                                        />
-                                    </View>
-                                    <View style={{width:'33%'}}>
-                                        <BoldText style={{marginVertical:0}}>SELL</BoldText>
-                                    </View>
-                                </Card>
-
-                                <Card style={styles.CustomCard}>
-                                    <View style={styles.SelectSymbolContainer}>
-                                        <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Select Symbol</NormalText>
-                                        <View style={styles.TextInputContainer}>
-                                            <TextInput />
-                                        </View>
-                                    </View>
-                                    <View style={styles.SelectSymbolContainer}>
-                                        <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Select Expiry Date</NormalText>
-                                        <View style={styles.TextInputContainer}>
-                                            <Picker selectedValue={""} onValueChange={(val)=>this.setState({SelectedStrategyId:val})}>
-                                            
-                                            </Picker>
-                                        </View>
-                                    </View>
-                                    <View style={{...styles.FlexContainer,...{padding:0,borderRadius:0,marginVertical:10}}}>
-                                        <View style={{width:'50%',alignItems:'flex-start'}}>
-                                            <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Select Option Type</NormalText>
-                                            <View style={styles.FlexContainer}>
-                                                <View style={{width:'33%',alignItems:'center'}}>
-                                                    <TouchableOpacity>
-                                                        <View style={styles.CePeSelected}>
-                                                            <NormalText style={styles.CePeSelectedText}>CE</NormalText>
-                                                        </View>
-                                                    </TouchableOpacity>
-                                                </View>
-                                                <View style={{width:'33%',alignItems:'center'}}>
-                                                    <TouchableOpacity>
-                                                        <View style={styles.CePeUnSelected}>
-                                                            <NormalText style={styles.CePeUnSelectedText}>PE</NormalText>
-                                                        </View>
-                                                    </TouchableOpacity>
-                                                </View>
-                                            </View>
-                                        </View>
-                                        <View style={{width:'50%',alignItems:'flex-start'}}>
-                                            <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Select Strike Price</NormalText>
-                                            <View style={styles.TextInputContainer}>
-                                                <Picker selectedValue={""} onValueChange={(val)=>this.setState({SelectedStrategyId:val})}>
-                                                
-                                                </Picker>
-                                            </View>
-                                        </View>
-                                    </View>
-                                </Card>
-
-                                <Card style={{...styles.CustomCard,...{alignItems:'flex-start'}}}>
-                                    <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Select CMP</NormalText>
-                                    <View style={styles.FlexContainer}>
-                                        <RadioButton.Group onValueChange={()=>{}}>
-                                            <RBContainer style={styles.CustomRadioButton}>
-                                                <RadioButton color="black" uncheckedColor="black" value={1} status={'checked'}/>
-                                                <NormalText style={{marginBottom:0,color:'black'}}>At CMP</NormalText>
-                                            </RBContainer>
-                                            <RBContainer style={styles.CustomRadioButton}>
-                                                <RadioButton color="black" uncheckedColor="black" value={2} status={'unchecked'}/>
-                                                <NormalText style={{marginBottom:0,color:'black'}}>Above</NormalText>
-                                            </RBContainer>
-                                            <RBContainer style={styles.CustomRadioButton}>
-                                                <RadioButton color="black" uncheckedColor="black" value={3} status={'unchecked'}/>
-                                                <NormalText style={{marginBottom:0,color:'black'}}>Below</NormalText>
-                                            </RBContainer>
-                                            <RBContainer style={styles.CustomRadioButton}>
-                                                <RadioButton color="black" uncheckedColor="black" value={3} status={'unchecked'}/>
-                                                <NormalText style={{marginBottom:0,color:'black'}}>Between</NormalText>
-                                            </RBContainer>
-                                        </RadioButton.Group>
-                                    </View>
-                                </Card>
-
-                                <Card style={{...styles.CustomCard,...{alignItems:'flex-start'}}}>
-                                    <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Trigger</NormalText>
-                                        <View style={{...styles.FlexContainer,...{justifyContent:'space-evenly',padding:0,marginVertical:10}}}>
-                                            <View style={{width:'45%',alignItems:'flex-start'}}>
-                                                <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Minimum</NormalText>
-                                                <View style={styles.TextInputContainer}>
-                                                    <TextInput />
-                                                </View>
-                                           </View>
-                                            <View style={{width:'45%'}}>
-                                                <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Maximum</NormalText>
-                                                <View style={styles.TextInputContainer}>
-                                                    <TextInput />
-                                                </View>
-                                            </View>
-                                        </View>
-                                </Card>
-
-                                <Card style={{...styles.CustomCard,...{alignItems:'flex-start'}}}>
-                                    <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>{`Target & Stoploss`}</NormalText>
-                                        <View style={{...styles.FlexContainer,...{justifyContent:'space-evenly',padding:0,marginVertical:10}}}>
-                                            <View style={{width:'45%'}}>
-                                                <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Target 1</NormalText>
-                                                <View style={styles.TextInputContainer}>
-                                                    <TextInput />
-                                                </View>
-                                           </View>
-                                            <View style={{width:'45%'}}>
-                                                <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>StopLoss 1</NormalText>
-                                                <View style={styles.TextInputContainer}>
-                                                    <TextInput />
-                                                </View>
-                                            </View>
-                                        </View>
-                                </Card>
-
-                                <Card style={{...styles.CustomCard,...{alignItems:'flex-start'}}}>
-                                    <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Investment Amount</NormalText>
-                                    <View style={styles.TextInputContainer}>
-                                       <TextInput />
-                                    </View>
-                                </Card>
-
+                                </Card>   
+                                {this.state.StrategyDetails.length > 0 ?
+                                    <Legs 
+                                        Index={this.state.SelectedLegs} 
+                                        CallType={this.state.StrategyDetails[0].CallType}
+                                        Symbol={this.state.StrategyDetails[0].Symbol}
+                                        LegsEdit={this.EditLegs} 
+                                        CMP={this.state.StrategyDetails[0].CMP}
+                                        SelectedCMP={this.state.StrategyDetails[0].SelectedCMP}
+                                        TriggerMin={this.state.StrategyDetails[0].TriggerMin}
+                                        TriggerMax={this.state.StrategyDetails[0].TriggerMax}
+                                        TargetStoplossCount={this.state.StrategyDetails[0].TargetStoplossCount}
+                                        Target1={this.state.StrategyDetails[0].Target1}
+                                        Target2={this.state.StrategyDetails[0].Target2}
+                                        Target3={this.state.StrategyDetails[0].Target3}
+                                        Stoploss1={this.state.StrategyDetails[0].Stoploss1}
+                                        Stoploss2={this.state.StrategyDetails[0].Stoploss2}
+                                        Stoploss3={this.state.StrategyDetails[0].Stoploss3}
+                                        InvestmentAmt={this.state.StrategyDetails[0].InvestmentAmt}/>  
+                                :null}
                             </View>
                     </View>
                     :null}
