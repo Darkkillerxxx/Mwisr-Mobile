@@ -1,7 +1,7 @@
 import React from 'react'
 import { View,StyleSheet,ScrollView,TouchableOpacity,TextInput,FlatList,Picker,Switch} from 'react-native';
 import { connect }from 'react-redux'
-import {get_package_addCall,get_similar_package,get_strategy_duration,verbose} from '../../Utils/api.js'
+import {get_package_addCall,get_similar_package,get_strategy_duration,verbose,add_call} from '../../Utils/api.js'
 import {setLogin} from '../../store/Actions/ActionLogin'
 import Container from '../../Components/Container'
 import NormalText from '../../Components/NormalText'
@@ -25,6 +25,7 @@ class AddCall extends React.Component{
             PackageSearchText:"",
             SelectedBasePackageId:null,
             SelectedMarketSegmentId:null,
+            SelectedOwnerId:null,
             Packages:[],
             SelectedPackages:[],
             SelectedPackageIndex:null,
@@ -122,14 +123,14 @@ class AddCall extends React.Component{
         })
     }
 
-    onPackageSelected=(Id,index,duration,Exchanges,MarketSegmentId)=>{
+    onPackageSelected=(Id,index,duration,Exchanges,MarketSegmentId,OwnerId)=>{
         if(this.state.SelectedBasePackageId === null)
         {
             if(this.state.IsQuickAddCall)
             {
-                
                 let temp=[];
                 temp.push(Id)
+                this.setState({SelectedOwnerId:OwnerId})
                 this.setState({SelectedMarketSegmentId:MarketSegmentId});
                 this.setState({Exchanges:Exchanges.split(',')},()=>{
                     this.setState({SelectedExchange:this.state.Exchanges[0]})
@@ -215,6 +216,11 @@ class AddCall extends React.Component{
             case 13:
                 Temp[index].TargetStoplossCount = val
                 break;
+
+            case 14:{
+                Temp[index].ExpiryDate = val
+                break;
+            }
             
             default:
                 break;
@@ -232,6 +238,89 @@ class AddCall extends React.Component{
         this.setState({SelectedPackageIndex:[]})
         this.setState({SimilarPackages:[]})
     }
+
+    AddCall=()=>{
+        const {SelectedMarketSegmentId,SelectedDuration}=this.state
+        let payload=[]
+        
+        this.state.SelectedPackages.forEach( (result,index) => {
+          let Legs=[];
+          this.state.StrategyDetails.forEach((result,index)=>{
+                Legs.push(
+                    {
+                        "MasterScripCode": null,
+                        "TipActiveDate": null,
+                        "TipEndDate": null,
+                        "Leg":index ,
+                        "MarketExchangeCode": this.state.SelectedExchange,
+                        "MarketSegmentId": this.state.SelectedMarketSegmentId,
+                        "Symbol": result.Symbol,
+                        "Derivative": SelectedMarketSegmentId === 1 ? "EQ":SelectedMarketSegmentId === 2 ||SelectedMarketSegmentId === 10 || SelectedMarketSegmentId === 4 ? "FUT":"CE",
+                        "ExpiryDate": this.state.SelectedMarketSegmentId !== 1 ? result.ExpiryDate:null,
+                        "StrikePrice": null,// later
+                        "TipId": 0,
+                        "ReportId": null,
+                        "Desc": "",
+                        "Target1": result.Target1,
+                        "StopLoss1": result.Stoploss1,
+                        "Target2": result.TargetStoplossCount > 1 && result.TargetStoplossCount <= 3 ? result.Target2:null  ,
+                        "Target3": result.TargetStoplossCount > 3 ? result.Target3:null,
+                        "StopLoss2": result.TargetStoplossCount > 1 && result.TargetStoplossCount <= 3 ? result.StopLoss2:null,
+                        "StopLoss3": result.TargetStoplossCount > 3 ? result.Stoploss3:null,
+                        "CallType": result.CallType,
+                        "TipTypeDurationId":SelectedDuration ,
+                        "TipTypeDurationOther": 0,
+                        "TriggerMinValue":  result.SelectedCMP === 1 || result.SelectedCMP === 4  ? result.TriggerMin:0,
+                        "TriggerMaxValue":  result.SelectedCMP === 2 || result.SelectedCMP === 4  ? result.TriggerMax:999999999,
+                        "BookProfitTarget1": null,
+                        "BookProfitTarget2": null,
+                        "BookProfitTarget3": null,
+                        "BookProfitTargetAmt1": null,
+                        "BookProfitTargetAmt2": null,
+                        "BookProfitTargetAmt3": null,
+                        "ExitValue": null,
+                        "IsStopCallRequest": null,
+                        "IsDayEndStopLossRequested": null,
+                        "IsActive": null,
+                        "InvestmentSizeEq": SelectedMarketSegmentId === 1 ? result.InvestmentAmt : null ,
+                        "InvestmentSizeLot": SelectedMarketSegmentId !== 1 ? result.InvestmentAmt : null,
+                        "IsLot": 0,
+                        "StartegyId": 1,//
+                        "CmpId": result.SelectedCMP,
+                        "TargetNetProfit": 0,
+                        "TargetNetLoss": 0
+                    }
+                )
+          })
+          console.log("Legs Payload",Legs)
+            payload.push(
+                {
+                    "IsEdit": false,
+                    "ParentTipId": 0,
+                    "PackageId": result,
+                    "ForOwnerId": this.state.SelectedOwnerId,//
+                    "CallPrefix": "",
+                    "CallReports": null,
+                    "Legs": Legs
+                }
+        
+           )
+           
+        })
+        add_call(this.props.loginState.AuthHeader,payload).then(result=>{
+            console.log("Add call Result",result)
+            if(result.IsSuccess)
+            {
+                verbose(true,"Call Added","Call Added Successfully")
+            }
+            else
+            {
+                verbose(false,"Error",result.DisplayMsg)
+            }
+        })
+        
+    }
+           
 
    
 
@@ -252,7 +341,7 @@ class AddCall extends React.Component{
         let ShowPackages=this.state.Packages.map((result,index) => {
             return(
                 result.PackageName.includes(this.state.PackageSearchText) ?
-                <TouchableOpacity style={{width:'100%'}} onPress={()=>this.onPackageSelected(result.PackageId,index,result.TipDurationId,result.ForExchanges,result.MarketSegmentId)}>
+                <TouchableOpacity style={{width:'100%'}} onPress={()=>this.onPackageSelected(result.PackageId,index,result.TipDurationId,result.ForExchanges,result.MarketSegmentId,result.SuperOwner)}>
                 <View style={{flexDirection:'row',width:'100%',padding:5}}>
                 <NormalText style={{width:'85%',color:`${this.state.SelectedPackages.includes(result.PackageId) ? 'grey':'black'}`,marginBottom:0,fontSize:14}}>{result.PackageName}</NormalText>
                     <View style={{width:'15%',alignItems:'center'}}>
@@ -353,7 +442,7 @@ class AddCall extends React.Component{
                                 <Card style={{...styles.CustomCard,...{alignItems:'flex-start'}}}>
                                     <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Select Duration</NormalText>
                                     <View style={styles.TextInputContainer}>
-                                        <Picker selectedValue={this.state.SelectedDuration} onValueChange={(val)=>this.setState({SelectedDurations:val})}>
+                                        <Picker selectedValue={this.state.SelectedDuration} onValueChange={(val)=>this.setState({SelectedDuration:val})}>
                                             {ShowStrategyDurations}
                                         </Picker>
                                     </View>
@@ -379,12 +468,22 @@ class AddCall extends React.Component{
                                         Stoploss3={this.state.StrategyDetails[0].Stoploss3}
                                         InvestmentAmt={this.state.StrategyDetails[0].InvestmentAmt}
                                         MarketSegmentId={this.state.SelectedMarketSegmentId}
-                                        Exchange={this.state.SelectedExchange} />  
+                                        Exchange={this.state.SelectedExchange}
+                                        ExpiryDate={this.state.StrategyDetails[0].ExpiryDate} />  
                                 :null}
                             </View>
+                            <View style={styles.CustomButtonContainer}>
+                                <TouchableOpacity onPress={()=>this.AddCall()}>
+                                    <CustomButton style={{width:200}}>
+                                        <NormalText style={{marginBottom:0,alignItems:"center",justifyContent:"center",color:'white',fontSize:14}}>Add Call</NormalText>
+                                    </CustomButton>
+                                </TouchableOpacity>
+                            </View>
                     </View>
+                    
                     :null}
 
+                   
                 </ScrollView>
                 
             </Container>
@@ -476,6 +575,11 @@ const styles=StyleSheet.create({
         width:'25%',
         alignItems:'center',
         justifyContent:'flex-start'
+    },
+    CustomButtonContainer:{
+        width:'100%',
+        alignItems:'center',
+        justifyContent:'center'
     }
 })
 

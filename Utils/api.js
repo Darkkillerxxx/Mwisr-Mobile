@@ -5,8 +5,11 @@ import store from '../store/store'
 import {setMsg,setNrmlMsg} from '../store/Actions/ActionLogin'
 
 // store.dispatch(setMsg("This is a Test Message"))
-const base_url_wealthyFox="https://wfanalytics.mwisr.com//api//"
-const base_url_Mwisr="https://wfanalytics.mwisr.com//api//"
+// const base_url_wealthyFox="https://wfanalytics.mwisr.com//api//"
+// const base_url_Mwisr="https://wfanalytics.mwisr.com//api//"
+
+const base_url_wealthyFox="http://202.38.173.113//api//"
+const base_url_Mwisr="http://202.38.173.113//api//"
 
 const endpoint_url={
     login: base_url_wealthyFox+"Authentication/Login/",
@@ -44,6 +47,8 @@ const endpoint_url={
     GetSimilarPackages:base_url_wealthyFox + "/RTTracker/GetSimilarPackages",
     GetStrategyDuration:base_url_wealthyFox + "/RTTracker/GetStrategyDuration",
     GetSymbol: base_url_wealthyFox+"AnalystQuery/GetSymbols",
+    GetSymbolsDetails:base_url_wealthyFox + "/AnalystQuery/GetSymbolsDetails",
+    UpsertCall: base_url_wealthyFox + "/Analyst/UpsertCall",
 }
 
 /********* Normal Functions **********/
@@ -763,5 +768,19 @@ export function get_symbol(authHeader,payload)
   return apiCall(endpoint_url['GetSymbol'],"GET",payload,authHeader).then(data => {
     return parseCSV(data)
   }).catch(err=>err)
+}
+
+export function get_symbol_details(authHeader,payload)
+{
+  return apiCall(endpoint_url['GetSymbolsDetails'],"GET",payload,authHeader).then(data => {
+    return parseCSV(data)
+  }).catch(err=>err)
+}
+
+export function add_call(authHeader,payload)
+{
+  return apiCall(endpoint_url['UpsertCall'],"POST",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
 }
 

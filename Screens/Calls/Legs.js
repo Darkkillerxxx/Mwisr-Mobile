@@ -1,6 +1,6 @@
 import React from 'react'
 import {View,StyleSheet,ScrollView,TouchableOpacity,TextInput,FlatList,Picker,Switch} from 'react-native'
-import {get_package_addCall,get_similar_package,verbose, get_symbol} from '../../Utils/api.js'
+import {verbose, get_symbol,get_symbol_details} from '../../Utils/api.js'
 import {setLogin} from '../../store/Actions/ActionLogin'
 import NormalText from '../../Components/NormalText'
 import MwisrSelector from '../../Components/MwisrSelector'
@@ -8,13 +8,16 @@ import Card from '../../Components/Card'
 import BoldText from '../../Components/BoldText'
 import { RadioButton } from 'react-native-paper';
 import RBContainer from '../../Components/RBContainer'
+import moment from "moment";
 
 class Legs extends React.Component{
     constructor(){
         super()
         this.state={
             Symbol:"",
-            ReceivedSymbols:[]
+            ReceivedSymbols:[],
+            SymbolDetails:[],
+            ReceivedDates:[]
         }
         
     }
@@ -30,13 +33,55 @@ class Legs extends React.Component{
         }
     }
 
-    // componentDidUpdate(prevProps,prevState,Ss)
-    // {
-    //     if(prevProps.SelectedExchange !== this.props.SelectedExchange)
-    //     {
-    //         console.log("Props Change",this.props.SelectedExchange)
-    //     }
-    // }
+    ExpiryDateForAddCall=(date)=>{
+        let tempDate=date.split('-')
+        let months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+        let month=""
+        months.forEach((element,index) => {
+          if(element === tempDate[1])
+          {
+            month=index;
+          }
+          
+        });
+        // console.log("373",`20${tempDate[2]}-${month+1 < 10 ? `0${month+1}`:`${month+1}`}-${tempDate[0]}`)
+           return `20${tempDate[2]}-${month+1 < 10 ? `0${month+1}`:`${month+1}`}-${tempDate[0]}`
+      }
+
+      ExpiryDateToNormal=(dateArray)=>{
+        let TempExpiry=[]
+        dateArray.forEach(element=>{
+          let arr=element.split("-")
+          let months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+          TempExpiry.push(`${arr[2]}-${months[parseInt(arr[1])-1]}-${arr[0].substring(2)}`)
+        })
+
+        return TempExpiry
+    }
+
+    GetSymbolDetails=()=>{
+        
+        let Det_Payload={
+            exchanges:this.props.Exchange,
+            segmentIds:this.props.MarketSegmentId,
+            symbolLike:this.state.Symbol
+        }
+        get_symbol_details(this.props.AuthHeader,Det_Payload).then(result => {
+            if(result.length > 0)
+            {
+                let TempExpiry=[];
+                result.forEach(element=>{
+                   TempExpiry.push(this.ExpiryDateForAddCall(element.ExpiryDate))
+                 })
+                  
+                 let sortedArray  = TempExpiry.sort((a,b) => moment(a) - moment(b))
+                 TempExpiry=this.ExpiryDateToNormal(sortedArray)
+                 this.setState({ReceivedDates:TempExpiry},()=>{
+                     this.onExpiryChange(this.state.ReceivedDates[0])
+                 })
+            }
+        })
+    }
 
     onSymbolChange=(e)=>{
         this.setState({Symbol:e},()=>{
@@ -47,10 +92,14 @@ class Legs extends React.Component{
                     segmentIds:this.props.MarketSegmentId,
                     symbolLike:this.state.Symbol
                 }
-                console.log(payload)
-
                 get_symbol(this.props.AuthHeader,payload).then(result => {
-                    this.setState({ReceivedSymbols:result})
+                    this.setState({ReceivedSymbols:result},()=>{
+                        
+                        if(this.props.MarketSegmentId !== 1)
+                        {
+                            this.GetSymbolDetails()
+                        }
+                    })
                 })
             }
         })
@@ -109,14 +158,31 @@ class Legs extends React.Component{
         }
     }
 
+    onExpiryChange=(val)=>{
+         this.props.LegsEdit(this.props.Index,14,val)    
+    }
+
+    ApplySuggestions=(val)=>{
+        this.props.LegsEdit(this.props.Index,2,val)
+        this.setState({Symbol:val},()=>{
+            this.GetSymbolDetails()    
+        })
+        this.setState({ReceivedSymbols:[]})
+    }
+
     render()
     {
         let ShowSuggestions=this.state.ReceivedSymbols.map((result,index) => {
             return(
-                index > 0 && index <=3 ? 
-                <View style={{width:'31%'}}>
-                    <MwisrSelector selected={false} Text={result.Symbol}/>
-                </View>:null
+                <TouchableOpacity onPress={()=>this.ApplySuggestions(result.Symbol)}>
+                    <NormalText style={{marginBottom:0,fontSize:12,marginVertical:5}}>{result.Symbol}</NormalText>
+                </TouchableOpacity>
+            )
+        })
+
+        let ShowExpiry=this.state.ReceivedDates.map(result => {
+            return(
+                <Picker.Item key={result} label={result} value={result}/>
             )
         })
 
@@ -151,18 +217,24 @@ class Legs extends React.Component{
                        <View style={styles.TextInputContainer}>
                            <TextInput value={this.props.Symbol} onChangeText={this.onSymbolChange}/>
                        </View>
-                     {this.state.ReceivedSymbols.length > 0 ? 
-                        <View style={{width:'100%',flexDirection:'row',justifyContent:'space-evenly',marginTop:10}}>
-                            {ShowSuggestions}
-                        </View>:null}
+                     {this.state.ReceivedSymbols.length > 0 ?
+                        <> 
+                            <NormalText style={{alignSelf:'flex-start',marginBottom:5,marginTop:5}}>Suggestions</NormalText>
+                           
+                                <View style={{width:'100%',height:100,alignItems:'flex-start',marginTop:5}}>
+                                    <ScrollView nestedScrollEnabled={true} style={{width:'100%',height:100}}>
+                                        {ShowSuggestions}
+                                    </ScrollView>   
+                                </View>
+                        </>:null}
         
                    </View>
                    {MarketSegmentId !== 1 ? 
                    <View style={styles.SelectSymbolContainer}>
                        <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Select Expiry Date</NormalText>
                        <View style={styles.TextInputContainer}>
-                           <Picker selectedValue={""} onValueChange={(val)=>this.setState({SelectedStrategyId:val})}>
-                           
+                           <Picker selectedValue={this.props.ExpiryDate} onValueChange={(val)=>this.onExpiryChange(val)}>
+                            {ShowExpiry}
                            </Picker>
                        </View>
                    </View>:null}
@@ -230,13 +302,13 @@ class Legs extends React.Component{
                            <View style={{width:'45%',alignItems:'flex-start'}}>
                                <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Minimum</NormalText>
                                <View style={styles.TextInputContainer}>
-                                   <TextInput onChangeText={this.onTriggerMinChange} keyboardType='numeric' value={TriggerMin} editable={SelectedCMP === 1 || SelectedCMP === 4 ? true:false} />
+                                   <TextInput onChangeText={this.onTriggerMinChange} style={{backgroundColor:`${SelectedCMP === 1 || SelectedCMP === 4 ? 'white':'#EAEBF0'}`,borderRadius:10}}  keyboardType='numeric' value={TriggerMin} editable={SelectedCMP === 1 || SelectedCMP === 4 ? true:false} />
                                </View>
                           </View>
                            <View style={{width:'45%'}}>
                                <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Maximum</NormalText>
                                <View style={styles.TextInputContainer}>
-                                   <TextInput onChangeText={this.onTriggerMaxChange} keyboardType='numeric' value={TriggerMax} editable={SelectedCMP === 2 || SelectedCMP === 4 ? true:false}/>
+                                   <TextInput onChangeText={this.onTriggerMaxChange} style={{backgroundColor:`${SelectedCMP === 2 || SelectedCMP === 4 ? 'white':'#EAEBF0'}`,borderRadius:10}} keyboardType='numeric' value={TriggerMax} editable={SelectedCMP === 2 || SelectedCMP === 4 ? true:false}/>
                                </View>
                            </View>
                        </View>
@@ -248,13 +320,13 @@ class Legs extends React.Component{
                         <View style={{width:'45%'}}>
                             <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Target 1</NormalText>
                             <View style={styles.TextInputContainer}>
-                                <TextInput value={Target1} onChangeText={this.onTarget1Change} />
+                                <TextInput value={Target1} keyboardType="numeric" onChangeText={this.onTarget1Change} />
                             </View>
                         </View>
                         <View style={{width:'45%'}}>
                             <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>StopLoss 1</NormalText>
                             <View style={styles.TextInputContainer}>
-                                <TextInput value={Stoploss1} onChangeText={this.onStoploss1Change}/>
+                                <TextInput value={Stoploss1} keyboardType="numeric" onChangeText={this.onStoploss1Change}/>
                             </View>
                         </View>
                     </View>
@@ -264,13 +336,13 @@ class Legs extends React.Component{
                         <View style={{width:'45%'}}>
                             <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Target 2</NormalText>
                             <View style={styles.TextInputContainer}>
-                                <TextInput value={Target2} onChangeText={this.onTarget2Change}/>
+                                <TextInput value={Target2} keyboardType="numeric" onChangeText={this.onTarget2Change}/>
                             </View>
                         </View>
                         <View style={{width:'45%'}}>
                             <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>StopLoss 2</NormalText>
                             <View style={styles.TextInputContainer}>
-                                <TextInput value={Stoploss2} onChangeText={this.onStoploss2Change}/>
+                                <TextInput value={Stoploss2} keyboardType="numeric" onChangeText={this.onStoploss2Change}/>
                             </View>
                         </View>
                     </View>:null}
@@ -280,13 +352,13 @@ class Legs extends React.Component{
                         <View style={{width:'45%'}}>
                             <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Target 3</NormalText>
                             <View style={styles.TextInputContainer}>
-                                <TextInput value={Target3} onChangeText={this.onTarget3Change}/>
+                                <TextInput value={Target3} keyboardType="numeric" onChangeText={this.onTarget3Change}/>
                             </View>
                         </View>
                         <View style={{width:'45%'}}>
                             <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>StopLoss 3</NormalText>
                             <View style={styles.TextInputContainer}>
-                                <TextInput value={Stoploss3} onChangeText={this.onStoploss3Change}/>
+                                <TextInput value={Stoploss3} keyboardType="numeric" onChangeText={this.onStoploss3Change}/>
                             </View>
                         </View>
                     </View>:null}
@@ -313,14 +385,15 @@ class Legs extends React.Component{
                <Card style={{...styles.CustomCard,...{alignItems:'flex-start'}}}>
                    <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Investment Amount</NormalText>
                    <View style={styles.TextInputContainer}>
-                      <TextInput value={InvestmentAmt} onChangeText={this.onInvestmentAmtChange}/>
+                      <TextInput value={InvestmentAmt} keyboardType="numeric" onChangeText={this.onInvestmentAmtChange}/>
                    </View>
                </Card>
 
             </>
         )
     }
-}
+}  
+
 
 
 const styles=StyleSheet.create({
