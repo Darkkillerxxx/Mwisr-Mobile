@@ -49,6 +49,8 @@ const endpoint_url={
     GetSymbol: base_url_wealthyFox+"AnalystQuery/GetSymbols",
     GetSymbolsDetails:base_url_wealthyFox + "/AnalystQuery/GetSymbolsDetails",
     UpsertCall: base_url_wealthyFox + "/Analyst/UpsertCall",
+    GetStrategies: base_url_wealthyFox + "/RTTracker/GetStrategy",
+    GetStrategyDetails:base_url_wealthyFox + "/RTTracker/GetStrategyDetail"
 }
 
 /********* Normal Functions **********/
@@ -780,6 +782,22 @@ export function get_symbol_details(authHeader,payload)
 export function add_call(authHeader,payload)
 {
   return apiCall(endpoint_url['UpsertCall'],"POST",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+
+export function get_strategies(authHeader,payload)
+{
+  return apiCall(endpoint_url['GetStrategies'],"GET",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function get_strategy_details(authHeader,payload)
+{
+
+  return apiCall(endpoint_url['GetStrategyDetails'],"GET",payload,authHeader).then(data => {
     return JSON.parse(data)
   }).catch(err => err)
 }

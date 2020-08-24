@@ -202,6 +202,7 @@ class Legs extends React.Component{
                              ios_backgroundColor="#3e3e3e"
                              onValueChange={()=>this.ChangeCallTypes(this.props.CallType)}
                              value={this.props.CallType === 1 ? false : true}
+                             disabled={this.props.IsCMPDisabled ? true:false }
                          />
                      </View>
 
@@ -295,7 +296,7 @@ class Legs extends React.Component{
                    </View>
                </Card>
 
-                {CMP !== 1 ? 
+                {CMP !== 3 ? 
                <Card style={{...styles.CustomCard,...{alignItems:'flex-start'}}}>
                    <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Trigger</NormalText>
                        <View style={{...styles.FlexContainer,...{justifyContent:'space-evenly',padding:0,marginVertical:10}}}>

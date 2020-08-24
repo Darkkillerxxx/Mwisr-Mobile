@@ -1,7 +1,7 @@
 import React from 'react'
 import { View,StyleSheet,ScrollView,TouchableOpacity,TextInput,FlatList,Picker,Switch} from 'react-native';
 import { connect }from 'react-redux'
-import {get_package_addCall,get_similar_package,get_strategy_duration,verbose,add_call} from '../../Utils/api.js'
+import {get_package_addCall,get_similar_package,get_strategy_duration,verbose,add_call,get_strategies,get_strategy_details} from '../../Utils/api.js'
 import {setLogin} from '../../store/Actions/ActionLogin'
 import Container from '../../Components/Container'
 import NormalText from '../../Components/NormalText'
@@ -14,6 +14,7 @@ import BoldText from '../../Components/BoldText'
 import { RadioButton } from 'react-native-paper';
 import RBContainer from '../../Components/RBContainer'
 import Legs from './Legs'
+import {NavigationEvents} from 'react-navigation'
 
 class AddCall extends React.Component{
     constructor()
@@ -35,6 +36,8 @@ class AddCall extends React.Component{
             Durations:[],
             SelectedDuration:null,
             Exchanges:[],
+            Strategy:[],
+            SelectedStrategy:null,
             SelectedExchange:null
         }
         console.disableYellowBox = true;
@@ -42,23 +45,57 @@ class AddCall extends React.Component{
 
 
     changeAddCallType=(value)=>{
-        this.setState({IsQuickAddCall:value})
+        this.setState({IsQuickAddCall:value},()=>{
+            this.ResetPackages()
+            this.getStrategyDuration()
+        })
         //Reset Whole State after Changing Add Call Type
     }
 
-    componentDidMount()
+    onAddCallInit=()=>
     {
-        get_package_addCall(this.props.loginState.AuthHeader).then(result=>{
-            if(result.IsSuccess)
+        this.setState({ 
+            IsQuickAddCall:true,
+            SelectPackagePart:1,
+            PackageSearchText:"",
+            SelectedBasePackageId:null,
+            SelectedMarketSegmentId:null,
+            SelectedOwnerId:null,
+            Packages:[],
+            SelectedPackages:[],
+            SelectedPackageIndex:null,
+            SimilarPackages:[],
+            StrategyDetails:[],
+            SelectedLegs:0,
+            Durations:[],
+            SelectedDuration:null,
+            Exchanges:[],
+            Strategy:[],
+            SelectedStrategy:null,
+            SelectedExchange:null
+        },()=>{
+            get_package_addCall(this.props.loginState.AuthHeader).then(result=>{
+                if(result.IsSuccess)
+                {
+                    this.setState({Packages:result.Data})
+                }
+                else
+                {
+                    verbose(false,"Error Fetching Packages",result.DisplayMsg)
+                }
+            })
+    
+            this.getStrategyDuration()
+    
+            if(this.state.IsQuickAddCall)
             {
-                this.setState({Packages:result.Data})
-            }
-            else
-            {
-                verbose(false,"Error Fetching Packages",result.DisplayMsg)
+                this.AddStrategyQuickAddCall()
             }
         })
+        
+    }
 
+    getStrategyDuration=()=>{
         get_strategy_duration(this.props.loginState.AuthHeader).then(result=>{
             if(result.IsSuccess)
             {
@@ -69,11 +106,6 @@ class AddCall extends React.Component{
                 verbose(false,"Error Fetching Durations",result.DisplayMsg)
             }
         })
-
-        if(this.state.IsQuickAddCall)
-        {
-            this.AddStrategyQuickAddCall()
-        }
     }
 
     AddStrategyQuickAddCall=()=>{
@@ -84,6 +116,7 @@ class AddCall extends React.Component{
             CMP:5,
             SelectedCMP:1,
             CallType:1,
+            IsCMPDisabled:false,
             Symbol:"",
             ExpiryDate:null,
             TriggerMin:"",
@@ -98,6 +131,7 @@ class AddCall extends React.Component{
             PackageTypeId:null,
             TargetStoplossCount:1
         }
+       
         temp.push(QuickStrategy)
 
         this.setState({StrategyDetails:temp})
@@ -111,7 +145,7 @@ class AddCall extends React.Component{
         }
 
         get_similar_package(this.props.loginState.AuthHeader,payload).then(result =>{
-            console.log("Similar Package",result)
+            // console.log("Similar Package",result)
             if(result.IsSuccess)
             {
                 this.setState({SimilarPackages:result.Data})    
@@ -126,29 +160,100 @@ class AddCall extends React.Component{
     onPackageSelected=(Id,index,duration,Exchanges,MarketSegmentId,OwnerId)=>{
         if(this.state.SelectedBasePackageId === null)
         {
-            if(this.state.IsQuickAddCall)
-            {
                 let temp=[];
                 temp.push(Id)
                 this.setState({SelectedOwnerId:OwnerId})
                 this.setState({SelectedMarketSegmentId:MarketSegmentId});
                 this.setState({Exchanges:Exchanges.split(',')},()=>{
                     this.setState({SelectedExchange:this.state.Exchanges[0]})
-                });
-                this.setState({SelectedDuration:duration})
-                this.setState({SelectedPackageIndex:index},()=>{
-                    this.setState({SelectedBasePackageId:Id},()=>{
-                        this.setState({SelectedPackages:temp},()=>{
-                            this.getSimilarPackage()
+                    this.setState({SelectedDuration:duration})
+                    this.setState({SelectedPackageIndex:index},()=>{
+                        this.setState({SelectedBasePackageId:Id},()=>{
+                            this.setState({SelectedPackages:temp},()=>{
+                                this.getSimilarPackage()
+
+                                if(!this.state.IsQuickAddCall)
+                                {
+                                    let Strategy_Payload={
+                                        marketExchangeCode:this.state.Exchanges[0],
+                                        marketSegmentId:MarketSegmentId
+                                    }
+                                  
+                                    get_strategies(this.props.loginState.AuthHeader,Strategy_Payload).then(result=>{
+                        
+                                        if(result.IsSuccess)
+                                        {
+                                            this.setState({Strategy:result.Data},()=>{
+                                                if(this.state.Strategy.length > 0)
+                                                {
+                                                    this.GetStrategyDetails(1,Id,OwnerId)
+                                                }
+                                                else
+                                                {
+                                                    this.AddStrategyQuickAddCall()
+                                                }
+                                            })
+                                        }
+                                        else
+                                        {
+                                            verbose(false,"Strategy Not Fetched",result.DisplayMsg)
+                                        }
+                                    })
+                                }
+                            })
                         })
                     })
+                });    
+        }
+    }
+
+    GetStrategyDetails=(Id,PackageId,OwnerId)=>{
+        let Strategy_Details_Payload={
+            strategyId:Id,
+            forPackageId:PackageId,
+            forOwnerId:OwnerId,
+            forPackageCreatedBy:OwnerId,
+            marketExchangeCodeIfPlainStrategy:""
+        };
+        
+        console.log("SD Payload",Strategy_Details_Payload)
+        get_strategy_details(this.props.loginState.AuthHeader,Strategy_Details_Payload).then(result => {
+            if(result.IsSuccess)
+            {
+                let Strategy=[]
+                
+                result.Data.forEach((result,index)=>{
+                    let SD={
+                        Index:index,
+                        CMP:result.CMP === "Any" ? 5:result.CMP === "Above" ? 1 :result.CMP === "Below" ? 2:result.CMP === "Between" ? 4:3,
+                        SelectedCMP:result.CMP === "Any" ? null:result.CMP === "Above" ? 1 :result.CMP === "Below" ? 2:result.CMP === "Between" ? 4:3,
+                        CallType:result.CallType === 3 ? 1 :result.CallType,
+                        IsCMPDisabled:result.CallType === 3 ? false : true,
+                        Symbol:"",
+                        ExpiryDate:null,
+                        TriggerMin:"",
+                        TriggerMax:"",
+                        Target1:"",
+                        Target2:"",
+                        Target3:"",
+                        Stoploss1:"",
+                        Stoploss2:"",
+                        Stoploss3:"",
+                        InvestmentAmt:"",
+                        PackageTypeId:null,
+                        TargetStoplossCount:1
+                    }
+                    Strategy.push(SD)
+                })
+                this.setState({StrategyDetails:Strategy},()=>{
+                    console.log('SD Result',this.state.StrategyDetails)
                 })
             }
-        }
-        else
-        {
-
-        }
+            else
+            {
+                verbose(false,"Details Not Fetched",result.DisplayMsg)
+            }
+        })
     }
 
     ChangePackageSearchText=(e)=>{
@@ -156,9 +261,20 @@ class AddCall extends React.Component{
     }
 
     onSimilarPackageSelected=(id)=>{
+        
         let temp=this.state.SelectedPackages
-        temp.push(id)
+        if(temp.includes(id))
+        {
+            let indx=temp.indexOf(id)
+            temp.splice(indx,1)
+        }
+        else
+        {
+            temp.push(id)
+            
+        }
         this.setState({SelectedPackages:temp})
+       
     }
 
     EditLegs=(index,Type,val)=>{
@@ -234,9 +350,21 @@ class AddCall extends React.Component{
         this.setState({PackageSearchText:""})
         this.setState({SelectedBasePackageId:null})
         this.setState({SelectedMarketSegmentId:null})
+        this.setState({SelectedOwnerId:null})
         this.setState({SelectedPackages:[]})
         this.setState({SelectedPackageIndex:[]})
         this.setState({SimilarPackages:[]})
+        this.setState({SelectedLegs:0})
+        this.setState({SelectedDuration:null})
+        this.setState({Durations:[]})
+        this.setState({Exchanges:[]})
+        this.setState({SelectedExchange:null})
+        this.setState({StrategyDetails:[]},()=>{
+            if(this.state.IsQuickAddCall)
+            {
+                this.AddStrategyQuickAddCall()
+            }
+        })
     }
 
     AddCall=()=>{
@@ -332,9 +460,25 @@ class AddCall extends React.Component{
             )
         })
 
+        let ShowStrategy=this.state.Strategy.map(result => {
+            return(
+                <Picker.Item key={result.Id} value={result.Id} label={result.Name} />
+            )
+        })
+
         let ShowStrategyDurations=this.state.Durations.map(result => {
             return(
                 <Picker.Item key={result.Id} label={result.Name} value={result.Id} />
+            )
+        })
+
+        let ShowLegs=this.state.StrategyDetails.map((result,index)=>{
+            return(
+                <TouchableOpacity onPress={()=>this.setState({SelectedLegs:index})} style={{width:'23%'}}>
+                    <Card style={{width:'100%',height:50,borderLeftWidth:5,borderColor:`${this.state.SelectedLegs === index ? "#16d39a":"grey"}`,JustifyContent:'center',alignItems:'center',elevation:5,borderRadius:5}}>
+                        <NormalText style={{marginBottom:0,fontSize:14}}>LEG {index + 1}</NormalText>
+                    </Card>
+                </TouchableOpacity>
             )
         })
         
@@ -371,6 +515,12 @@ class AddCall extends React.Component{
 
         return(
             <Container style={styles.CustomContainer}>
+                <NavigationEvents onDidFocus={()=> this.onAddCallInit()}/>
+                {!this.state.IsQuickAddCall && this.state.StrategyDetails.length > 1 ? 
+                <View style={{width:'100%',height:65,flexDirection:'row',alignItems:'center',justifyContent:'space-evenly'}}>
+                    {ShowLegs}
+                </View>:null}
+
                 <ScrollView nestedScrollEnabled={true}>
                     <View style={styles.IsQuickAddCallContainer}>
                         <MwisrSelector onSelect={this.changeAddCallType} Selected={this.state.IsQuickAddCall ? true: false} Text={'Quick Add Call'} value={true}/>
@@ -438,6 +588,16 @@ class AddCall extends React.Component{
                                         </Picker>
                                     </View>
                                 </Card>  :null}
+
+                                {this.state.Strategy.length > 1 ?
+                                <Card style={{...styles.CustomCard,...{alignItems:'flex-start'}}}>
+                                    <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Select Strategy</NormalText>
+                                    <View style={styles.TextInputContainer}>
+                                        <Picker selectedValue={this.state.SelectedStrategy} onValueChange={(val)=>this.setState({SelectedStrategy:val},()=>this.GetStrategyDetails(val,this.state.SelectedPackages[0],this.state.SelectedOwnerId))}>
+                                            {ShowStrategy}           
+                                        </Picker>
+                                    </View>
+                                </Card>  :null}
                                 
                                 <Card style={{...styles.CustomCard,...{alignItems:'flex-start'}}}>
                                     <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Select Duration</NormalText>
@@ -447,29 +607,30 @@ class AddCall extends React.Component{
                                         </Picker>
                                     </View>
                                 </Card>   
-                                {this.state.StrategyDetails.length > 0 ?
+                                {this.state.StrategyDetails.length > 0  ?
                                     
                                     <Legs 
                                         AuthHeader={this.props.loginState.AuthHeader}
                                         Index={this.state.SelectedLegs} 
-                                        CallType={this.state.StrategyDetails[0].CallType}
-                                        Symbol={this.state.StrategyDetails[0].Symbol}
+                                        CallType={this.state.StrategyDetails[this.state.SelectedLegs].CallType}
+                                        Symbol={this.state.StrategyDetails[this.state.SelectedLegs].Symbol}
                                         LegsEdit={this.EditLegs} 
-                                        CMP={this.state.StrategyDetails[0].CMP}
-                                        SelectedCMP={this.state.StrategyDetails[0].SelectedCMP}
-                                        TriggerMin={this.state.StrategyDetails[0].TriggerMin}
-                                        TriggerMax={this.state.StrategyDetails[0].TriggerMax}
-                                        TargetStoplossCount={this.state.StrategyDetails[0].TargetStoplossCount}
-                                        Target1={this.state.StrategyDetails[0].Target1}
-                                        Target2={this.state.StrategyDetails[0].Target2}
-                                        Target3={this.state.StrategyDetails[0].Target3}
-                                        Stoploss1={this.state.StrategyDetails[0].Stoploss1}
-                                        Stoploss2={this.state.StrategyDetails[0].Stoploss2}
-                                        Stoploss3={this.state.StrategyDetails[0].Stoploss3}
-                                        InvestmentAmt={this.state.StrategyDetails[0].InvestmentAmt}
+                                        CMP={this.state.StrategyDetails[this.state.SelectedLegs].CMP}
+                                        SelectedCMP={this.state.StrategyDetails[this.state.SelectedLegs].SelectedCMP}
+                                        TriggerMin={this.state.StrategyDetails[this.state.SelectedLegs].TriggerMin}
+                                        TriggerMax={this.state.StrategyDetails[this.state.SelectedLegs].TriggerMax}
+                                        TargetStoplossCount={this.state.StrategyDetails[this.state.SelectedLegs].TargetStoplossCount}
+                                        Target1={this.state.StrategyDetails[this.state.SelectedLegs].Target1}
+                                        Target2={this.state.StrategyDetails[this.state.SelectedLegs].Target2}
+                                        Target3={this.state.StrategyDetails[this.state.SelectedLegs].Target3}
+                                        Stoploss1={this.state.StrategyDetails[this.state.SelectedLegs].Stoploss1}
+                                        Stoploss2={this.state.StrategyDetails[this.state.SelectedLegs].Stoploss2}
+                                        Stoploss3={this.state.StrategyDetails[this.state.SelectedLegs].Stoploss3}
+                                        InvestmentAmt={this.state.StrategyDetails[this.state.SelectedLegs].InvestmentAmt}
                                         MarketSegmentId={this.state.SelectedMarketSegmentId}
                                         Exchange={this.state.SelectedExchange}
-                                        ExpiryDate={this.state.StrategyDetails[0].ExpiryDate} />  
+                                        ExpiryDate={this.state.StrategyDetails[this.state.SelectedLegs].ExpiryDate}
+                                        IsCMPDisabled={this.state.StrategyDetails[this.state.SelectedLegs].IsCMPDisabled} />  
                                 :null}
                             </View>
                             <View style={styles.CustomButtonContainer}>
