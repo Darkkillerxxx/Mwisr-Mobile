@@ -14,7 +14,10 @@ class MainLayout extends React.Component{
         this.state={
             DisplayMsg:false,
             ErrorMsg1:"",
-            ErrorMsg2:""
+            ErrorMsg2:"",
+            Message:[],
+            MessageBuffer:[],
+            ShowMsg:false
         }
     }
 
@@ -25,7 +28,6 @@ class MainLayout extends React.Component{
 
     componentDidUpdate(prevProps,prevState,Ss)
     {   
-       
         if(prevProps.ErrMsg !== this.props.ErrMsg)
         {
             console.log("Updated Error Code :" + this.props.ErrMsg)
@@ -96,6 +98,43 @@ class MainLayout extends React.Component{
                   break;
             }
         }
+
+
+        if(prevProps.Message !== this.props.Message)
+        {
+            this.setNrmlMsg(this.props.Message)   
+        }
+    }
+
+    setNrmlMsg=(Msg)=>{
+        if(this.state.Message.length === 0)
+        {
+            let ReceivedMessage=[]
+            ReceivedMessage.push(JSON.parse(Msg))
+            this.setState({Message: ReceivedMessage},()=>{
+                console.log("Showing Message",this.state.Message)
+                setTimeout(()=>{
+                    this.setState({Message:[]},()=>{
+                        setTimeout(()=>{
+                            if(this.state.MessageBuffer.length > 0)
+                            {
+                                console.log("Inside Buffer")
+                                this.setNrmlMsg(this.state.MessageBuffer[0])
+                                let tempBuffer=this.state.MessageBuffer
+                                tempBuffer.splice(0,1)
+                                this.setState({MessageBuffer:tempBuffer});
+                            }
+                        },1500)
+                    })
+                },5000)
+            })
+        }
+        else
+        {
+            let Buffer=this.state.MessageBuffer
+            Buffer.push(Msg)
+            this.setState({MessageBuffer:Buffer})
+        }
     }
 
     render()
@@ -113,6 +152,16 @@ class MainLayout extends React.Component{
                         </View>
                     </View>
                 :null}
+                {this.state.Message.length > 0 ?
+                <View style={{...styles.Message,...{backgroundColor:`${this.state.Message[0].IsSuccess ? "#16d39a":"#ff6961"}`}}}>
+                    <View style={styles.MessageLeft}>
+                        <FontAwesome name={this.state.Message[0].IsSuccess ? "check":"close"} size={36} color="white" />
+                    </View>
+                    <View style={styles.MessageRight}>
+                        <NormalText style={styles.MessageHeading}>{this.state.Message[0].Heading}</NormalText>
+                        <NormalText style={styles.MessageDesc}>{this.state.Message[0].Description}</NormalText>
+                    </View>
+                </View>:null}
                 <MWisrNavigator />
             </View>
         )
@@ -136,17 +185,52 @@ const styles=StyleSheet.create({
         fontSize:15,
         textAlign:'center'
     },
+    MessageHeading:{
+        color:'white',
+        marginBottom:5,
+        fontSize:15,
+        textAlign:'center'
+    },
     ErrorDesc:{
         color:'white',
         marginBottom:0,
         fontSize:12,
         textAlign:'center'
+    },
+    MessageDesc:{
+        color:'white',
+        marginBottom:0,
+        fontSize:12,
+        textAlign:'center'
+    },
+    Message:{
+        minHeight:80,
+        width:'95%',
+        position:'absolute',
+        elevation:1,
+        borderRadius:10,
+        alignSelf:'center',
+        marginVertical:10,
+        flexDirection:'row'
+    },
+    MessageLeft:{
+        width:'20%',
+        height:"100%",
+        alignItems:'center',
+        justifyContent:'center'
+    },
+    MessageRight:{
+        width:'80%',
+        height:"100%",
+        alignItems:'center',
+        justifyContent:'center'
     }
 })
 
 const mapStateToProps= state =>{
     return{
-        ErrMsg:state.login.ErrorMsg
+        ErrMsg:state.login.ErrorMsg,
+        Message:state.login.Message
     }
 }
 

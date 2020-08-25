@@ -1,0 +1,151 @@
+    {this.state.Packages.length > 0 && this.state.SelectedPackageIndex !== null ? 
+                    <View>
+                        <CollapsibleCard Heading="Select Package" style={{width:'100%',borderRadius:5,marginVertical:5}}>
+                            <View style={{width:'100%',alignItems:'flex-start',paddingHorizontal:10}}>
+                                <NormalText style={{marginBottom:0,marginTop:5}}>{`Selected Package : ${this.state.Packages[this.state.SelectedPackageIndex].PackageName}`}</NormalText>
+                                <NormalText style={{marginBottom:0,marginTop:5}}>{`Selected Type : ${this.state.Packages[this.state.SelectedPackageIndex].MarketSegmentName}`}</NormalText>
+                            </View>
+                            <View style={styles.SelectPackageContainer}>
+                                <View style={styles.SideArrowContainer}>
+                                    <TouchableOpacity onPress={() => this.ChangeSelectedPackage(false)}>
+                                        <View style={styles.ArrowContainer}>
+                                            <FontAwesome name="chevron-left" size={10} color="white" />
+                                        </View>
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={styles.PackageContainer}>
+                                    <View style={{...styles.UnSelectedPackage,...{opacity:this.checkIndexExist(this.state.SelectedPackageIndex - 1 ) ? 1 : 0}}}>
+                                        <FontAwesome name="dropbox" size={20} color="#F0B22A" />
+                                        <NormalText style={{marginBottom:0,marginTop:5,textAlign:'center',color:"#F0B22A"}}>{this.checkIndexExist(this.state.SelectedPackageIndex - 1 ) ? this.state.Packages[this.state.SelectedPackageIndex - 1].PackageName:null}</NormalText>
+                                        <NormalText style={{marginBottom:5,textAlign:'center',color:"#F0B22A"}}>{this.checkIndexExist(this.state.SelectedPackageIndex - 1 ) ? this.state.Packages[this.state.SelectedPackageIndex - 1].MarketSegmentName:null}</NormalText>
+                                    </View>
+                                
+                                    <View style={styles.SelectedPackage}>
+                                        <FontAwesome name="dropbox" size={20} color="white" />
+                                        <NormalText style={{marginBottom:0,marginTop:5,textAlign:'center',color:'white'}}>{this.state.Packages[this.state.SelectedPackageIndex].PackageName}</NormalText>
+                                        <NormalText style={{marginBottom:5,textAlign:'center',color:'white'}}>{this.state.Packages[this.state.SelectedPackageIndex].MarketSegmentName}</NormalText>
+                                    </View>
+
+                                    <View style={{...styles.UnSelectedPackage,...{opacity:this.checkIndexExist(this.state.SelectedPackageIndex + 1 ) ? 1 : 0}}}>
+                                        <FontAwesome name="dropbox" size={20} color="#F0B22A" />
+                                        <NormalText style={{marginBottom:0,marginTop:5,textAlign:'center',color:"#F0B22A"}}>{this.checkIndexExist(this.state.SelectedPackageIndex + 1 ) ? this.state.Packages[this.state.SelectedPackageIndex + 1].PackageName:null}</NormalText>
+                                        <NormalText style={{marginBottom:5,textAlign:'center',color:"#F0B22A"}}>{this.checkIndexExist(this.state.SelectedPackageIndex + 1 ) ? this.state.Packages[this.state.SelectedPackageIndex + 1].MarketSegmentName:null}</NormalText>
+                                    </View>
+                                </View>
+                                <View style={styles.SideArrowContainer}>
+                                <TouchableOpacity onPress={() => this.ChangeSelectedPackage(true)}>
+                                        <View style={styles.ArrowContainer}>
+                                            <FontAwesome name="chevron-right" size={10} color="white" />
+                                        </View>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </CollapsibleCard>
+
+                        <CollapsibleCard Heading="Similar Packages" style={{width:'100%',borderRadius:5,marginVertical:5}}>
+                            <View style={styles.SelectPackageContainer}>
+                                <FlatList
+                                    keyExtractor={(item,index)=>index.toString()}
+                                    data={this.state.SimilarPackages}
+                                    renderItem={this.ShowSimilarPackage}
+                                    numColumns={3} />
+                            </View>                
+                        </CollapsibleCard>
+                    </View>:null}
+
+
+
+ checkIndexExist=(index)=>
+    {
+        if(index < 0)
+        {
+            return false
+        }
+        else if(this.state.Packages[index].PackageId === undefined)
+        {
+            return false
+        }
+
+        return true
+    }
+
+    
+
+    ChangeSelectedPackage=(val)=>{
+        if(val)
+        {
+            this.setState({SelectedPackageIndex:this.state.SelectedPackageIndex + 1})
+        }
+        else
+        {
+            if(this.state.SelectedPackageIndex !== 0)
+            {
+                this.setState({SelectedPackageIndex:this.state.SelectedPackageIndex - 1})
+            }
+        }
+    }
+
+    ShowSimilarPackage=(itemData)=>{
+        return(
+            <View style={{width:'30%',margin:5}}>
+                 <MwisrSelector Text={itemData.item.PackageName} Selected={false}/>
+            </View>
+           
+        )
+    }
+
+       SelectPackageContainer:{
+        flexDirection:'row',
+        padding:5,
+        justifyContent:'center',
+        marginTop:10,
+        marginBottom:15
+    },
+    PackageContainer:{
+        width:'80%',
+        flexDirection:'row',
+        justifyContent:'center'
+    },
+    UnSelectedPackage:{
+        width:'28%',
+        height:75,
+        alignItems:'center',
+        borderWidth:1,
+        borderRadius:5,
+        padding:5,
+        borderColor:'#F0B22A',
+        marginHorizontal:2
+    },
+    SelectedPackage:{
+        width:'33%',
+        height:80,
+        alignItems:'center',
+        borderWidth:1,
+        borderRadius:5,
+        padding:5,
+        borderColor:'#F0B22A',
+        backgroundColor:'#F0B22A',
+        marginHorizontal:2,
+        elevation:3
+    },
+    SideArrowContainer:{
+        width:'10%',
+        justifyContent:'center',
+        alignItems:'center'
+    },
+    ArrowContainer:{
+        borderRadius:100,
+        width:25,
+        height:25,
+        borderWidth:1,
+        backgroundColor:'black',
+        opacity:0.5,
+        alignItems:'center',
+        justifyContent:'center'
+    },
+    SimilarPackageContainer:{
+        width:'100%',
+        flexDirection:'row',
+        alignItems:'center',
+        justifyContent:'center'
+    }

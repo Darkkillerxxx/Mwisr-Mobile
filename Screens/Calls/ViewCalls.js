@@ -8,6 +8,7 @@ import ViewCalls from '../../Components/ViewCalls'
 import { FontAwesome } from '@expo/vector-icons';
 import CallsFilter from '../../Components/CallsFilter'
 import { get_user_owners } from '../../Utils/api'
+import {setMiniDetails} from '../../store/Actions/ActionCallDetails'
 
 class ViewCall extends React.Component{
 
@@ -41,6 +42,16 @@ class ViewCall extends React.Component{
 
     SelectTab=(Tab)=>{
         this.setState({SelectedTab:Tab})
+    }
+
+    MoveToCallDetails=(MiniCallDetails)=>{
+        let TempMiniCD=[]
+        TempMiniCD.push(MiniCallDetails)
+        this.props.onSetMiniCD(MiniCallDetails)
+        
+        this.props.navigation.navigate('CallDetails',{
+            MiniDetails:MiniCallDetails
+        })
     }
 
     closeFilterModal=(Search,Exchange,CallStatus,OwnerId)=>{
@@ -80,7 +91,7 @@ class ViewCall extends React.Component{
                     </View>
                 </View>
 
-                <View style={{width:'100%',flex:1,padding:10,justifyContent:'flex-end',alignItems:'center'}} >
+                <View style={{width:'100%',flex:1,padding:5,justifyContent:'flex-end',alignItems:'center'}} >
    
                     <View style={{width:'100%',minHeight:100,position:'absolute',elevation:6,alignItems:'flex-end',justifyContent:'center',zIndex:1}}>
                         <TouchableOpacity onPress={()=>this.setState({ShowFilterModal:true})}>
@@ -102,7 +113,8 @@ class ViewCall extends React.Component{
                             CallId=""
                             Exchange={this.state.Exchange}
                             Symbol={this.state.SearchText}
-                            AssignedToMe={false}/>
+                            AssignedToMe={false}
+                            CallDetails={this.MoveToCallDetails}/>
                     </Card>
 
                 </View>
@@ -163,7 +175,8 @@ const mapStateToProps= state =>{
 
 const mapDispatchToProps = dispatch =>{
     return{
-        onSetLogin:(response)=>dispatch(setLogin(response))
+        onSetLogin:(response)=>dispatch(setLogin(response)),
+        onSetMiniCD:(response)=>dispatch(setMiniDetails(response))
     }
 }
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, StyleSheet,Picker, ScrollView, FlatList,TouchableOpacity,ToastAndroid} from 'react-native'
+import { View, StyleSheet,Picker, ScrollView, FlatList,TouchableOpacity,ToastAndroid,ActivityIndicator} from 'react-native'
 import Container from '../../Components/Container'
 import NormalText from '../../Components/NormalText'
 import CollapsibleCard from '../../Components/CollapsibleCard'
@@ -7,7 +7,7 @@ import CollapsibleCard from '../../Components/CollapsibleCard'
 import {Checkbox} from 'react-native-paper'
 import CustomButton from '../../Components/Button'
 import {NavigationEvents} from 'react-navigation';
-import {get_packages,upsert_package_permisssion} from '../../Utils/api'
+import {get_packages,upsert_package_permisssion,get_assigned_users,verbose,get_package_permissions} from '../../Utils/api'
 import {connect} from 'react-redux'
 import { RadioButton } from 'react-native-paper';
 import RBContainer from '../../Components/RBContainer'
@@ -89,7 +89,12 @@ class PackagePermission extends React.Component{
               PackagePermissionStatus:1,
               ShowOwnerContactDetails:true,
               SelectedPackage:null,
-              AssignedPackages:[]
+              AssignedPackages:[],
+              ButtonLoader:false,
+              AssignedUsers:[],
+              SelectedAssignedUserId:null,
+              ReceivedPermissionSet:[],
+              IsLoading:false
         }
         console.disableYellowBox = true
     }
@@ -127,6 +132,35 @@ class PackagePermission extends React.Component{
     onInitialize=()=>{
             const {AuthHeader,IsOwner,UserId,SuperOwnerId}=this.props.loginState
             const {SelectedUser,RouteNo}=this.props.navigation.state.params
+
+            if(RouteNo === 2)
+            {
+                this.setState({IsLoading:true})
+                let payload={
+                    forPackageId:this.props.navigation.state.params.PackageId,
+                    forOwnerId:this.props.navigation.state.params.SelectedUser
+                }
+
+                get_assigned_users(AuthHeader,payload).then(result =>{
+                    if(result.IsSuccess)
+                    {
+                        this.setState({AssignedUsers: result.Data},()=>{
+                            this.setState({SelectedAssignedUserId:this.state.AssignedUsers[0].UserId},()=>{
+                                this.FetchAssignedPermission(this.state.SelectedAssignedUserId)
+                            })
+                            this.setState({IsLoading:false});
+                        })
+                    }
+                    else
+                    {
+                        this.setState({IsLoading:false})
+                        verbose(false,"Users Fetch Error","There was An Error Fetching Assigned Users.Please Try Again")
+                    }
+                })
+            }
+            else
+            {
+                
             let payload={
                 forOwnerId:IsOwner ? UserId:SuperOwnerId,
                 userTypeId:"",
@@ -147,6 +181,83 @@ class PackagePermission extends React.Component{
                     this.setState({AssignedPackages:result.Data})
                 }
             })
+            }
+
+    }
+
+    FetchAssignedPermission=(SelectedUser)=>{
+        const {AuthHeader}=this.props.loginState
+        const {PackageId}=this.props.navigation.state.params
+
+        let payload={
+            ForPackageId:PackageId,
+            ForUserId:SelectedUser
+        }
+
+        console.log("Permissions Payload",payload)
+        get_package_permissions(AuthHeader,payload).then(result => {
+            if(result.IsSuccess)
+            {
+                this.setState({ReceivedPermissionSet:result.Data},()=>{
+                    let tempAccessRT=[];
+                    this.state.ReceivedPermissionSet.forEach(result => {
+                        if(result.PermissionSetId !== 42 && result.PermissionSetId !== 2)
+                        {
+                          if(result.CanView)
+                          {
+                            tempAccessRT.push(result.PermissionSetId.toString())
+                          }
+                        }
+                        else if(result.PermissionSetId === 2 )
+                        {
+                            if(result.CanManage === true && result.CanView === true)
+                            {
+                            this.setState({CallPermissionStatus:1})
+                            }
+                            else if(result.CanManage === false && result.CanView === true)
+                            {
+                            this.setState({CallPermissionStatus:2})
+                            }
+                            else
+                            {
+                            this.setState({CallPermissionStatus:3})
+                            }
+                        
+                        }
+                        else if(result.PermissionSetId === 42)
+                        {
+                          if(result.CanManage === true && result.CanView === true)
+                          {
+                            this.setState({PackagePermissionStatus:1})
+                          }
+                          else if(result.CanManage === false && result.CanView === true)
+                          {
+                            this.setState({PackagePermissionStatus:2})
+                          }
+                          else
+                          {
+                            this.setState({PackagePermissionStatus:3})
+                          }
+                          if(result.ShowOwnerName && result.ShowOwnerContactNo)
+                          {
+                            this.setState({ShowOwnerContactDetails:true})
+                          }
+                          else
+                          {
+                            this.setState({ShowOwnerContactDetails:false})
+                          }
+                        }
+                    })
+                    this.setState({SelectedNotification:tempAccessRT},()=>{
+                        console.log(this.state.SelectedNotification)
+                      })
+                })
+            }
+            else
+            {
+                verbose(false,"Permissions Not Fetched","There Was An Error Fetching Permissions for the Selected User")
+            }
+        })
     }
 
     ChangeCallPermissionStatus=(status)=>{
@@ -162,22 +273,30 @@ class PackagePermission extends React.Component{
     }
 
     ApplyPackagePermission=(payload)=>{
-        console.log("In 3")
+        this.setState({ButtonLoader:true})
         upsert_package_permisssion(this.props.loginState.AuthHeader,payload).then(result => {
-            console.log(result);
+            console.log("Assignment Result",result);
             if(result.IsSuccess)
             {
-                console.log(result.Data)
-                ToastAndroid.show("Permissioned Assigned",ToastAndroid.SHORT)
+                this.setState({ButtonLoader:false});
+                verbose(true,"Assignment Successfull","Permissions Were Assigned Successfully For The Selected User")
             }
             else
             {
-                ToastAndroid.show("Error Assigning Permissions",ToastAndroid.SHORT)
+                this.setState({ButtonLoader:false});
+                verbose(false,"Assignment Failed","Failed To Assign Permissions For The Selected User")
             }
         })
     }
 
+    ChangeAssignedUser=(val)=>{
+        this.setState({SelectedAssignedUserId:val},()=>{
+            this.FetchAssignedPermission(this.state.SelectedAssignedUserId)
+        })
+    }
+
     onSubmitPermissions=()=>{
+        this.setState({ButtonLoader:true})
        const {RouteNo,SelectedUser}=this.props.navigation.state.params
         if(RouteNo === 1)
         {
@@ -282,6 +401,52 @@ class PackagePermission extends React.Component{
           
             }
           }
+          else
+          {
+            let Payload=[]
+
+            this.state.CallPackagePermissionSetId.forEach((element,index)=>{
+              Payload.push( {
+                "UserId": this.state.SelectedAssignedUserId,
+                "PermissionSetId": element,
+                "PackageId": this.props.navigation.state.params.PackageId,
+                "CanManage":index === 0 ? this.state.CallPermissionStatus === 1 ? true :false:this.state.PackagePermissionStatus === 1 ? true :false,
+                "CanView": index === 0 ? this.state.CallPermissionStatus === 1 || this.state.CallPermissionStatus === 2 ? true:false:this.state.PackagePermissionStatus === 1 || this.state.PackagePermissionStatus === 2 ? true:false,
+                "CanCreate":index === 0 ? this.state.CallPermissionStatus === 1 ? true :false:this.state.PackagePermissionStatus === 1 ? true:false,
+                "CanEdit": index === 0 ? this.state.CallPermissionStatus === 1 ? true :false:this.state.PackagePermissionStatus === 1 ? true:false,
+                "CanDeactivate": false,
+                "CanViewPermissions": false,
+                "CanSetPermissions": false,
+                "ShowOwnerName": this.state.ShowOwnerContactDetails,
+                "ShowOwnerContactNo": this.state.ShowOwnerContactDetails,
+                "ShowProviderContactName": !this.state.ShowOwnerContactDetails,
+                "ShowProviderContactNo": !this.state.ShowOwnerContactDetails,
+                "WithCallLimit": 0
+              })
+            })
+        
+            this.state.AllNotifications.forEach(element => {
+              Payload.push( {
+                "UserId": this.state.SelectedAssignedUserId,
+                "PermissionSetId": element,
+                "PackageId": this.props.navigation.state.params.PackageId,
+                "CanManage": this.state.SelectedNotification.includes(element),
+                "CanView": this.state.SelectedNotification.includes(element),
+                "CanCreate": this.state.SelectedNotification.includes(element),
+                "CanEdit": this.state.SelectedNotification.includes(element),
+                "CanDeactivate": false,
+                "CanViewPermissions": false,
+                "CanSetPermissions": false,
+                "ShowOwnerName": this.state.ShowOwnerContactDetails,
+                "ShowOwnerContactNo": this.state.ShowOwnerContactDetails,
+                "ShowProviderContactName": !this.state.ShowOwnerContactDetails,
+                "ShowProviderContactNo": !this.state.ShowOwnerContactDetails,
+                "WithCallLimit": 0
+              })
+            });
+
+            this.ApplyPackagePermission(Payload)
+          }
         }
     
 
@@ -296,10 +461,17 @@ class PackagePermission extends React.Component{
         )
     })
 
+    let ShowAssignedUsers=this.state.AssignedUsers.map((result,index)=>{
+        return (
+            <Picker.Item key={index} label={result.UserName} value={result.UserId} />
+        )
+    })
+
         return(
             <Container style={styles.PackagePermissionContainer}>
                 <ScrollView>
                 <NavigationEvents onDidFocus={()=>this.onInitialize()}/>
+                {this.props.navigation.state.params.RouteNo === 1 ? 
                 <View style={styles.PickerContainer}>
                     <NormalText style={{color:'black',fontSize:14}}>Select Package</NormalText>
                     <View style={styles.PackagePickerContainer}>
@@ -308,7 +480,16 @@ class PackagePermission extends React.Component{
                             {ShowPackages}
                         </Picker> 
                     </View>
-                </View>
+                </View>:
+                this.state.AssignedUsers.length > 0 ?
+                <View style={styles.PickerContainer}>
+                    <NormalText style={{color:'black',fontSize:14}}>Select User</NormalText>
+                    <View style={styles.PackagePickerContainer}>
+                        <Picker selectedValue={this.state.SelectedAssignedUserId} onValueChange={(val)=> this.ChangeAssignedUser(val)} >
+                            {ShowAssignedUsers}
+                        </Picker> 
+                    </View>
+                </View>:null}
                 <View style={styles.PackagePermission}>
                     <CollapsibleCard style={styles.CustomCollapsibleCard} Heading="Call Permissions">
                         <View style={styles.CustomCollapsibleCardContent}>
@@ -383,7 +564,9 @@ class PackagePermission extends React.Component{
                 <View style={styles.ApplyPermissionsContainer}>
                     <TouchableOpacity onPress={()=>this.onSubmitPermissions()}>
                         <CustomButton style={{width:250}}> 
-                            <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Apply Permissions</NormalText>
+                        {this.state.ButtonLoader ? 
+                            <ActivityIndicator size="small" color="white" />
+                            :<NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Apply Permissions</NormalText>}
                         </CustomButton>
                     </TouchableOpacity>
                 </View>

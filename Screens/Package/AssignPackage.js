@@ -4,7 +4,7 @@ import Container from '../../Components/Container'
 import NormalText from '../../Components/NormalText'
 import {NavigationEvents} from 'react-navigation';
 import { connect }from 'react-redux'
-import {get_sub_list, assign_Package} from '../../Utils/api'
+import {get_sub_list, assign_Package,verbose} from '../../Utils/api'
 import CustomButton from '../../Components/Button'
 import StepIndicator from 'react-native-step-indicator';
 import {Checkbox} from 'react-native-paper'
@@ -76,7 +76,7 @@ class AssignPackage extends React.Component{
             SelectedPackage:[],
             SelectedPackageArray:[],
             ButtonLoading:false,
-            ErrCode:null
+            ErrCode:0
         }
     }
 
@@ -114,14 +114,23 @@ class AssignPackage extends React.Component{
                 this.setState({ErrCode:1})
                 return false
             }
+            this.setState({ErrorCode:0})
             return true
+            
         }
         else if(this.state.AssignPart === 1)
         {
+            if(this.state.SelectedPackage.length === 0)
+            {
+                this.setState({ErrorCode:2})
+                return false
+            }
+            this.setState({ErrorCode:0})
             return true
         }
         else if(this.state.AssignPart === 2)
         {
+          this.setState({ErrorCode:0})
           return true    
         }
     }
@@ -157,16 +166,17 @@ class AssignPackage extends React.Component{
          }
     }
 
-    LoseFocus=()=>{
-   
+    LoseFocus=()=>{   
+        console.log("Losing Focus")
+        this.setState({SelectedPackage:[]})
+        this.setState({SelectedPackageArray:[]})
         this.setState({AssignPart:0})
         this.setState({StepState:0})
         this.setState({Packages:[]})
         this.setState({AssignedPackages:[]})
-        this.setState({AssignedPackagesId
-            :[]})
+        this.setState({AssignedPackagesId:[]})
         this.setState({SelectedPackage:[]})
-        this.setState({SelectedUser:null})    
+        this.setState({SelectedUser:null})
     }
 
     fetchPackage=()=>{
@@ -287,7 +297,7 @@ class AssignPackage extends React.Component{
             if(result.IsSuccess)
             {
                 this.setState({ButtonLoading:false})
-                ToastAndroid.show("Packages Assigned",ToastAndroid.SHORT)
+                verbose(true,"Package Assigned","Selected Packages Were Assigned Successfully")
                 if(this.props.navigation.state.params.route !==3)
                 {
                     this.props.navigation.navigate('PackagePermission',{
@@ -379,7 +389,7 @@ class AssignPackage extends React.Component{
        
         return(
            <Container style={styles.AssignContainer}>
-               <NavigationEvents onDidFocus={()=> this.Inititialize()} onWillBlur={()=>this.LoseFocus()}/>
+               <NavigationEvents onDidBlur={()=>this.LoseFocus()} onDidFocus={()=> this.Inititialize()}/>
                <View style={{width:'100%',height:75}}>
                 <StepIndicator
                     customStyles={customStyles}
@@ -413,6 +423,8 @@ class AssignPackage extends React.Component{
                </View>:
                this.state.AssignPart === 1 ?
                <View style={{flex:1,width:"100%"}}>
+                   {this.state.ErrorCode === 2 ?
+                    <NormalText style={{fontSize:12,color:'red',marginBottom:5}}>Need To To Select Atleast One Package</NormalText>:null}  
                    <FlatList
                     key={1}
                     keyExtractor={(item,index)=>index.toString()}
@@ -429,13 +441,22 @@ class AssignPackage extends React.Component{
                </View>
                }
                <View style={{height:50,width:'100%',alignItems:'center',justifyContent:'space-evenly',flexDirection:'row'}}>
+                    { console.log("433",this.state.AssignPart)}
                     {
-                        this.state.AssignPart === 1 || this.state.AssignPart === 2 ? 
-                        <TouchableOpacity style={{width:'45%'}} onPress={()=>this.HandleBackButton()}>
-                            <CustomButton style={{width:'100%'}}>
-                                <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Back</NormalText>
-                            </CustomButton>
-                        </TouchableOpacity>:null
+                        this.state.AssignPart === 1  ?
+                            this.props.navigation.state.params.route !== 2 && this.props.navigation.state.params.route !== 3 ?  
+                            <TouchableOpacity style={{width:'45%'}} onPress={()=>this.HandleBackButton()}>
+                                <CustomButton style={{width:'100%'}}>
+                                    <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Back</NormalText>
+                                </CustomButton>
+                            </TouchableOpacity>
+                            :null
+                            :this.state.AssignPart === 2 ? 
+                                <TouchableOpacity style={{width:'45%'}} onPress={()=>this.HandleBackButton()}>
+                                    <CustomButton style={{width:'100%'}}>
+                                        <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Back</NormalText>
+                                    </CustomButton>
+                                </TouchableOpacity>:null
                     }
                     <TouchableOpacity style={{width:'45%'}} onPress={()=>this.Proceed()}>
                         <CustomButton style={{width:'100%'}}>

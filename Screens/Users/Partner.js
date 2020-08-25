@@ -14,11 +14,20 @@ class Partner extends React.Component{
         }
     }
 
+    onUserSelected=(UserId,OwnerId)=>{
+        this.props.navigation.navigate('UserDetails',{
+            UserId:UserId,
+            OwnerId:OwnerId,
+            UserType:5,
+            UserColor:"#f39834"
+        })
+    }
+
     render()
     {
         return(
             <Container style={styles.SubContainer}>
-                <Users UserColor="#f39834" UserType={5} AuthHeader={this.props.loginState.AuthHeader}/>
+                <Users onSelectUser={this.onUserSelected} UserColor="#f39834" UserType={5} AuthHeader={this.props.loginState.AuthHeader}/>
             </Container>
         )
     }

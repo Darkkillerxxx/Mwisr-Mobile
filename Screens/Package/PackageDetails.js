@@ -1,12 +1,16 @@
 import React from 'react'
-import {View, StyleSheet,ActivityIndicator, TouchableOpacity} from 'react-native'
+import {View, StyleSheet,ActivityIndicator, TouchableOpacity,FlatList} from 'react-native'
 import Container from '../../Components/Container'
 import {NavigationEvents} from 'react-navigation'
-import {get_pacakge_details} from '../../Utils/api'
+import {get_pacakge_details,get_research_reports} from '../../Utils/api'
 import { connect }from 'react-redux'
 import NormalText from '../../Components/NormalText'
 import * as Progress from 'react-native-progress'; 
 import { FontAwesome } from '@expo/vector-icons';
+import CollapsibleCard from '../../Components/CollapsibleCard'
+import Card from '../../Components/Card'
+import ViewCalls from '../../Components/ViewCalls'
+import ReportsCard from '../../Components/ReportsCard'
 
 class PackageDetails extends React.Component{
     constructor(){
@@ -14,7 +18,9 @@ class PackageDetails extends React.Component{
         this.state={
             Details:[],
             HeadingDetails:0,
-            isLoading:true
+            isLoading:true,
+            SelectedTab:"",
+            Reports:[]
         }
     }
 
@@ -24,6 +30,24 @@ class PackageDetails extends React.Component{
             forOwnerId:this.props.navigation.state.params.OwnerId,
             packageId:this.props.navigation.state.params.PackageId
         }
+
+        let ReportsPayload={
+            forUserId:this.props.navigation.state.params.OwnerId,
+            PackageIds:this.props.navigation.state.params.PackageId,
+            Tags:"",
+            SectorIds:"",
+            MasterScripCodeIds:"",
+            CoverageTypeIds:"",
+            MarketCapIds:"",
+            SegmentIds:"",
+            ResearchHousIds:"",
+            AuthorIds:"",
+            ReportTypeIds:"",
+            Symbol:""
+        }
+
+        console.log(ReportsPayload)
+
         get_pacakge_details(this.props.loginState.AuthHeader,payload).then(result=>{
             if(result.IsSuccess)
             {
@@ -32,15 +56,45 @@ class PackageDetails extends React.Component{
                 })
             }
         })
+
+        get_research_reports(this.props.loginState.AuthHeader,ReportsPayload).then(result=>{
+            if(result.IsSuccess)
+            {
+                this.setState({Reports:result.Data},()=>{
+                    console.log("Package Details Reports",this.state.Reports)
+                })
+            }
+        })
     }
 
-    //////
+    SelectTab = (Tab) => {
+        this.setState({SelectedTab:Tab})
+    }
+
+    ShowReports=(itemData)=>{
+        return(
+            <ReportsCard report={itemData.item}/>
+        )
+    }
+
+    MoveToPackagePermission=()=>{
+
+        this.props.navigation.navigate('PackagePermission',{
+            RouteNo:2,
+            SelectedUser:this.props.navigation.state.params.OwnerId,
+            PackageId:this.props.navigation.state.params.PackageId
+        })
+    }
+
+   HandleCreatedDate=(date)=>{
+    let DateArray=date.split('T')
+    return DateArray[0]
+   }
     render(){
         
         return(
             <Container style={styles.PackageDetailsContainer}>
                 <NavigationEvents onDidFocus={() => this.onInitialize()}/>
-                    {console.log("HeadingDetails",this.state.HeadingDetails)}
                    <View style={styles.PackageTopContainer}>
                     
                     { this.state.isLoading ? null:
@@ -57,7 +111,7 @@ class PackageDetails extends React.Component{
                                             <NormalText style={{fontSize:10,color:'white',marginBottom:0}}>Assign Users</NormalText>
                                         </View>
                                     </TouchableOpacity>
-                                    <TouchableOpacity>
+                                    <TouchableOpacity onPress={() => this.MoveToPackagePermission()}>
                                         <View style={styles.TopRightButtons}>
                                             <NormalText style={{fontSize:10,color:'white',marginBottom:0}}>Package Permissions</NormalText>
                                         </View>
@@ -109,6 +163,92 @@ class PackageDetails extends React.Component{
                             </TouchableOpacity>
                             }
                         </View>
+                    </View>
+
+                    <View style={styles.TabContainer}>
+                        <View style={this.state.SelectedTab === "" ? styles.TabsSelected:styles.Tabs}>
+                            <TouchableOpacity onPress={()=>this.SelectTab("")}>
+                                <NormalText style={this.state.SelectedTab === "" ? styles.TabsTextSelected:styles.TabsText}>Details</NormalText>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={this.state.SelectedTab === "1" ? styles.TabsSelected:styles.Tabs}>
+                            <TouchableOpacity onPress={()=>this.SelectTab("1")}>
+                                <NormalText style={this.state.SelectedTab === "1" ? styles.TabsTextSelected:styles.TabsText}>Calls</NormalText>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={this.state.SelectedTab === "3" ? styles.TabsSelected:styles.Tabs}>
+                            <TouchableOpacity onPress={()=>this.SelectTab("3")}>
+                                <NormalText style={this.state.SelectedTab === "3" ? styles.TabsTextSelected:styles.TabsText}>Reports</NormalText>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    <View style={styles.PackageBottomContainer}>
+                        
+                        {this.state.SelectedTab === "" && this.state.Details.length > 0 ? 
+                       
+                       <CollapsibleCard style={styles.CustomCollapsibleCard} Heading="Pakage Details">
+                            <View style={styles.CollapsibleCardContent}>
+                                <View style={styles.ContentRow}>
+                                    <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Name</NormalText>
+                                    <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{this.state.Details[0].PackageName}</NormalText>
+                                </View>
+                                <View style={styles.ContentRow}>
+                                    <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Owner Name</NormalText>
+                                    <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{this.state.Details[0].OwnerName}</NormalText>
+                                </View>
+                                <View style={styles.ContentRow}>
+                                    <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Pakcage Created On</NormalText>
+                                    <NormalText style={{fontSize:14,color:`black`,marginBottom:0}}>{this.HandleCreatedDate(this.state.Details[0].PackageCreatedOn)}</NormalText>
+                                </View>
+                                <View style={styles.ContentRow}>
+                                    <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Package Type</NormalText>
+                                    <NormalText style={{fontSize:14,color:`black`,marginBottom:0}}>{this.state.Details[0].PackageTypeName}</NormalText>
+                                </View>
+                                <View style={styles.ContentRow}>
+                                    <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Exchanges</NormalText>
+                                    <NormalText style={{fontSize:14,color:`black`,marginBottom:0}}>{this.state.Details[0].ForExchanges}</NormalText>
+                                </View>
+                                <View style={styles.ContentRow}>
+                                    <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total Calls</NormalText>
+                                    <NormalText style={{fontSize:14,color:`black`,marginBottom:0}}>{this.state.Details[0].TotalCalls}</NormalText>
+                                </View>
+                                <View style={styles.ContentRow}>
+                                    <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Active Calls</NormalText>
+                                    <NormalText style={{fontSize:14,color:`black`,marginBottom:0}}>{this.state.Details[0].ActiveCalls}</NormalText>
+                                </View>
+                                <View style={styles.ContentRow}>
+                                    <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Tips Triggered</NormalText>
+                                    <NormalText style={{fontSize:14,color:`black`,marginBottom:0}}>{this.state.Details[0].TipsTriggered}</NormalText>
+                                </View>
+                                <View style={styles.ContentRow}>
+                                    <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Package Description</NormalText>
+                                    <NormalText style={{fontSize:14,color:`${this.state.Details[0].PackageDescription === "" ? 'grey':'black'}`,marginBottom:0}}>{this.state.Details[0].PackageDescription === "" ? 'Not Available':this.state.Details[0].PackageDescription}</NormalText>
+                                </View>
+                            </View>
+                        </CollapsibleCard>:
+                        this.state.SelectedTab === "1" ? 
+                        <Card style={styles.CallsCard}>
+                            <ViewCalls 
+                                AuthHeader={this.props.loginState.AuthHeader} 
+                                STab={""}
+                                UserId={this.props.navigation.state.params.UserId}
+                                OwnerId=""
+                                ShowActive={true}
+                                PackageId={this.props.navigation.state.params.PackageId}
+                                PackageOwnerId=""
+                                CallId=""
+                                Exchange=""
+                                Symbol=""
+                                AssignedToMe={false}
+                                CallDetails={this.MoveToCallDetails}/>
+                        </Card> :
+                        this.state.SelectedTab === "3" ? 
+                        <FlatList 
+                            keyExtractor={(item, index) => index.toString()}
+                            data={this.state.Reports}
+                            renderItem={this.ShowReports}
+                            showsVerticalScrollIndicator={true}/>:null}
                     </View>
             </Container>
         )
@@ -182,6 +322,62 @@ const styles = StyleSheet.create({
         position:'absolute',
         marginTop:110,
         paddingHorizontal:10
+    },
+    TabContainer:{
+        width:'100%',
+        height:35,
+        backgroundColor:'white',
+        flexDirection:'row',
+        elevation:3  
+    },
+    Tabs:{
+        width:'33%',
+        alignItems:'center',
+        justifyContent:'center'
+    },
+    TabsSelected:{
+        width:'33%',
+        alignItems:'center',
+        justifyContent:'center',
+        borderBottomColor:'#F0B22A',
+        borderBottomWidth:3
+    },
+    TabsText:{
+        fontSize:10,
+        color:'black',
+        marginBottom:0
+    },
+    TabsTextSelected:{
+        fontFamily:'open-sans-bold',
+        fontSize:11,
+        color:'black',
+        marginBottom:0
+    },
+    PackageBottomContainer:{
+        flex:1,
+        width:"100%",
+        padding:10,
+        alignItems:"center"
+    },
+    CustomCollapsibleCard:{
+        width:'95%',
+        borderRadius:10
+    },
+    CollapsibleCardContent:{
+        width:'100%'
+    },
+    ContentRow:{
+        flexDirection:'row',
+        justifyContent:'space-between',
+        paddingHorizontal:10,
+        marginVertical:5
+    },
+    CallsCard:{
+        flex:1,
+        width:'100%',
+        elevation:3,
+        margin:10,
+        backgroundColor:'white'
     }
 })
 

@@ -4,6 +4,7 @@ import {login_call, GetAuthHeader,get_calls,ArrangeCalls,formatDate} from '../Ut
 import BoldText from '../Components/BoldText.js';
 import {FontAwesome}  from '@expo/vector-icons';
 import NormalText from '../Components/NormalText'
+import {NavigationEvents} from 'react-navigation'
 
 class ViewCalls extends React.Component{
     constructor()
@@ -18,7 +19,7 @@ class ViewCalls extends React.Component{
         }
     }
 
-    componentDidMount()
+    onCallsLoad=()=>
     {
         this.getCalls(1,"",true)
 
@@ -105,11 +106,12 @@ class ViewCalls extends React.Component{
     render()
     {
         return(
-            this.state.isLoading ? 
+            <>
+            <NavigationEvents onDidFocus={()=> this.onCallsLoad()}/>
+            {this.state.isLoading ? 
                 <View style={{flex:1,alignSelf:'stretch',alignItems:'center',justifyContent:'center'}}>
                     <ActivityIndicator size="large" color="#f5bb18" />
                 </View>
-                
                 :
                 this.state.ManagedCalls.length > 0 ? 
                 <FlatList
@@ -126,7 +128,8 @@ class ViewCalls extends React.Component{
                   <View style={{flex:1,alignSelf:'stretch',alignItems:'center',justifyContent:'center'}}>
                       <Image source={require('../assets/Images/searching.png')} style={{width:'30%',height:'30%',resizeMode:'contain'}}/>
                       <NormalText style={{marginTop:10,marginBottom:0,fontSize:16}}>No Added Call Were Found</NormalText>
-                  </View>
+                  </View>}
+            </>
         )
     }
 }
@@ -173,7 +176,7 @@ const styles=StyleSheet.create({
         marginBottom:0
     },
     ProfitContainer:{
-        width:'25%',
+        width:'22%',
         marginLeft:5,
         alignItems:'center',
         justifyContent:'space-evenly'

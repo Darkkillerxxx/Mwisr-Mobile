@@ -2,11 +2,14 @@ import Convert from "./System/System.Convert";
 import RSA from "./System/System.Security.Cryptography.RSA";
 import Text from "./System/System.Text";
 import store from '../store/store'
-import {setMsg} from '../store/Actions/ActionLogin'
+import {setMsg,setNrmlMsg} from '../store/Actions/ActionLogin'
 
 // store.dispatch(setMsg("This is a Test Message"))
-const base_url_wealthyFox="https://wfanalytics.mwisr.com//api//"
-const base_url_Mwisr="https://wfanalytics.mwisr.com//api//"
+// const base_url_wealthyFox="https://wfanalytics.mwisr.com//api//"
+// const base_url_Mwisr="https://wfanalytics.mwisr.com//api//"
+
+const base_url_wealthyFox="http://202.38.173.113//api//"
+const base_url_Mwisr="http://202.38.173.113//api//"
 
 const endpoint_url={
     login: base_url_wealthyFox+"Authentication/Login/",
@@ -37,7 +40,17 @@ const endpoint_url={
     GetUserPermissionSet:base_url_wealthyFox+"/AnalystRegistration/GetUserPermissionSet",
     UpsertUserPermission:base_url_wealthyFox + "/AnalystRegistration/UpsertPermission",
     GetSubDetail:base_url_wealthyFox+"MwisrQueries/GetSubDetail",
-    GetPackageDetails:base_url_wealthyFox +"AnalystQuery/GetPackageDetail"
+    GetPackageDetails:base_url_wealthyFox +"AnalystQuery/GetPackageDetail",
+    GetAssignedUsers:base_url_wealthyFox+"/Analyst/GetAssignedUsers",
+    GetPackagePermission:base_url_wealthyFox + "/AnalystRegistration/GetPackagePermissionSet",
+    GetPackageListAddCall:base_url_wealthyFox + "/AnalystQuery/GetPackageForAddCall",
+    GetSimilarPackages:base_url_wealthyFox + "/RTTracker/GetSimilarPackages",
+    GetStrategyDuration:base_url_wealthyFox + "/RTTracker/GetStrategyDuration",
+    GetSymbol: base_url_wealthyFox+"AnalystQuery/GetSymbols",
+    GetSymbolsDetails:base_url_wealthyFox + "/AnalystQuery/GetSymbolsDetails",
+    UpsertCall: base_url_wealthyFox + "/Analyst/UpsertCall",
+    GetStrategies: base_url_wealthyFox + "/RTTracker/GetStrategy",
+    GetStrategyDetails:base_url_wealthyFox + "/RTTracker/GetStrategyDetail"
 }
 
 /********* Normal Functions **********/
@@ -174,6 +187,18 @@ export let getPackageFontColor=(segment)=>{
   {
     return "#455a64"
   }
+}
+
+export function verbose(isSuccess,Heading,Description)
+{
+    let Msg={
+      IsSuccess:isSuccess,
+      Heading:Heading,
+      Description:Description
+    }
+
+    store.dispatch(setNrmlMsg(JSON.stringify(Msg)))
+    
 }
 /**********Normal Functions Ends Here ******/
 
@@ -704,3 +729,76 @@ export function get_pacakge_details(authHeader,payload)
     return JSON.parse(data)
   }).catch(err => err)
 }
+
+export function get_assigned_users(authHeader,payload)
+{
+  return apiCall(endpoint_url['GetAssignedUsers'],"GET",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function get_package_permissions(authHeader,payload)
+{
+  return apiCall(endpoint_url['GetPackagePermission'],"POST",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function get_package_addCall(authHeader)
+{
+  return apiCall(endpoint_url['GetPackageListAddCall'],"GET",{},authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function get_similar_package(authHeader,payload)
+{
+  return apiCall(endpoint_url['GetSimilarPackages'],"GET",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function get_strategy_duration(authHeader)
+{
+  return apiCall(endpoint_url['GetStrategyDuration'],"GET",{},authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function get_symbol(authHeader,payload)
+{
+  return apiCall(endpoint_url['GetSymbol'],"GET",payload,authHeader).then(data => {
+    return parseCSV(data)
+  }).catch(err=>err)
+}
+
+export function get_symbol_details(authHeader,payload)
+{
+  return apiCall(endpoint_url['GetSymbolsDetails'],"GET",payload,authHeader).then(data => {
+    return parseCSV(data)
+  }).catch(err=>err)
+}
+
+export function add_call(authHeader,payload)
+{
+  return apiCall(endpoint_url['UpsertCall'],"POST",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+
+export function get_strategies(authHeader,payload)
+{
+  return apiCall(endpoint_url['GetStrategies'],"GET",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function get_strategy_details(authHeader,payload)
+{
+
+  return apiCall(endpoint_url['GetStrategyDetails'],"GET",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+

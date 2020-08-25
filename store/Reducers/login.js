@@ -1,8 +1,9 @@
-import  {SET_LOGIN,SET_MSG,SET_ROUTE} from '../Actions/actionType'
+import  {SET_LOGIN,SET_MSG,SET_ROUTE,SET_NRML_MSG} from '../Actions/actionType'
 
 const initialState={
     login:[],
     ErrorMsg:null,
+    Message:"",
     RouteName:""
 }
 
@@ -27,6 +28,12 @@ const loginReducer=(state = initialState,action)=>{
                ...state,
                RouteName:action.payload
            };
+        
+        case SET_NRML_MSG:
+            return{
+                ...state,
+                Message:action.payload
+            };
 
         default:
             return state
