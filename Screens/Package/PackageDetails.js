@@ -3,6 +3,7 @@ import {View, StyleSheet,ActivityIndicator, TouchableOpacity,FlatList} from 'rea
 import Container from '../../Components/Container'
 import {NavigationEvents} from 'react-navigation'
 import {get_pacakge_details,get_research_reports} from '../../Utils/api'
+import {setMiniDetails} from '../../store/Actions/ActionCallDetails'
 import { connect }from 'react-redux'
 import NormalText from '../../Components/NormalText'
 import * as Progress from 'react-native-progress'; 
@@ -86,6 +87,25 @@ class PackageDetails extends React.Component{
         })
     }
 
+    MoveToCallDetails=(MiniCallDetails)=>{
+        let TempMiniCD=[]
+        TempMiniCD.push(MiniCallDetails)
+        this.props.onSetMiniCD(MiniCallDetails)
+        
+        this.props.navigation.navigate('CallDetails',{
+            MiniDetails:MiniCallDetails
+        })
+    }
+
+    MoveToPackageDetails=(OwnerId,PackageId,PackageName)=>{
+        console.log(OwnerId,PackageId,PackageName)
+        this.props.navigation.navigate("PackageDetails",{
+            OwnerId:OwnerId,
+            PackageId:PackageId,
+            PackageName:PackageName
+        })
+    }
+
    HandleCreatedDate=(date)=>{
     let DateArray=date.split('T')
     return DateArray[0]
@@ -152,13 +172,24 @@ class PackageDetails extends React.Component{
                         <View style={{...styles.LeftRightArrowContainers,...{alignItems:`${this.state.HeadingDetails === 0 ? 'flex-end':'flex-start'}`}}}>
                             {this.state.HeadingDetails === 0 ? 
                             <TouchableOpacity onPress={()=>this.setState({HeadingDetails:1})}>
-                                <View style={{height:35,width:35,borderRadius:100,backgroundColor:'black',opacity:0.5,alignItems:'center',justifyContent:'center'}}>
-                                    <FontAwesome name="chevron-right" size={12} color="white" />
+                                <View style={{flexDirection:'row'}}> 
+                                    <View style={{backgroundColor:'black',opacity:0.5,padding:10,justifyContent:'center',marginRight:5,borderRadius:5,height:10,marginTop:7}}>
+                                        <NormalText style={{marginBottom:0,color:'white'}}>To Self's Performance</NormalText>
+                                    </View>
+                                    <View style={{height:35,width:35,borderRadius:100,backgroundColor:'black',opacity:0.5,alignItems:'center',justifyContent:'center'}}>
+                                        <FontAwesome name="chevron-right" size={12} color="white" />
+                                    </View>
                                 </View>
                             </TouchableOpacity>:
                             <TouchableOpacity onPress={()=>this.setState({HeadingDetails:0})}>
-                                <View style={{height:35,width:35,borderRadius:100,backgroundColor:'black',opacity:0.5,alignItems:'center',justifyContent:'center'}}>
-                                    <FontAwesome name="chevron-left" size={12} color="white" />
+                                <View style={{flexDirection:'row'}}> 
+                                    <View style={{height:35,width:35,borderRadius:100,backgroundColor:'black',opacity:0.5,alignItems:'center',justifyContent:'center'}}>
+                                        <FontAwesome name="chevron-left" size={12} color="white" />
+                                    </View>
+
+                                    <View style={{backgroundColor:'black',opacity:0.5,padding:10,justifyContent:'center',marginLeft:5,borderRadius:5,height:10,marginTop:7}}>
+                                        <NormalText style={{marginBottom:0,color:'white'}}>To Company's Performance</NormalText>
+                                    </View>
                                 </View>
                             </TouchableOpacity>
                             }
@@ -241,7 +272,8 @@ class PackageDetails extends React.Component{
                                 Exchange=""
                                 Symbol=""
                                 AssignedToMe={false}
-                                CallDetails={this.MoveToCallDetails}/>
+                                CallDetails={this.MoveToCallDetails}
+                                From={1}/>
                         </Card> :
                         this.state.SelectedTab === "3" ? 
                         <FlatList 
@@ -257,7 +289,8 @@ class PackageDetails extends React.Component{
 
 const styles = StyleSheet.create({
     PackageDetailsContainer:{
-        justifyContent: 'flex-start'
+        justifyContent: 'flex-start',
+        backgroundColor: '#EBECF1'
     },
     PackageTopContainer:{
         width:'100%',

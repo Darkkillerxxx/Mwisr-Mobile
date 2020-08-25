@@ -5,7 +5,7 @@ import NormalText from '../../Components/NormalText';
 import { connect }from 'react-redux'
 import ViewCalls from '../../Components/ViewCalls.js'
 import {NavigationEvents} from 'react-navigation'
-import {get_sub_detail,get_research_reports} from '../../Utils/api'
+import {get_sub_detail,get_research_reports,change_user_status,verbose} from '../../Utils/api'
 import CollapsibleCard from '../../Components/CollapsibleCard'
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import CustomButton from '../../Components/Button'
@@ -19,7 +19,8 @@ class UserDetails extends React.Component {
         this.state={
             SelectedTab:"",
             UserDetails:[],
-            Reports:[]
+            Reports:[],
+            IsActive:null
         }
     }
 
@@ -29,7 +30,10 @@ class UserDetails extends React.Component {
 
     onInitialize=()=>{
         const {AuthHeader}=this.props.loginState
-        const {UserId,OwnerId}=this.props.navigation.state.params
+        const {UserId,OwnerId,IsActive}=this.props.navigation.state.params
+
+      this.setState({IsActive:IsActive})
+
         let payload={
             ForOwnerId:OwnerId,
             ForUserId:UserId
@@ -87,6 +91,35 @@ class UserDetails extends React.Component {
         })
     }
 
+    MoveToPackageDetails=(OwnerId,PackageId,PackageName)=>{
+        console.log(OwnerId,PackageId,PackageName)
+        this.props.navigation.navigate("PackageDetails",{
+            OwnerId:OwnerId,
+            PackageId:PackageId,
+            PackageName:PackageName
+        })
+    }
+
+    ActivateDeActivateUser=(Action)=>{
+        let payload={
+            userIdToBeActedOn:this.props.navigation.state.params.UserId,
+            Action:Action,
+            tillDate:""
+        }
+        change_user_status(this.props.loginState.AuthHeader,payload).then(result =>{
+            if(result.IsSuccess)
+            {
+                this.setState({IsActive:!this.state.IsActive},()=>{
+                    verbose(true,"Action Completed",`User Has Been ${this.state.IsActive ? "Activated":"DeActivated"}`)    
+                })
+            }
+            else
+            {
+                verbose(false,"Failed To Complete Action",result.DisplayMsg)
+            }
+        })
+    }
+
     render()
     {
         return(
@@ -123,11 +156,20 @@ class UserDetails extends React.Component {
                                         <NormalText style={{fontSize:10,color:'white',marginBottom:0}}>User Permission</NormalText>
                                     </TouchableOpacity>
                                 </CustomButton>
-                                <CustomButton style={{height:20,width:90,borderRadius:5,backgroundColor:"#378E61",marginLeft:5}}>
-                                    <TouchableOpacity >
-                                        <NormalText style={{fontSize:10,color:'white',marginBottom:0}}>Activate User</NormalText>
-                                    </TouchableOpacity>
-                                </CustomButton>    
+
+                                {this.state.IsActive ? 
+                                    <CustomButton style={{height:20,width:90,borderRadius:5,backgroundColor:"#ff6961",marginLeft:5}}>
+                                        <TouchableOpacity onPress={()=>this.ActivateDeActivateUser('DeActivate')}>
+                                            <NormalText style={{fontSize:10,color:'white',marginBottom:0}}>De-Activate User</NormalText>
+                                        </TouchableOpacity>
+                                    </CustomButton>
+                                :
+                                    <CustomButton style={{height:20,width:90,borderRadius:5,backgroundColor:"#378E61",marginLeft:5}}>
+                                        <TouchableOpacity onPress={()=>this.ActivateDeActivateUser('Activate')}>
+                                            <NormalText style={{fontSize:10,color:'white',marginBottom:0}}>Activate User</NormalText>
+                                        </TouchableOpacity>
+                                    </CustomButton>
+                                }    
                             </View>
                         </View>
                     </View>:
@@ -279,7 +321,7 @@ class UserDetails extends React.Component {
                         </View>
                         :
                         this.state.SelectedTab === "2" ? 
-                            <Packages Type={2} SelectedTab={"2"} UserProfile={true} UserId={this.props.navigation.state.params.UserId} OwnerId={this.props.navigation.state.params.OwnerId} assignedToMe={false} createdByMe={true} />
+                            <Packages SelectPackage={this.MoveToPackageDetails} Type={2} SelectedTab={"2"} UserProfile={true} UserId={this.props.navigation.state.params.UserId} OwnerId={this.props.navigation.state.params.OwnerId} assignedToMe={false} createdByMe={true} />
                         :
                         this.state.SelectedTab === "3" ? 
                         <FlatList 

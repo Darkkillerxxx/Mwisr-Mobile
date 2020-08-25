@@ -14,12 +14,13 @@ class Sub extends React.Component{
         }
     }
 
-    onUserSelected=(UserId,OwnerId)=>{
+    onUserSelected=(UserId,OwnerId,IsActive)=>{
         this.props.navigation.navigate('UserDetails',{
             UserId:UserId,
             OwnerId:OwnerId,
             UserType:2,
-            UserColor:"#16d39a"
+            UserColor:"#16d39a",
+            IsActive:IsActive
         })
     }
 

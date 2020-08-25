@@ -19,6 +19,13 @@ class ViewCalls extends React.Component{
         }
     }
 
+    componentDidMount=()=>{
+        if(this.props.From === 1)
+        {
+            this.getCalls(1,"",true)
+        }
+    }
+
     onCallsLoad=()=>
     {
         this.getCalls(1,"",true)

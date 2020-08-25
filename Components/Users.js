@@ -106,8 +106,8 @@ class Users extends React.Component{
         }
     }
 
-    onUserSelect=(UserId,SuperOwnerId)=>{
-        this.props.onSelectUser(UserId,SuperOwnerId)
+    onUserSelect=(UserId,SuperOwnerId,IsActive)=>{
+        this.props.onSelectUser(UserId,SuperOwnerId,IsActive)
     }
 
     ShowCards=(itemData)=>(
@@ -145,7 +145,7 @@ class Users extends React.Component{
                                 <NormalText style={styles.MobileNo}>+91{itemData.item.MobileNo}</NormalText>
                             </View>
                             <View style={styles.CardTopRightRight}>
-                                <TouchableOpacity onPress={() => this.onUserSelect(itemData.item.UserId,itemData.item.SuperOwner)}>
+                                <TouchableOpacity onPress={() => this.onUserSelect(itemData.item.UserId,itemData.item.SuperOwner,itemData.item.IsActive)}>
                                     <View style={{...styles.PackagesOuter,...{borderColor:this.props.UserColor}}}>
                                         <NormalText style={{...styles.PackageText,...{color:this.props.UserColor}}}>View Profile</NormalText>
                                     </View>
@@ -236,10 +236,10 @@ const styles = StyleSheet.create({
         flexDirection:'row',
         width:'98%',
         height:150,
-        marginVertical:10,
+        marginVertical:5,
         alignItems:'flex-start',
         justifyContent:'flex-start',
-        borderRadius:10
+        borderRadius:5
     },
     CardLeftContainer:{
         height:'100%',

@@ -135,6 +135,18 @@ class AssignPackage extends React.Component{
         }
     }
 
+    GetSubList=(UserType)=>{
+        get_sub_list(null,UserType,true,this.props.loginState.AuthHeader).then(result =>{
+            if(result.IsSuccess)
+                {
+                        this.setState({User:result.Data},()=>{
+                        this.setState({SelectedUser:result.Data[0].UserId})
+                        this.setState({isLoading:false})
+                    })
+                }
+        })
+    }
+
 
     Inititialize=()=>{
         const {UserId,OwnerId,route}=this.props.navigation.state.params
@@ -154,15 +166,7 @@ class AssignPackage extends React.Component{
             this.setState({AssignPart:0})
             this.setState({StepState:0})
             this.setState({isLoading:true})
-            get_sub_list(null,this.state.SelectedUserType,true,this.props.loginState.AuthHeader).then(result=>{
-                if(result.IsSuccess)
-                {
-                        this.setState({User:result.Data},()=>{
-                        this.setState({SelectedUser:result.Data[0].UserId})
-                        this.setState({isLoading:false})
-                    })
-                }
-            })
+            this.GetSubList(this.state.SelectedUserType)
          }
     }
 
@@ -402,7 +406,7 @@ class AssignPackage extends React.Component{
                <View style={{flex:1,width:'100%'}}>
                     <NormalText style={{fontSize:14,color:'black'}}>Choose User Type : </NormalText>
                     <View style={styles.CustomPicker}>
-                        <Picker selectedValue={this.state.SelectedUserType} style={styles.CustomPicker} onValueChange={(val)=>this.setState({SelectedUserType:val})}>
+                        <Picker selectedValue={this.state.SelectedUserType} style={styles.CustomPicker} onValueChange={(val)=>this.setState({SelectedUserType:val},()=>this.GetSubList(val))}>
                             {ShowUserTypes}
                         </Picker>
                     </View>
