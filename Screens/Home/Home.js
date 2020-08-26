@@ -7,6 +7,8 @@ import {setMiniDetails} from '../../store/Actions/ActionCallDetails'
 import Container from '../../Components/Container.js';
 import NormalText from '../../Components/NormalText'
 import ViewCalls from '../../Components/ViewCalls.js'
+import Dashboard from '../../Components/Dashboard.js'
+
 
 class Home extends React.Component{
     constructor()
@@ -36,7 +38,7 @@ class Home extends React.Component{
     {
         return(
             <Container style={styles.HomeContainer}>
-                <View style={{width:'100%',height:200,borderColor:'black',borderWidth:1,backgroundColor:"#0f2346"}} />
+                <Dashboard AuthHeader={this.props.loginState.AuthHeader}/>
                 
                 <View style={styles.TabContainer}>
                     <View style={this.state.SelectedTab === "" ? styles.TabsSelected:styles.Tabs}>

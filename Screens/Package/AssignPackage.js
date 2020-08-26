@@ -186,9 +186,9 @@ class AssignPackage extends React.Component{
     fetchPackage=()=>{
         const {AuthHeader,IsOwner,UserId,SuperOwnerId}=this.props.loginState
         const {OwnerId,route}=this.props.navigation.state.params
-
+        console.log("PassedOwnerId",OwnerId)
         let payload1={
-            forOwnerId:IsOwner ? UserId:SuperOwnerId,
+            forOwnerId:route === 2 || route === 3 ?  OwnerId : IsOwner ? UserId:SuperOwnerId,
             userTypeId:"",
             assignedToMe:route === null ? false:"",//temp soln.
             forUserId:route === null ? this.state.SelectedUser:"",//temp soln.
@@ -291,7 +291,7 @@ class AssignPackage extends React.Component{
         this.setState({ButtonLoading:true})
         const {AuthHeader,IsOwner,UserId,SuperOwnerId}=this.props.loginState
         let payload={
-            "ForOwnerIds":IsOwner ? this.StringifyOwnerIds(UserId):this.StringifyOwnerIds(SuperOwnerId),
+            "ForOwnerIds":this.props.navigation.state.params.route === 2 || this.props.navigation.state.params.route === 3 ? this.StringifyOwnerIds(this.props.navigation.state.params.OwnerId) : IsOwner ? this.StringifyOwnerIds(UserId):this.StringifyOwnerIds(SuperOwnerId),
             "PackageIds":this.StringifyPackageIds(),
             "AssignedToUserIds":this.StringifyUserIds(this.state.SelectedUser),
             "Durations":this.StringifyDurations()
@@ -307,7 +307,7 @@ class AssignPackage extends React.Component{
                     this.props.navigation.navigate('PackagePermission',{
                         RouteNo:1,
                         SelectedUser:this.state.SelectedUser,
-                        OwnerId:null
+                        OwnerId:this.props.navigation.state.params.route === 2 || this.props.navigation.state.params.route === 3 ? this.props.navigation.state.params.OwnerId :IsOwner ? UserId:SuperOwnerId
                     })
                 } 
             }

@@ -51,7 +51,8 @@ const endpoint_url={
     UpsertCall: base_url_wealthyFox + "/Analyst/UpsertCall",
     GetStrategies: base_url_wealthyFox + "/RTTracker/GetStrategy",
     GetStrategyDetails:base_url_wealthyFox + "/RTTracker/GetStrategyDetail",
-    ChangeUserStatus:base_url_wealthyFox + "/RTTracker/ChangeUserStatus"
+    ChangeUserStatus:base_url_wealthyFox + "/RTTracker/ChangeUserStatus",
+    GetDashboard: base_url_wealthyFox + "/AnalystQuery/GetDashBoard"
 }
 
 /********* Normal Functions **********/
@@ -804,8 +805,15 @@ export function get_strategy_details(authHeader,payload)
 
 export function change_user_status(authHeader,payload)
 {
-  console.log(payload)
   return apiCall(endpoint_url['ChangeUserStatus'],"GET",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+
+export function get_Dashboard(authHeader)
+{
+  return apiCall(endpoint_url['GetDashboard'],"GET",{},authHeader).then(data =>{
     return JSON.parse(data)
   }).catch(err => err)
 }
