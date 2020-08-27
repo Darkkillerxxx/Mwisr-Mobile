@@ -1,5 +1,5 @@
 import React from 'react'
-import {View, StyleSheet,ActivityIndicator, TouchableOpacity,FlatList} from 'react-native'
+import {View, StyleSheet,ActivityIndicator, TouchableOpacity,FlatList,Modal} from 'react-native'
 import Container from '../../Components/Container'
 import {NavigationEvents} from 'react-navigation'
 import {get_pacakge_details,get_research_reports} from '../../Utils/api'
@@ -12,6 +12,7 @@ import CollapsibleCard from '../../Components/CollapsibleCard'
 import Card from '../../Components/Card'
 import ViewCalls from '../../Components/ViewCalls'
 import ReportsCard from '../../Components/ReportsCard'
+import CallsFilter from '../../Components/CallsFilter'
 
 class PackageDetails extends React.Component{
     constructor(){
@@ -21,7 +22,11 @@ class PackageDetails extends React.Component{
             HeadingDetails:0,
             isLoading:true,
             SelectedTab:"",
-            Reports:[]
+            Reports:[],
+            ShowFilterModal:false,
+            CallExchanges:[],
+            CallStatus:true,
+            CallSearch:""
         }
     }
 
@@ -104,6 +109,16 @@ class PackageDetails extends React.Component{
             PackageId:PackageId,
             PackageName:PackageName
         })
+    }
+
+    closeFilterModal=(Search,Exchange,CallStatus,OwnerId)=>{
+       
+        this.setState({CallStatus:CallStatus === 0 ? "":CallStatus === 1 ? true:false})
+        this.setState({CallExchanges:Exchange.toString()})
+        this.setState({CallSearch:Search},()=>{
+            this.setState({ShowFilterModal:false})
+        })
+        
     }
 
    HandleCreatedDate=(date)=>{
@@ -259,22 +274,39 @@ class PackageDetails extends React.Component{
                             </View>
                         </CollapsibleCard>:
                         this.state.SelectedTab === "1" ? 
+                        <View style={{width:'100%',flex:1,alignItems: "flex-end",justifyContent:'flex-end'}}>
+
+                        <View style={{width:'100%',minHeight:100,position:'absolute',elevation:6,alignItems:'flex-end',justifyContent:'center',zIndex:1}}>
+                            <TouchableOpacity onPress={()=>this.setState({ShowFilterModal:true})}>
+                                <View style={{width:60,height:60,borderRadius:100,backgroundColor:'#F0B22A',alignItems:'center',justifyContent:'center'}}>
+                                    <FontAwesome name="filter" size={28} color="white" />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+
                         <Card style={styles.CallsCard}>
                             <ViewCalls 
                                 AuthHeader={this.props.loginState.AuthHeader} 
                                 STab={""}
-                                UserId={this.props.navigation.state.params.UserId}
+                                UserId={""}
                                 OwnerId=""
-                                ShowActive={true}
+                                ShowActive={this.state.CallStatus}
                                 PackageId={this.props.navigation.state.params.PackageId}
                                 PackageOwnerId=""
                                 CallId=""
-                                Exchange=""
-                                Symbol=""
+                                Exchange={this.state.CallExchanges}
+                                Symbol={this.state.CallSearch}
                                 AssignedToMe={false}
                                 CallDetails={this.MoveToCallDetails}
                                 From={1}/>
-                        </Card> :
+                        </Card>
+
+                        <Modal visible={this.state.ShowFilterModal} animationType="slide" transparent={true}>
+                            <CallsFilter 
+                                UserOwners={[]}
+                                closeFilter={this.closeFilterModal}/>
+                        </Modal>
+                        </View> :
                         this.state.SelectedTab === "3" ? 
                         <FlatList 
                             keyExtractor={(item, index) => index.toString()}
@@ -410,7 +442,8 @@ const styles = StyleSheet.create({
         width:'100%',
         elevation:3,
         margin:10,
-        backgroundColor:'white'
+        backgroundColor:'white',
+        alignSelf:'center'
     }
 })
 

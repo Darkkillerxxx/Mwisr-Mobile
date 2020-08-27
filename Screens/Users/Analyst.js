@@ -28,7 +28,7 @@ class Analyst extends React.Component{
     {
         return(
             <Container style={styles.SubContainer}>
-                <Users onSelectUser={this.onUserSelected} UserColor="#1890ff" UserType={6} AuthHeader={this.props.loginState.AuthHeader}/>
+                <Users onSelectUser={this.onUserSelected} UserColor="#1890ff" UserType={6} AuthHeader={this.props.loginState.AuthHeader} IsOwner={false}/>
             </Container>
         )
     }

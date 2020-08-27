@@ -5,7 +5,7 @@ import BoldText from './BoldText'
 import NormalText from './NormalText'
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import {FontAwesome}  from '@expo/vector-icons';
-import {get_sub_list} from '../Utils/api'
+import {get_sub_list,get_owners} from '../Utils/api'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import UsersFilter from '../Components/UsersFilter'
 import UserFilter from '../Components/UsersFilter'
@@ -23,27 +23,44 @@ class Users extends React.Component{
                 AccuracyFilter:null,
                 ProfitFilter:null,
                 ROIFilter:null
-            }
+            },
+            ReceivedOwnerList:[]
         }
     }
 
     componentDidMount(){
-        if(this.props.Type === 2)
-        {
-            this.fetchUsers()
-        }
+        // if(this.props.Type === 2)
+        // {
+        //     this.fetchUsers()
+        // }
     }
 
-    fetchUsers=()=>{
+    Initialize=()=>{
         this.setState({isLoading:true})
-        get_sub_list(null,this.props.UserType,true,this.props.AuthHeader).then(result=>{
-            if(result.IsSuccess)
-            {
-                this.setState({RecivedUserList:result.Data},()=>{
-                    this.setState({isLoading:false})
-                })
-            }
-        })
+        if(this.props.IsOwner)
+        {
+            get_owners(this.props.AuthHeader).then((result)=>{
+                if(result.IsSuccess)
+                {
+                    this.setState({ReceivedOwnerList:result.Data},()=>{
+                        console.log("Owner List",this.state.ReceivedOwnerList)
+                        this.setState({isLoading:false})
+                    })
+                }
+            })
+        }
+        else
+        {
+            get_sub_list(null,this.props.UserType,true,this.props.AuthHeader).then(result=>{
+                if(result.IsSuccess)
+                {
+                    this.setState({RecivedUserList:result.Data},()=>{
+                        this.setState({isLoading:false})
+                    })
+                }
+            })
+        }
+        
     }
 
     ApplyFilter=(filter)=>{
@@ -109,6 +126,82 @@ class Users extends React.Component{
     onUserSelect=(UserId,SuperOwnerId,IsActive)=>{
         this.props.onSelectUser(UserId,SuperOwnerId,IsActive)
     }
+
+    ShowOwnerCards=(itemData)=>(
+        <Card style={styles.UserCard}>
+                    <View style={styles.CardLeftContainer}>
+                        <View>
+                            <View>
+                                <NormalText style={{...styles.AccuracyNo,...{backgroundColor:this.props.UserColor}}}>{parseInt(itemData.item.Accuracy)}</NormalText>
+                            </View>
+                            
+                            <AnimatedCircularProgress
+                                size={80}
+                                width={5}
+                                fill={itemData.item.Accuracy}
+                                tintColor={this.props.UserColor}
+                                onAnimationComplete={() =>{}}
+                                backgroundColor="white"
+                                rotation={180}>
+                                    {
+                                        (fill)=>(
+                                            <Image source={require('../assets/Images/Analyst.png')} style={styles.ProfilePic}/>
+                                        )
+                                    }
+                            </AnimatedCircularProgress>
+                            <NormalText style={{...styles.AccuracyText,...{backgroundColor:this.props.UserColor}}}>Accuracy</NormalText>
+                        </View>
+                  
+                    </View> 
+                    <View style={styles.CardTopRightContainer}>
+                        <View style={styles.CardTopRight}>
+                            <View style={styles.CardTopRightLeft}>
+                                <BoldText style={styles.UserName}>{itemData.item.OwnerName}</BoldText>
+                                <NormalText style={styles.MobileNo}>{itemData.item.OwnerMobileNo}</NormalText>
+                            </View>
+                            <View style={styles.CardTopRightRight}>
+                                <TouchableOpacity onPress={() => this.onUserSelect(itemData.item.OwnerId,itemData.item.SuperOwner)}>
+                                    <View style={{...styles.PackagesOuter,...{borderColor:this.props.UserColor}}}>
+                                        <NormalText style={{...styles.PackageText,...{color:this.props.UserColor}}}>View Profile</NormalText>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        
+                        <View style={styles.CardBottomRightContainer}>
+                            <View style={styles.CardBottom}>
+                                <NormalText style={styles.CardBottomTextHead}>Calls</NormalText>
+                                <NormalText style={styles.CardBottomText}>{itemData.item.TotalCalls}</NormalText>
+                            </View>
+                            <View style={styles.CardBottom}>
+                                <NormalText style={styles.CardBottomTextHead}>ROI</NormalText>
+                                <NormalText style={styles.CardBottomText}>{itemData.item.Roi} %</NormalText>
+                            </View>
+                            <View style={styles.CardBottomRight}>
+                                <View style={styles.CardBottomProfitContainer}>
+                                    {itemData.item.Profit > 0 ? 
+                                        <FontAwesome name="arrow-up" size={14} color="green" />:
+                                        itemData.item.ProfitPerInvestment < 0 ?
+                                        <FontAwesome name="arrow-down" size={14} color="red" />:
+                                        null
+                                    }
+   
+                                    <NormalText style={{...styles.CardBottomProfitText,...{color:itemData.item.Profit === 0 ? null:itemData.item.Profit > 0 ? 'green':'red'}}}> 
+                                    {itemData.item.Profit > 0 ? 
+                                        "Profit":
+                                        itemData.item.Profit < 0 ?
+                                        "Loss":
+                                        "Profit/Loss"
+                                    }
+                                     </NormalText>
+                                </View>
+                               
+                                <NormalText style={{...styles.CardBottomProfitNo,...{color:itemData.item.Profit === 0 ? 'black':itemData.item.Profit > 0 ? 'green':'red'}}}> { itemData.item.Profit > 100000 ? "100000+":itemData.item.Profit} ₹</NormalText>
+                            </View>
+                        </View>
+                    </View>               
+                </Card>
+    )
 
     ShowCards=(itemData)=>(
         this.CheckCardsDisplay(itemData.item) ?
@@ -193,7 +286,8 @@ class Users extends React.Component{
         console.log(this.state.Filter)
         return(
             <View style={styles.UserContainer}>
-                <NavigationEvents onDidFocus={()=> this.fetchUsers()}/>
+                <NavigationEvents onDidFocus={()=> this.Initialize()}/>
+                {!this.props.IsOwner ? 
                <View style={{width:'100%',height:50,alignItems:'flex-end',paddingHorizontal:10,justifyContent:'flex-end'}}>
                     <TouchableOpacity onPress={()=>this.setState({ShowFilters:!this.state.ShowFilters})}>
                         <View style={{flexDirection:'row',width:100,justifyContent:'space-evenly',borderRadius:5,padding:5,backgroundColor:this.props.UserColor,elevation:1}}>
@@ -201,13 +295,20 @@ class Users extends React.Component{
                             <NormalText style={{fontSize:16,marginBottom:0,color:'white'}}>Filters</NormalText>
                         </View> 
                     </TouchableOpacity>
-               </View>
+               </View>:null}
                
                { !this.state.isLoading ? 
-                        <FlatList 
+                       !this.props.IsOwner ?
+                       <FlatList 
                            keyExtractor={(item,data) => item.UserId.toString()}
                            data={this.state.RecivedUserList}
-                           renderItem={this.ShowCards} />:
+                           renderItem={this.ShowCards} />  :
+                            
+                           <FlatList 
+                            keyExtractor={(item,data) => item.OwnerId.toString()}
+                           data={this.state.ReceivedOwnerList}
+                           renderItem={this.ShowOwnerCards} />
+                           :
 
                          <View style={{flex:1,alignSelf:'stretch',alignItems:'center',justifyContent:'center'}}>
                              <ActivityIndicator size="large" color={this.props.UserColor} />
@@ -215,7 +316,7 @@ class Users extends React.Component{
                 }
 
             
-
+             
                 <Modal visible={this.state.ShowFilters} animationType="slide" transparent={true}>
                     <UserFilter UserColor={this.props.UserColor} AppliedFilter={this.ApplyFilter} />
                 </Modal>

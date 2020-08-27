@@ -26,6 +26,8 @@ import AddUser from '../Screens/Users/AddUser'
 import UserPermission from '../Screens/Permissions/UserPermission'
 import UserDetails from '../Screens/Users/UserDetails'
 import PackageDetails from '../Screens/Package/PackageDetails'
+import Owners from '../Screens/Users/Owners'
+
 
 const Drawer=createDrawerNavigator({
     Home:createBottomTabNavigator({
@@ -105,6 +107,9 @@ const Drawer=createDrawerNavigator({
     },
     PackageDetails:{
         screen:PackageDetails
+    },
+    Owners:{
+        screen:Owners
     }
 },{
     contentComponent:CustomDrawer,

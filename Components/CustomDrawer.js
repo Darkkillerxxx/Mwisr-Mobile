@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, StyleSheet,ScrollView,AsyncStorage } from 'react-native'
 import { Image } from 'react-native-animatable'
-import {get_user_photo} from '../Utils/api'
+import {get_user_photo,get_owners} from '../Utils/api'
 import { connect }from 'react-redux'
 import NormalText from './NormalText'
 import {FontAwesome}  from '@expo/vector-icons';
@@ -69,6 +69,7 @@ class CustomDrawer extends React.Component{
                     isVisible:true,
                     SubContents:[
                         {
+                            Key:"Owners",
                             Name:"Owner List",
                             isVisible:true
                         },
@@ -235,12 +236,17 @@ class CustomDrawer extends React.Component{
             }
         })
 
-        if(!this.props.loginState.isOwner)
-        {
-            let TempMenuContents=this.state.MenuContents
-            TempMenuContents[3].SubContents[0].isVisible=false
-            this.setState({MenuContent:TempMenuContents})
-        }
+        get_owners(AuthHeader).then(result => {
+            if(result.IsSuccess)
+            {
+                if(result.Data.length === 0)
+                {
+                    let TempMenuContents=this.state.MenuContents
+                    TempMenuContents[3].SubContents[0].isVisible=false
+                    this.setState({MenuContent:TempMenuContents})
+                }
+            }
+        })
     }
 
     ExpandMinimizeMenu=(index)=>{

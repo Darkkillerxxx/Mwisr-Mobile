@@ -52,7 +52,9 @@ const endpoint_url={
     GetStrategies: base_url_wealthyFox + "/RTTracker/GetStrategy",
     GetStrategyDetails:base_url_wealthyFox + "/RTTracker/GetStrategyDetail",
     ChangeUserStatus:base_url_wealthyFox + "/RTTracker/ChangeUserStatus",
-    GetDashboard: base_url_wealthyFox + "/AnalystQuery/GetDashBoard"
+    GetDashboard: base_url_wealthyFox + "/AnalystQuery/GetDashBoard",
+    GetUserOwners: base_url_wealthyFox + "/Analyst/GetUserOwner",
+    GetUserOwnerDetails:base_url_wealthyFox+"/Analyst/GetUserOwnerDetail",
 }
 
 /********* Normal Functions **********/
@@ -817,3 +819,19 @@ export function get_Dashboard(authHeader)
     return JSON.parse(data)
   }).catch(err => err)
 }
+
+export function get_owners(authHeader)
+{
+  return apiCall(endpoint_url["GetUserOwners"],"GET",{},authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+
+export function getUserOwnerDetails(authHeader,payload)
+{
+  return apiCall(endpoint_url["GetUserOwners"],"GET",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
