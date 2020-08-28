@@ -52,6 +52,7 @@ class Users extends React.Component{
         else
         {
             get_sub_list(null,this.props.UserType,true,this.props.AuthHeader).then(result=>{
+                console.log("Cust",result)
                 if(result.IsSuccess)
                 {
                     this.setState({RecivedUserList:result.Data},()=>{

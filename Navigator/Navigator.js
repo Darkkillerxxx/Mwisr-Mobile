@@ -27,6 +27,9 @@ import UserPermission from '../Screens/Permissions/UserPermission'
 import UserDetails from '../Screens/Users/UserDetails'
 import PackageDetails from '../Screens/Package/PackageDetails'
 import Owners from '../Screens/Users/Owners'
+import Customer from '../Screens/Users/Customer'
+import AssignUsers from '../Screens/Package/AssignUsers'
+
 
 
 const Drawer=createDrawerNavigator({
@@ -110,6 +113,12 @@ const Drawer=createDrawerNavigator({
     },
     Owners:{
         screen:Owners
+    },
+    Customer:{
+        screen:Customer
+    },
+    AssignUsers:{
+        screen:AssignUsers
     }
 },{
     contentComponent:CustomDrawer,

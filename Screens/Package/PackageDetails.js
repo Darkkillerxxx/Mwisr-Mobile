@@ -141,7 +141,7 @@ class PackageDetails extends React.Component{
                             <View style={styles.PackageTopRight}>
                                 <NormalText style={{fontSize:14,color:'white',marginBottom:0}}>{this.state.Details[this.state.HeadingDetails].PackageName}</NormalText>
                                 <View style={styles.PackageTopRightButtonsContainer}>
-                                    <TouchableOpacity>
+                                    <TouchableOpacity onPress={() => this.props.navigation.navigate('AssignUsers',{forOwnerId:this.props.navigation.state.params.OwnerId,packageId:this.props.navigation.state.params.PackageId,Auth:this.props.loginState.AuthHeader})}>
                                         <View style={styles.TopRightButtons}>
                                             <NormalText style={{fontSize:10,color:'white',marginBottom:0}}>Assign Users</NormalText>
                                         </View>

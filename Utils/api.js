@@ -55,6 +55,9 @@ const endpoint_url={
     GetDashboard: base_url_wealthyFox + "/AnalystQuery/GetDashBoard",
     GetUserOwners: base_url_wealthyFox + "/Analyst/GetUserOwner",
     GetUserOwnerDetails:base_url_wealthyFox+"/Analyst/GetUserOwnerDetail",
+    GetCustomerDetail:base_url_wealthyFox + "/MwisrQueries/GetCustomerDetail",
+    GetCustomerAnswers:base_url_Mwisr+"Customer/GetCustomerAnswers/",
+    GetUnAssignedUsers:base_url_wealthyFox+"/Analyst/GetUnAssignedUsers",
 }
 
 /********* Normal Functions **********/
@@ -834,4 +837,34 @@ export function getUserOwnerDetails(authHeader,payload)
     return JSON.parse(data)
   }).catch(err => err)
 }
+
+export function get_customer_details(authHeader,payload)
+{
+  return apiCall(endpoint_url["GetCustomerDetail"],"POST",payload,authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function get_customer_answers(authHeader,payload)
+{
+  return apiCall(endpoint_url["GetCustomerAnswers"],"GET",payload, authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function assigned_users(authHeader,payload)
+{
+  return apiCall(endpoint_url["GetAssignedUsers"],"GET",payload, authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function unassigned_users(authHeader,payload)
+{
+  return apiCall(endpoint_url["GetUnAssignedUsers"],"GET",payload, authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
+
 
