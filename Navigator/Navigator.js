@@ -29,6 +29,7 @@ import PackageDetails from '../Screens/Package/PackageDetails'
 import Owners from '../Screens/Users/Owners'
 import Customer from '../Screens/Users/Customer'
 import AssignUsers from '../Screens/Package/AssignUsers'
+import AddReports from '../Screens/Reports/AddReport'
 
 
 
@@ -57,6 +58,15 @@ const Drawer=createDrawerNavigator({
                     tabBarLabel:'Add Package',
                     tabBarIcon:(tabIcon)=>{
                         return <FontAwesome name="dropbox" size={25} color={tabIcon.tintColor} />
+                    }
+                }
+            },
+            AddReports:{
+                screen:AddReports,
+                navigationOptions:{
+                    tabBarLabel:'Add Reports',
+                    tabBarIcon:(tabIcon)=>{
+                        return <FontAwesome name="file-o" size={23} color={tabIcon.tintColor} />
                     }
                 }
             }

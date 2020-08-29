@@ -108,10 +108,6 @@ class CustomDrawer extends React.Component{
                     isVisible:true,
                     SubContents:[
                         {
-                            Name:"Add Report",
-                            isVisible:true
-                        },
-                        {
                             Key:"ViewReports",
                             Name:"View Report",
                             isVisible:true
@@ -187,30 +183,6 @@ class CustomDrawer extends React.Component{
                     ],
                     Chevron:true,
                     Expanded:false
-                },
-                {
-                    Name:"Order Book",
-                    Icon:"book",
-                    SubContents:[],
-                    Chevron:false,
-                    Expanded:null,
-                    isVisible:true
-                },
-                {
-                    Name:"Positional Book",
-                    Icon:"book",
-                    SubContents:[],
-                    Chevron:false,
-                    Expanded:null,
-                    isVisible:true
-                },
-                {
-                    Name:"Trade Book",
-                    Icon:"book",
-                    SubContents:[],
-                    Chevron:false,
-                    Expanded:null,
-                    isVisible:true
                 },
                 {
                     Name:"Logout",

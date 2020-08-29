@@ -97,7 +97,7 @@ class UserDetails extends React.Component {
         }
 
         let ReportsPayload={
-            forUserId:UserType === 0 ? OwnerId : UserUserId,
+            forUserId:UserType === 0 ? OwnerId : UserId,
             PackageIds:"",
             Tags:"",
             SectorIds:"",
