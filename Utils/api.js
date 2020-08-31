@@ -58,6 +58,13 @@ const endpoint_url={
     GetCustomerDetail:base_url_wealthyFox + "/MwisrQueries/GetCustomerDetail",
     GetCustomerAnswers:base_url_Mwisr+"Customer/GetCustomerAnswers/",
     GetUnAssignedUsers:base_url_wealthyFox+"/Analyst/GetUnAssignedUsers",
+    GetCoverageTypes:base_url_Mwisr+"ResearchReport/GetCoverageTypes",
+    GetResearchHouses:base_url_Mwisr+"ResearchReport/GetResearchHouses",
+    GetResearchReportTypes:base_url_Mwisr+"ResearchReport/GetResearchReportTypes",
+    GetMarketCaps:base_url_Mwisr+"ResearchReport/GetMarketCaps",
+    GetReportAuthors:base_url_Mwisr+"ResearchReport/GetReportAuthors",
+    GetSectors:base_url_Mwisr+"ResearchReport/GetSectors",
+    GetMarketCaps:base_url_Mwisr+"ResearchReport/GetMarketCaps",
 }
 
 /********* Normal Functions **********/
@@ -866,5 +873,39 @@ export function unassigned_users(authHeader,payload)
   }).catch(err => err)
 }
 
+export function get_coverage_types(authHeader)
+{
+  return apiCall(endpoint_url['GetCoverageTypes'],"GET",{},authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)  
+}
+
+export function get_research_houses(authHeader)
+{
+  return apiCall(endpoint_url['GetResearchHouses'],"GET",{},authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)  
+}
+
+export function get_report_types(authHeader)
+{
+  return apiCall(endpoint_url['GetResearchReportTypes'],"GET",{},authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)  
+}
+
+export function get_sector(authHeader)
+{
+  return apiCall(endpoint_url['GetSectors'],"GET",{},authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err)  
+}
+
+export function get_market_caps(authHeader)
+{
+  return apiCall(endpoint_url['GetMarketCaps'],"GET",{},authHeader).then(data => {
+    return JSON.parse(data)
+  }).catch(err => err) 
+}
 
 

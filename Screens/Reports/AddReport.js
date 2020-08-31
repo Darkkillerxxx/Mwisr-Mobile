@@ -1,16 +1,20 @@
 import React from 'react'
-import {View,StyleSheet,TouchableOpacity,TextInput, ScrollView} from 'react-native'
+import {View,StyleSheet,TouchableOpacity,TextInput, ScrollView,Picker} from 'react-native'
 import Container from '../../Components/Container'
 import NormalText from '../../Components/NormalText'
 import Card from '../../Components/Card'
 import CustomButton from '../../Components/Button'
 import { FontAwesome } from '@expo/vector-icons';
 import DatePicker from 'react-native-datepicker'
+import {get_coverage_types,get_research_houses,get_report_types,get_sector,get_market_caps,get_package_addCall} from '../../Utils/api'
+import { connect }from 'react-redux'
 
 class AddReports extends React.Component{
     constructor(){
         super()
         this.state={
+            FileName:"",
+            FileContent:"",
             Authors:[
                 {
                     AuthorId: 0,
@@ -21,7 +25,22 @@ class AddReports extends React.Component{
             Keywords:[],
             KeywordText:"",
             ReportsCreationDate:"",
-            ReportEndDate:""
+            ReportEndDate:"",
+            ReportName:"",
+            ResearchHouse:[],
+            SelectedResearchHouse:"",
+            CoverageTypes:[],
+            SelectedCoverageType:"",
+            ReportType:[],
+            SelectedReportType:"",
+            SectorTypes:[],
+            SelectedSectorType:"",
+            MarketCaps:[],
+            SelectedmarketCaps:"",
+            PackageList:[],
+            SelectedPacakgeId:"",
+            Exchanges:[],
+            SelectedExchange:""
         }
     }
 
@@ -90,6 +109,71 @@ class AddReports extends React.Component{
         this.setState({Authors:temp})
     }
 
+    componentDidMount(){
+        const {AuthHeader}=this.props.loginState
+
+        get_coverage_types(AuthHeader).then(result=>{
+            if(result.IsSuccess)
+            {
+                this.setState({CoverageTypes:result.Data},()=>{
+                    this.setState({SelectedCoverageType:this.state.CoverageTypes[0].Name})
+                })
+            }
+        })
+
+        get_research_houses(AuthHeader).then(result=>{
+            if(result.IsSuccess)
+            {
+                this.setState({ResearchHouse:result.Data},()=>{
+                    this.setState({SelectedResearchHouse:this.state.ResearchHouse[0].Name})
+                })
+            }
+        })
+
+        get_report_types(AuthHeader).then(result=>{
+            if(result.IsSuccess)
+            {
+                this.setState({ReportType:result.Data},()=>{
+                    this.setState({SelectedReportType:this.state.ReportType[0].Name})
+                })
+            }
+        })
+
+        get_sector(AuthHeader).then(result => {
+            if(result.IsSuccess)
+            {
+                this.setState({SectorTypes:result.Data},()=>{
+                    this.setState({SelectedSectorType:this.state.SectorTypes[0].Id})
+                })
+            }
+        })
+
+        get_market_caps(AuthHeader).then(result => {
+            if(result.IsSuccess)
+            {
+                this.setState({MarketCaps:result.Data},()=>{
+                    this.setState({SelectedMarketCap:this.state.MarketCaps[0].Name})
+                })
+            }
+        })
+
+        get_package_addCall(AuthHeader).then(result => {
+            if(result.IsSuccess)
+            {
+                this.setState({PackageList:result.Data},()=>{
+                    this.setState({SelectedPackage:this.state.PackageList[0].PackageId},()=>{
+                        this.GetExchanges(this.state.PackageList[0].ForExchanges)
+                    })
+                })
+            }
+        })
+    }
+
+    GetExchanges=(Exchange)=>{
+        let exchanges=Exchange.split(',')
+        this.setState({Exchanges:exchanges})
+    }
+
     render(){
 
      let ShowAuthors=this.state.Authors.map((result,index)=>(
@@ -120,9 +204,58 @@ class AddReports extends React.Component{
             </View>
         ))
 
+        let ShowResearchHouse=this.state.ResearchHouse.map((result)=>(
+            <Picker.Item key={result.Id} value={result.Name} label={result.Name}/>
+        ))
+
+        let ShowCoverageTypes=this.state.CoverageTypes.map((result)=>(
+            <Picker.Item key={result.Id} value={result.Name} label={result.Name}/>
+        ))
+
+        let ShowReportType=this.state.ReportType.map((result)=>(
+            <Picker.Item key={result.Id} value={result.Name} label={result.Name}/>
+        ))
+
+        let ShowSectorType=this.state.SectorTypes.map((result)=>(
+            <Picker.Item key={result.Id} value={result.Id} label={result.Name}/>
+        ))
+
+        let ShowMarketCaps=this.state.MarketCaps.map((result)=>(
+            <Picker.Item key={result.Id} value={result.Name} label={result.Name}/>
+        ))
+
+        let ShowPackageList=this.state.PackageList.map(result =>(
+            <Picker.Item key={result.PackageId} value={result.PackageId} label={result.PackageName}/>
+        ))
+
+        let ShowExchanges=this.state.Exchanges.map(result =>(
+            <Picker.Item key={result} value={result} label={result}/>
+        ))
+
         return(
             <Container style={styles.CustomContainer} >
                 <ScrollView style={{width:'100%'}}>
+                    
+                <View style={{width:'100%',marginTop:10}}>
+                    <View style={styles.Selector} />
+                        <View style={styles.SelectorNameContainer}>
+                            <NormalText style={styles.SelectorName}>Upload File</NormalText>
+                        </View>
+                </View>
+
+                <Card style={{...styles.CustomCard,...{justifyContent: 'flex-start',alignItems: 'center',flexDirection: 'row'}}}>
+                    <View> 
+                        <TouchableOpacity onPress={()=>this.AddKeywords(this.state.KeywordText,true)}>
+                            <CustomButton style={{width:100,borderRadius:5}}>
+                                <NormalText style={{marginBottom:0,color:'white'}}>Select File</NormalText>
+                            </CustomButton>
+                        </TouchableOpacity>
+                    </View>
+                    <NormalText style={{marginBottom:0,marginLeft:10}}>{this.state.FileName}</NormalText>
+                </Card>                
+                    
+                    
+{/* --------------------------------------------------Add Keyword-------------------------------------------------------------------                     */}
                     
                     <View style={{width:'100%',marginTop:10}}>
                         <View style={styles.Selector} />
@@ -254,6 +387,94 @@ class AddReports extends React.Component{
                         </TouchableOpacity>
                         </View>
                     </Card>
+
+
+{/* ----------------------------------------------------Report Details------------------------------------------- */}
+
+                    <View style={{width:'100%',marginTop:10}}>
+                        <View style={styles.Selector} />
+                        <View style={styles.SelectorNameContainer}>
+                            <NormalText style={styles.SelectorName}>Report Details</NormalText>
+                        </View>
+                    </View>
+
+                    <Card style={styles.CustomCard}>
+                        <View style={{width:'100%',marginVertical:5}}>
+                            <NormalText style={{marginBottom:10,fontSize:14}}>Report Name</NormalText>
+                            <View style={styles.KeywordTextInput}>
+                                <TextInput onChangeText={(e)=>{}} style={{height:35}}/>
+                            </View>
+                        </View>
+
+                        <View style={{width:'100%',marginVertical:5}}>
+                            <NormalText style={{marginBottom:10,fontSize:14}}>Coverage By</NormalText>
+                            <View style={{...styles.KeywordTextInput,justifyContent:'center'}}>
+                               <Picker selectedValue={this.state.SelectedResearchHouse} onValueChange={(val)=>this.setState({SelectedResearchHouse:val})}>
+                                    {ShowResearchHouse}
+                               </Picker>
+                            </View>
+                        </View>
+
+                        <View style={{width:'100%',marginVertical:5,flexDirection:'row',justifyContent:'space-between'}}>
+                            <View style={{width:'45%'}}>
+                                <NormalText style={{marginBottom:10,fontSize:14}}>Coverage Types</NormalText>
+                                <View style={{...styles.KeywordTextInput,justifyContent:'center'}}>
+                                    <Picker selectedValue={this.state.SelectedCoverageType} onValueChange={(val)=>this.setState({SelectedCoverageType:val})}>
+                                       {ShowCoverageTypes}     
+                                    </Picker>
+                                </View>
+                            </View>
+
+                            <View style={{width:'45%'}}>
+                                <NormalText style={{marginBottom:10,fontSize:14}}>Coverage Types</NormalText>
+                                <View style={{...styles.KeywordTextInput,justifyContent:'center'}}>
+                                    <Picker selectedValue={this.state.SelectedReportType} onValueChange={(val)=>this.setState({SelectedReportType:val})}>
+                                        {ShowReportType} 
+                                    </Picker>
+                                </View>
+                            </View>
+                        </View>
+
+                        <View style={{width:'100%',marginVertical:5,flexDirection:'row',justifyContent:'space-between'}}>
+                            <View style={{width:'45%'}}>
+                                <NormalText style={{marginBottom:10,fontSize:14}}>Sector Types</NormalText>
+                                <View style={{...styles.KeywordTextInput,justifyContent:'center'}}>
+                                    <Picker selectedValue={this.state.SelectedCoverageType} onValueChange={(val)=>this.setState({SelectedCoverageType:val})}>
+                                       {ShowSectorType}
+                                    </Picker>
+                                </View>
+                            </View>
+
+                            <View style={{width:'45%'}}>
+                                <NormalText style={{marginBottom:10,fontSize:14}}>Market Caps</NormalText>
+                                <View style={{...styles.KeywordTextInput,justifyContent:'center'}}>
+                                    <Picker selectedValue={this.state.SelectedReportType} onValueChange={(val)=>this.setState({SelectedReportType:val})}>
+                                       {ShowMarketCaps}
+                                    </Picker>
+                                </View>
+                            </View>
+                        </View>
+
+                        <View style={{width:'100%',marginVertical:5}}>
+                            <NormalText style={{marginBottom:10,fontSize:14}}>Select Package</NormalText>
+                            <View style={{...styles.KeywordTextInput,justifyContent:'center'}}>
+                               <Picker selectedValue={this.state.SelectedPacakgeId} onValueChange={(val)=>this.setState({SelectedPacakgeId:val})}>
+                                   {ShowPackageList}
+                               </Picker>
+                            </View>
+                        </View>
+
+                        <View style={{width:'100%',marginVertical:5}}>
+                            <NormalText style={{marginBottom:10,fontSize:14}}>Select Exchange</NormalText>
+                            <View style={{...styles.KeywordTextInput,justifyContent:'center'}}>
+                               <Picker selectedValue={this.state.SelectedResearchHouse} onValueChange={(val)=>this.setState({SelectedResearchHouse:val})}>
+                                    {ShowExchanges}
+                               </Picker>
+                            </View>
+                        </View>
+                    </Card>
+
+
                 </ScrollView>
             </Container>
         )
@@ -363,4 +584,16 @@ const styles=StyleSheet.create({
 })
 
 
-export default AddReports
+const mapStateToProps= state =>{
+    return{
+        loginState:state.login.login
+    }
+}
+
+const mapDispatchToProps = dispatch =>{
+    return{
+       
+    }
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(AddReports);
