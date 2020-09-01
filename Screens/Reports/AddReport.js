@@ -40,7 +40,30 @@ class AddReports extends React.Component{
             PackageList:[],
             SelectedPacakgeId:"",
             Exchanges:[],
-            SelectedExchange:""
+            SelectedExchange:"",
+            MarketSegmentId:"",
+            Legs:[ 
+                {
+                AnalystId: 9,
+                MasterScripCode: 0,
+                Symbol: null,
+                MarketExchangeCode: null,
+                MarketSegmentId: 10,
+                Derivate: null,
+                ExpiryDate: null,
+                StrikePrice: null,
+                ExpiryDateList:[],
+                SuggestionsList:[],
+                CallType: 1,
+                DurationFrom: "2018-11-24",
+                DurationTo: "2018-11-30",
+                CMPPrice: null,
+                Target: null,
+                StopLoss:null,
+                TipId: 0,
+                IsExternal: false
+                }
+        ]
         }
     }
 
@@ -109,6 +132,44 @@ class AddReports extends React.Component{
         this.setState({Authors:temp})
     }
 
+    onLegsEdit=(index,type,val)=>{
+        let Legs=this.state.Legs
+        switch(type)
+        {
+            case 1:
+                Legs[index].Symbol=val
+                break;
+
+            case 2:
+                Legs[index].Target=val
+                break;
+        
+            case 3:
+                Legs[index].StopLoss=val
+                break;
+            
+            case 4:
+                Legs[index].CMPPrice=val
+                break;
+            
+            case 5:
+                Legs[index].DurationFrom=val
+                break;
+
+            case 6:
+                Legs[index].DurationTo=val
+                break;
+
+            default:
+                break
+        }
+
+        this.setState({Legs:Legs},()=>{
+            console.log(this.state.Legs)
+        })
+
+    }
+
     componentDidMount(){
         const {AuthHeader}=this.props.loginState
 
@@ -171,8 +232,45 @@ class AddReports extends React.Component{
 
     GetExchanges=(Exchange)=>{
         let exchanges=Exchange.split(',')
-        this.setState({Exchanges:exchanges})
+        this.setState({Exchanges:exchanges},()=>{
+            this.setState({MarketSegmentId:this.state.PackageList[0].MarketSegmentId})
+        })
     }
+
+    AddRemoveMoreLegs=(isAdd,index)=>{
+        let TempLegs=this.state.Legs
+        if(isAdd)
+        {
+            TempLegs.push({
+                AnalystId: 9,
+                MasterScripCode: 0,
+                Symbol: null,
+                MarketExchangeCode: null,
+                MarketSegmentId: 10,
+                Derivate: null,
+                ExpiryDate: null,
+                ExpiryDateList:[],
+                SuggestionsList:[],
+                StrikePrice: null,
+                CallType: 1,
+                DurationFrom: "",
+                DurationTo: "",
+                CMPPrice: null,
+                Target: null,
+                StopLoss:null,
+                TipId: 0,
+                IsExternal: false
+                })
+        }
+        else
+        {
+            TempLegs.splice(index,1)
+        }
+
+        this.setState({Legs:TempLegs})
+    }
+
+    
 
     render(){
 
@@ -232,17 +330,138 @@ class AddReports extends React.Component{
             <Picker.Item key={result} value={result} label={result}/>
         ))
 
+        let ShowLegs=this.state.Legs.map((result,index) =>(
+            <Card style={styles.CustomCard}>
+                <View style={{width:'100%',marginVertical:5}}>
+                    <NormalText style={{marginBottom:10,fontSize:14}}>Symbol Name</NormalText>
+                    <View style={styles.KeywordTextInput}>
+                        <TextInput onChangeText={(e)=> this.onLegsEdit(index,1,e) } style={{height:35}}/>
+                    </View>
+                </View>
+
+                <View style={{width:'100%',marginVertical:5,flexDirection:'row',justifyContent:'space-between'}}>
+                    {this.state.MarketSegmentId !== 1 ?
+                    <View style={{width:'45%'}}>
+                        <NormalText style={{marginBottom:10,fontSize:14}}>Expiry Date</NormalText>
+                        <View style={{...styles.KeywordTextInput,justifyContent:'center'}}>
+                            <Picker selectedValue={this.state.SelectedCoverageType} onValueChange={(val)=>this.setState({SelectedCoverageType:val})}>
+                            
+                            </Picker>
+                        </View>
+                    </View>:null}
+
+                    <View style={{width:`${this.state.MarketSegmentId === 1 ? "100%":"45%"}`}}>
+                        <NormalText style={{marginBottom:10,fontSize:14}}>Enter CMP Price</NormalText>
+                        <View style={{...styles.KeywordTextInput,justifyContent:'center'}}>
+                            <TextInput onChangeText={(e)=> this.onLegsEdit(index,4,e) } style={{height:35}}/>
+                        </View>
+                    </View>
+                </View>
+
+                <View style={{width:'100%',marginVertical:5,flexDirection:'row',justifyContent:'space-between'}}>
+                    <View style={{width:'45%'}}>
+                        <NormalText style={{marginBottom:10,fontSize:14}}>Enter Target</NormalText>
+                        <View style={{...styles.KeywordTextInput,justifyContent:'center'}}>
+                            <TextInput onChangeText={(e)=>this.onLegsEdit(index,2,e)} style={{height:35}}/>
+                        </View>
+                    </View>
+
+                    <View style={{width:'45%'}}>
+                        <NormalText style={{marginBottom:10,fontSize:14}}>Enter StopLoss</NormalText>
+                        <View style={{...styles.KeywordTextInput,justifyContent:'center'}}>
+                            <TextInput onChangeText={(e)=>this.onLegsEdit(index,3,e)} style={{height:35}}/>
+                        </View>
+                    </View>
+                </View>
+
+                <View style={{width:'100%',marginVertical:5,flexDirection:'row',justifyContent:'space-between'}}>
+                    <View style={{width:'45%'}}>
+                        <NormalText style={{marginBottom:10,fontSize:14}}>Call Start Date</NormalText>
+                        <View style={{...styles.KeywordTextInput,...{flexDirection:'row',alignItems:'center'}}}>
+                                 <DatePicker
+                                        style={{width: 50}}
+                                        date={this.state.Legs[index].DurationFrom}
+                                        mode="date"
+                                        placeholder="select date"
+                                        format="DD-MM-YYYY"
+                                        minDate="01-05-2016"
+                                        maxDate="01-05-2025"
+                                        confirmBtnText="Confirm"
+                                        cancelBtnText="Cancel"
+                                        hideText={true}
+                                        customStyles={{
+                                            dateIcon: {
+                                                position: 'absolute',
+                                                left: 0,
+                                                top: 4,
+                                                marginLeft: 0,
+                                                width:20,
+                                                height:20,
+                                                marginTop:5
+                                            },
+                                            dateInput: {
+                                                width: 250,
+                                                height:35,
+                                                borderRadius:5
+                                            }
+                                            }}
+                                        onDateChange={(date) => this.onLegsEdit(5,index,date)}
+                                    />
+                                    <NormalText style={{marginBottom:0,fontSize:14}}>{this.state.Legs[index].DurationFrom}</NormalText> 
+                        </View>
+                    </View>
+
+                    <View style={{width:'45%'}}>
+                        <NormalText style={{marginBottom:10,fontSize:14}}>Call End Date</NormalText>
+                        <View style={{...styles.KeywordTextInput,...{flexDirection:'row',alignItems:'center'}}}>
+                                    <DatePicker
+                                        style={{width: 50}}
+                                        date={this.state.Legs[index].DurationTo}
+                                        mode="date"
+                                        placeholder="select date"
+                                        format="DD-MM-YYYY"
+                                        minDate="01-05-2016"
+                                        maxDate="01-05-2025"
+                                        confirmBtnText="Confirm"
+                                        cancelBtnText="Cancel"
+                                        hideText={true}
+                                        customStyles={{
+                                            dateIcon: {
+                                                position: 'absolute',
+                                                left: 0,
+                                                top: 4,
+                                                marginLeft: 0,
+                                                width:20,
+                                                height:20,
+                                                marginTop:5
+                                            },
+                                            dateInput: {
+                                                width: 250,
+                                                height:35,
+                                                borderRadius:5
+                                            }
+                                            }}
+                                        onDateChange={(date) =>this.onLegsEdit(6,index,date)}
+                                    />
+                                    <NormalText style={{marginBottom:0,fontSize:14}}>{this.state.Legs[index].DurationTo}</NormalText> 
+                        </View>
+                    </View>
+                </View>
+
+                <View style={{width:'100%',alignItems:'flex-end',justifyContent:'center'}}>
+                    <TouchableOpacity onPress={()=>this.AddRemoveMoreLegs(false,index)}>
+                        <CustomButton style={{width:140,borderRadius:5}}>
+                            <NormalText style={{...styles.SelectorName,...{color:'white',fontSize:12}}}>Remove This Leg</NormalText>
+                        </CustomButton>
+                    </TouchableOpacity>
+                </View>
+            </Card>
+        ))
+
         return(
             <Container style={styles.CustomContainer} >
                 <ScrollView style={{width:'100%'}}>
                     
-                <View style={{width:'100%',marginTop:10}}>
-                    <View style={styles.Selector} />
-                        <View style={styles.SelectorNameContainer}>
-                            <NormalText style={styles.SelectorName}>Upload File</NormalText>
-                        </View>
-                </View>
-
                 <Card style={{...styles.CustomCard,...{justifyContent: 'flex-start',alignItems: 'center',flexDirection: 'row'}}}>
                     <View> 
                         <TouchableOpacity onPress={()=>this.AddKeywords(this.state.KeywordText,true)}>
@@ -257,14 +476,7 @@ class AddReports extends React.Component{
                     
 {/* --------------------------------------------------Add Keyword-------------------------------------------------------------------                     */}
                     
-                    <View style={{width:'100%',marginTop:10}}>
-                        <View style={styles.Selector} />
-                            <View style={styles.SelectorNameContainer}>
-                                <NormalText style={styles.SelectorName}>Add Keywords</NormalText>
-                            </View>
-                    </View>
-                
-
+                  
                     <Card style={styles.CustomCard}>
                         <View style={styles.KeywordContainer}>
                             <View style={{width:'80%'}}>
@@ -360,16 +572,7 @@ class AddReports extends React.Component{
 
 {/* ----------------------------------------------------Authors------------------------------------------- */}
                     
-                    <View style={{width:'100%',marginTop:10}}>
-                        <View style={styles.Selector} />
-
-                    
-                        <View style={styles.SelectorNameContainer}>
-                            <NormalText style={styles.SelectorName}>Add Author</NormalText>
-                        </View>
-                    </View>
-                
-
+                  
                     <Card style={styles.CustomCard}>
                         {ShowAuthors}
                         <View style={styles.CustomButtonContainer}>
@@ -390,13 +593,6 @@ class AddReports extends React.Component{
 
 
 {/* ----------------------------------------------------Report Details------------------------------------------- */}
-
-                    <View style={{width:'100%',marginTop:10}}>
-                        <View style={styles.Selector} />
-                        <View style={styles.SelectorNameContainer}>
-                            <NormalText style={styles.SelectorName}>Report Details</NormalText>
-                        </View>
-                    </View>
 
                     <Card style={styles.CustomCard}>
                         <View style={{width:'100%',marginVertical:5}}>
@@ -474,7 +670,26 @@ class AddReports extends React.Component{
                         </View>
                     </Card>
 
+{/* ----------------------------------------------------Call Legs------------------------------------------- */}
 
+
+                    <View style={{width:'100%',alignItems:'flex-end',justifyContent:'center'}}>
+                        <TouchableOpacity onPress={()=>this.AddRemoveMoreLegs(true,null)}>
+                            <CustomButton style={{width:120}}>
+                                <NormalText style={{...styles.SelectorName,...{color:'white',fontSize:12}}}>Add More Script</NormalText>
+                            </CustomButton>
+                        </TouchableOpacity>
+                    </View>
+
+                   {ShowLegs}
+
+                    <View style={{width:'100%',alignItems:'center',justifyContent:'center'}}>
+                        <TouchableOpacity>
+                            <CustomButton style={{width:120}}>
+                                <NormalText style={{...styles.SelectorName,...{color:'white',fontSize:12}}}>Add Report</NormalText>
+                            </CustomButton>
+                        </TouchableOpacity>
+                    </View>
                 </ScrollView>
             </Container>
         )
@@ -579,7 +794,7 @@ const styles=StyleSheet.create({
         flexDirection:'row',
         alignItems:"center",
         justifyContent:'flex-start'
-    }
+    },
     
 })
 
