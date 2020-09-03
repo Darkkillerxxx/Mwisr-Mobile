@@ -136,6 +136,7 @@ export function reportDate(date)
 }
 
 export let getPackageBackColor=(segment)=>{
+ 
   if(segment === "Equity")
   {
     return "#D9F4F4"

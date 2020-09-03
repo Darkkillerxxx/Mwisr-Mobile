@@ -8,6 +8,8 @@ import { FontAwesome } from '@expo/vector-icons';
 import DatePicker from 'react-native-datepicker'
 import {get_coverage_types,get_research_houses,get_report_types,get_sector,get_market_caps,get_package_addCall} from '../../Utils/api'
 import { connect }from 'react-redux'
+import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
 
 class AddReports extends React.Component{
     constructor(){
@@ -77,6 +79,10 @@ class AddReports extends React.Component{
         this.setState({ReportEndDate:Date},()=>{
             console.log(this.state.ReportsCreationDate)
         })
+    }
+
+    SelectFile = async() => {
+        let doc =  await DocumentPicker.getDocumentAsync({})   
     }
 
 
@@ -464,7 +470,7 @@ class AddReports extends React.Component{
                     
                 <Card style={{...styles.CustomCard,...{justifyContent: 'flex-start',alignItems: 'center',flexDirection: 'row'}}}>
                     <View> 
-                        <TouchableOpacity onPress={()=>this.AddKeywords(this.state.KeywordText,true)}>
+                        <TouchableOpacity onPress={()=>this.SelectFile()}>
                             <CustomButton style={{width:100,borderRadius:5}}>
                                 <NormalText style={{marginBottom:0,color:'white'}}>Select File</NormalText>
                             </CustomButton>
