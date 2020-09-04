@@ -157,11 +157,13 @@ class CustomDrawer extends React.Component{
                     SubContents:[
                         {
                             Name:"Buy Subscription",
-                            isVisible:true
+                            isVisible:true,
+                            Key:'Credits'
                         },
                         {
                             Name:"Add-Ons",
-                            isVisible:true
+                            isVisible:true,
+                            Key:'AddOns'
                         }
                     ],
                     Chevron:true,

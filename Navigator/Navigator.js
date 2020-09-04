@@ -31,7 +31,8 @@ import Customer from '../Screens/Users/Customer'
 import AssignUsers from '../Screens/Package/AssignUsers'
 import AddReports from '../Screens/Reports/AddReport'
 import Notifications from '../Screens/Settings/Notifications'
-
+import AddOns from '../Screens/Subscription/AddOns'
+import Credits from '../Screens/Subscription/Credits'
 
 
 const Drawer=createDrawerNavigator({
@@ -133,6 +134,12 @@ const Drawer=createDrawerNavigator({
     },
     Notifications:{
         screen:Notifications
+    },
+    AddOns:{
+        screen:AddOns
+    },
+    Credits:{
+        screen:Credits
     }
 },{
     contentComponent:CustomDrawer,

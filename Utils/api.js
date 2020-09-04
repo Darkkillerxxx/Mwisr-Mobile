@@ -65,7 +65,8 @@ const endpoint_url={
     GetReportAuthors:base_url_Mwisr+"ResearchReport/GetReportAuthors",
     GetSectors:base_url_Mwisr+"ResearchReport/GetSectors",
     GetMarketCaps:base_url_Mwisr+"ResearchReport/GetMarketCaps",
-    GetReceivedMessages:base_url_Mwisr+"RTTracker/GetReceivedMessages"
+    GetReceivedMessages:base_url_Mwisr+"RTTracker/GetReceivedMessages",
+    GetUserCreditDetail:base_url_wealthyFox + "/RTTracker/GetUserCreditDetail",
 }
 
 /********* Normal Functions **********/
@@ -1037,6 +1038,13 @@ export function get_market_caps(authHeader)
 export function get_received_messages(authHeader,payload)
 {
   return apiCall(endpoint_url["GetReceivedMessages"],"GET",payload,authHeader).then(data =>{
+      return JSON.parse(data)
+  }).catch(err => err)
+}
+
+export function get_credit_details(authHeader)
+{
+  return apiCall(endpoint_url["GetUserCreditDetail"],"GET",{},authHeader).then(data =>{
       return JSON.parse(data)
   }).catch(err => err)
 }
