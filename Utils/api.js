@@ -5,11 +5,11 @@ import store from '../store/store'
 import {setMsg,setNrmlMsg} from '../store/Actions/ActionLogin'
 
 // store.dispatch(setMsg("This is a Test Message"))
-// const base_url_wealthyFox="https://wfanalytics.mwisr.com//api//"
-// const base_url_Mwisr="https://wfanalytics.mwisr.com//api//"
+const base_url_wealthyFox="https://wfanalytics.mwisr.com//api//"
+const base_url_Mwisr="https://wfanalytics.mwisr.com//api//"
 
-const base_url_wealthyFox="http://202.38.173.113//api//"
-const base_url_Mwisr="http://202.38.173.113//api//"
+// const base_url_wealthyFox="http://202.38.173.113//api//"
+// const base_url_Mwisr="http://202.38.173.113//api//"
 
 const endpoint_url={
     login: base_url_wealthyFox+"Authentication/Login/",
@@ -65,6 +65,7 @@ const endpoint_url={
     GetReportAuthors:base_url_Mwisr+"ResearchReport/GetReportAuthors",
     GetSectors:base_url_Mwisr+"ResearchReport/GetSectors",
     GetMarketCaps:base_url_Mwisr+"ResearchReport/GetMarketCaps",
+    GetReceivedMessages:base_url_Mwisr+"RTTracker/GetReceivedMessages"
 }
 
 /********* Normal Functions **********/
@@ -214,6 +215,130 @@ export function verbose(isSuccess,Heading,Description)
 
     store.dispatch(setNrmlMsg(JSON.stringify(Msg)))
     
+}
+
+export function getIconForNT(Type){
+  switch(Type){
+      case "GS":
+          return "circle-o-notch" 
+          break;
+      case "RP":
+          return "fas fa-print" 
+          break;
+      case "UD":
+          return "print"
+          break;
+      case "AP":
+          return "arrows-h"
+          break;
+      case "CN":
+          return "plus"
+          break;
+      case "CE":
+          return "pencil"
+          break;
+      case "T1":
+          return "bullseye";
+          break;
+      case "T2":
+          return "bullseye";
+          break;
+      case "T3":
+          return "bullseye";
+          break;
+      case "S1":
+          return "stop-circle";
+          break;
+      case "S2":
+          return "stop-circle";
+          break;
+      case "S3":
+          return "stop-circle";
+          break;
+      case "BP1":
+          return "google-wallet";
+          break;
+      case "BP2":
+          return "google-wallet";
+          break;
+      case "BP3":
+          return "google-wallet";
+          break;
+      case "XV":
+          return "sign-out"
+          break;
+      case "SC":
+          return "stop-circle"
+          break;
+      case "EX":
+          return "power-off"
+          break;
+      case "TG":
+          return "check"
+          break;
+  }
+}
+
+export function getColorForNT(Type){
+  switch(Type){
+      case "GS":
+          return "#ffc4bd" 
+          break;
+      case "RP":
+          return "#f39834" 
+          break;
+      case "UD":
+          return "#00b5b8"
+          break;
+      case "AP":
+          return "#1890ff"
+          break;
+      case "CN":
+          return "#feecb3"
+          break;
+      case "CE":
+          return "#b48fd9"
+          break;
+      case "T1":
+          return "#84dcff";
+          break;
+      case "T2":
+          return "#84dcff";
+          break;
+      case "T3":
+          return "#84dcff";
+          break;
+      case "S1":
+          return "#ff6961";
+          break;
+      case "S2":
+          return "#ff6961";
+          break;
+      case "S3":
+          return "#ff6961";
+          break;
+      case "BP1":
+          return "#ffa87d";
+          break;
+      case "BP2":
+          return "#ffa87d";
+          break;
+      case "BP3":
+          return "#ffa87d";
+          break;
+      case "XV":
+          return "#ed4356"
+          break;
+      case "SC":
+          return "#90a4ae"
+          break;
+      case "EX":
+         return "#90a4ae"
+         break;
+      case "TG":
+          return "#90a4ae"
+          break;
+  }
 }
 /**********Normal Functions Ends Here ******/
 
@@ -385,7 +510,7 @@ export function verify_OTP(OTP,authHeader) {
     
     let _auth =
       emailId +
-      ":Web" +
+      ":WEB" +
       ':12345' +
       ':'+password +
       ":" + accessToken +
@@ -907,6 +1032,13 @@ export function get_market_caps(authHeader)
   return apiCall(endpoint_url['GetMarketCaps'],"GET",{},authHeader).then(data => {
     return JSON.parse(data)
   }).catch(err => err) 
+}
+
+export function get_received_messages(authHeader,payload)
+{
+  return apiCall(endpoint_url["GetReceivedMessages"],"GET",payload,authHeader).then(data =>{
+      return JSON.parse(data)
+  }).catch(err => err)
 }
 
 

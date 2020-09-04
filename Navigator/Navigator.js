@@ -30,6 +30,7 @@ import Owners from '../Screens/Users/Owners'
 import Customer from '../Screens/Users/Customer'
 import AssignUsers from '../Screens/Package/AssignUsers'
 import AddReports from '../Screens/Reports/AddReport'
+import Notifications from '../Screens/Settings/Notifications'
 
 
 
@@ -129,6 +130,9 @@ const Drawer=createDrawerNavigator({
     },
     AssignUsers:{
         screen:AssignUsers
+    },
+    Notifications:{
+        screen:Notifications
     }
 },{
     contentComponent:CustomDrawer,

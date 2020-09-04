@@ -174,6 +174,7 @@ class CustomDrawer extends React.Component{
                     SubContents:[
                         {
                             Name:"Notifications",
+                            Key:"Notifications",
                             isVisible:true
                         },
                         {
