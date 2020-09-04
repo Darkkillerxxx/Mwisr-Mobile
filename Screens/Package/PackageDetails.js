@@ -1,8 +1,9 @@
 import React from 'react'
-import {View, StyleSheet,ActivityIndicator, TouchableOpacity,FlatList} from 'react-native'
+import {View, StyleSheet,ActivityIndicator, TouchableOpacity,FlatList,Modal} from 'react-native'
 import Container from '../../Components/Container'
 import {NavigationEvents} from 'react-navigation'
 import {get_pacakge_details,get_research_reports} from '../../Utils/api'
+import {setMiniDetails} from '../../store/Actions/ActionCallDetails'
 import { connect }from 'react-redux'
 import NormalText from '../../Components/NormalText'
 import * as Progress from 'react-native-progress'; 
@@ -11,6 +12,7 @@ import CollapsibleCard from '../../Components/CollapsibleCard'
 import Card from '../../Components/Card'
 import ViewCalls from '../../Components/ViewCalls'
 import ReportsCard from '../../Components/ReportsCard'
+import CallsFilter from '../../Components/CallsFilter'
 
 class PackageDetails extends React.Component{
     constructor(){
@@ -20,7 +22,11 @@ class PackageDetails extends React.Component{
             HeadingDetails:0,
             isLoading:true,
             SelectedTab:"",
-            Reports:[]
+            Reports:[],
+            ShowFilterModal:false,
+            CallExchanges:[],
+            CallStatus:true,
+            CallSearch:""
         }
     }
 
@@ -86,6 +92,35 @@ class PackageDetails extends React.Component{
         })
     }
 
+    MoveToCallDetails=(MiniCallDetails)=>{
+        let TempMiniCD=[]
+        TempMiniCD.push(MiniCallDetails)
+        this.props.onSetMiniCD(MiniCallDetails)
+        
+        this.props.navigation.navigate('CallDetails',{
+            MiniDetails:MiniCallDetails
+        })
+    }
+
+    MoveToPackageDetails=(OwnerId,PackageId,PackageName)=>{
+        console.log(OwnerId,PackageId,PackageName)
+        this.props.navigation.navigate("PackageDetails",{
+            OwnerId:OwnerId,
+            PackageId:PackageId,
+            PackageName:PackageName
+        })
+    }
+
+    closeFilterModal=(Search,Exchange,CallStatus,OwnerId)=>{
+       
+        this.setState({CallStatus:CallStatus === 0 ? "":CallStatus === 1 ? true:false})
+        this.setState({CallExchanges:Exchange.toString()})
+        this.setState({CallSearch:Search},()=>{
+            this.setState({ShowFilterModal:false})
+        })
+        
+    }
+
    HandleCreatedDate=(date)=>{
     let DateArray=date.split('T')
     return DateArray[0]
@@ -106,7 +141,7 @@ class PackageDetails extends React.Component{
                             <View style={styles.PackageTopRight}>
                                 <NormalText style={{fontSize:14,color:'white',marginBottom:0}}>{this.state.Details[this.state.HeadingDetails].PackageName}</NormalText>
                                 <View style={styles.PackageTopRightButtonsContainer}>
-                                    <TouchableOpacity>
+                                    <TouchableOpacity onPress={() => this.props.navigation.navigate('AssignUsers',{forOwnerId:this.props.navigation.state.params.OwnerId,packageId:this.props.navigation.state.params.PackageId,Auth:this.props.loginState.AuthHeader})}>
                                         <View style={styles.TopRightButtons}>
                                             <NormalText style={{fontSize:10,color:'white',marginBottom:0}}>Assign Users</NormalText>
                                         </View>
@@ -152,13 +187,24 @@ class PackageDetails extends React.Component{
                         <View style={{...styles.LeftRightArrowContainers,...{alignItems:`${this.state.HeadingDetails === 0 ? 'flex-end':'flex-start'}`}}}>
                             {this.state.HeadingDetails === 0 ? 
                             <TouchableOpacity onPress={()=>this.setState({HeadingDetails:1})}>
-                                <View style={{height:35,width:35,borderRadius:100,backgroundColor:'black',opacity:0.5,alignItems:'center',justifyContent:'center'}}>
-                                    <FontAwesome name="chevron-right" size={12} color="white" />
+                                <View style={{flexDirection:'row'}}> 
+                                    <View style={{backgroundColor:'black',opacity:0.5,padding:10,justifyContent:'center',marginRight:5,borderRadius:5,height:10,marginTop:7}}>
+                                        <NormalText style={{marginBottom:0,color:'white'}}>To Self's Performance</NormalText>
+                                    </View>
+                                    <View style={{height:35,width:35,borderRadius:100,backgroundColor:'black',opacity:0.5,alignItems:'center',justifyContent:'center'}}>
+                                        <FontAwesome name="chevron-right" size={12} color="white" />
+                                    </View>
                                 </View>
                             </TouchableOpacity>:
                             <TouchableOpacity onPress={()=>this.setState({HeadingDetails:0})}>
-                                <View style={{height:35,width:35,borderRadius:100,backgroundColor:'black',opacity:0.5,alignItems:'center',justifyContent:'center'}}>
-                                    <FontAwesome name="chevron-left" size={12} color="white" />
+                                <View style={{flexDirection:'row'}}> 
+                                    <View style={{height:35,width:35,borderRadius:100,backgroundColor:'black',opacity:0.5,alignItems:'center',justifyContent:'center'}}>
+                                        <FontAwesome name="chevron-left" size={12} color="white" />
+                                    </View>
+
+                                    <View style={{backgroundColor:'black',opacity:0.5,padding:10,justifyContent:'center',marginLeft:5,borderRadius:5,height:10,marginTop:7}}>
+                                        <NormalText style={{marginBottom:0,color:'white'}}>To Company's Performance</NormalText>
+                                    </View>
                                 </View>
                             </TouchableOpacity>
                             }
@@ -228,21 +274,39 @@ class PackageDetails extends React.Component{
                             </View>
                         </CollapsibleCard>:
                         this.state.SelectedTab === "1" ? 
+                        <View style={{width:'100%',flex:1,alignItems: "flex-end",justifyContent:'flex-end'}}>
+
+                        <View style={{width:'100%',minHeight:100,position:'absolute',elevation:6,alignItems:'flex-end',justifyContent:'center',zIndex:1}}>
+                            <TouchableOpacity onPress={()=>this.setState({ShowFilterModal:true})}>
+                                <View style={{width:60,height:60,borderRadius:100,backgroundColor:'#F0B22A',alignItems:'center',justifyContent:'center'}}>
+                                    <FontAwesome name="filter" size={28} color="white" />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+
                         <Card style={styles.CallsCard}>
                             <ViewCalls 
                                 AuthHeader={this.props.loginState.AuthHeader} 
                                 STab={""}
-                                UserId={this.props.navigation.state.params.UserId}
+                                UserId={""}
                                 OwnerId=""
-                                ShowActive={true}
+                                ShowActive={this.state.CallStatus}
                                 PackageId={this.props.navigation.state.params.PackageId}
                                 PackageOwnerId=""
                                 CallId=""
-                                Exchange=""
-                                Symbol=""
+                                Exchange={this.state.CallExchanges}
+                                Symbol={this.state.CallSearch}
                                 AssignedToMe={false}
-                                CallDetails={this.MoveToCallDetails}/>
-                        </Card> :
+                                CallDetails={this.MoveToCallDetails}
+                                From={1}/>
+                        </Card>
+
+                        <Modal visible={this.state.ShowFilterModal} animationType="slide" transparent={true}>
+                            <CallsFilter 
+                                UserOwners={[]}
+                                closeFilter={this.closeFilterModal}/>
+                        </Modal>
+                        </View> :
                         this.state.SelectedTab === "3" ? 
                         <FlatList 
                             keyExtractor={(item, index) => index.toString()}
@@ -257,7 +321,8 @@ class PackageDetails extends React.Component{
 
 const styles = StyleSheet.create({
     PackageDetailsContainer:{
-        justifyContent: 'flex-start'
+        justifyContent: 'flex-start',
+        backgroundColor: '#EBECF1'
     },
     PackageTopContainer:{
         width:'100%',
@@ -377,7 +442,8 @@ const styles = StyleSheet.create({
         width:'100%',
         elevation:3,
         margin:10,
-        backgroundColor:'white'
+        backgroundColor:'white',
+        alignSelf:'center'
     }
 })
 

@@ -160,9 +160,9 @@ class PackagePermission extends React.Component{
             }
             else
             {
-                
+                // IsOwner ? UserId:SuperOwnerId
             let payload={
-                forOwnerId:IsOwner ? UserId:SuperOwnerId,
+                forOwnerId:this.props.navigation.state.params.OwnerId,
                 userTypeId:"",
                 assignedToMe:true,
                 forUserId:SelectedUser,

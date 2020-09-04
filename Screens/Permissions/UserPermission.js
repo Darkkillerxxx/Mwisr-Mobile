@@ -25,6 +25,7 @@ class UserPermission extends React.Component{
         this.setState({isLoading:true})
         const {AuthHeader}=this.props.loginState
         const {UserId,OwnerId}=this.props.navigation.state.params
+
         let payload={
             forUserId:UserId,
             forOwnerId:OwnerId

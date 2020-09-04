@@ -5,7 +5,7 @@ import NormalText from '../../Components/NormalText';
 import { connect }from 'react-redux'
 import ViewCalls from '../../Components/ViewCalls.js'
 import {NavigationEvents} from 'react-navigation'
-import {get_sub_detail,get_research_reports} from '../../Utils/api'
+import {get_sub_detail,get_research_reports,change_user_status,getUserOwnerDetails,get_customer_details,get_customer_answers,verbose} from '../../Utils/api'
 import CollapsibleCard from '../../Components/CollapsibleCard'
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import CustomButton from '../../Components/Button'
@@ -19,7 +19,15 @@ class UserDetails extends React.Component {
         this.state={
             SelectedTab:"",
             UserDetails:[],
-            Reports:[]
+            Reports:[],
+            IsActive:null,
+            OwnerDetails:[],
+            ShowFilterModal:false,
+            CallExchanges:[],
+            CustomerDetails:[],
+            CallStatus:true,
+            CallSearch:"",
+            CustomerAnswers:[]
         }
     }
 
@@ -29,14 +37,67 @@ class UserDetails extends React.Component {
 
     onInitialize=()=>{
         const {AuthHeader}=this.props.loginState
-        const {UserId,OwnerId}=this.props.navigation.state.params
+      
+      if(this.props.navigation.state.params.UserType === 0)
+      {
+        let payload={
+            forOwnerId:this.props.navigation.state.params.OwnerId
+          }
+          console.log("Payload",payload)
+          getUserOwnerDetails(AuthHeader,payload).then(result=>{
+            
+            if(result.IsSuccess)
+            {
+                this.setState({OwnerDetails: result.Data},()=>{
+                    console.log("Owner Details",result.Data)
+                })
+            }
+            else
+            {
+                verbose(false,"Failed To Get Owner details",resul.DisplayMsg)
+            }
+          })
+
+      }
+      else if(this.props.navigation.state.params.UserType === 7)
+      {
+
+        let payload={
+            ForUserId: this.props.navigation.state.params.UserId
+          }
+
+        get_customer_details(AuthHeader,payload).then(result=>{
+            if(result.IsSuccess)
+            {
+                this.setState({CustomerDetails:[result.Data]},()=>{
+                
+                    let payload={
+                        forCustomerId:this.props.navigation.state.params.UserId
+                    }
+
+                    get_customer_answers(AuthHeader,payload).then(result=>{
+                        if(result.IsSuccess)
+                        {
+                            this.setState({CustomerAnswers:result.Data})
+                        }
+                    })
+                })
+            }
+        })
+      }
+      else
+      {
+        const {UserId,OwnerId,IsActive,UserType} =this.props.navigation.state.params
+
+      this.setState({IsActive:IsActive})
+
         let payload={
             ForOwnerId:OwnerId,
             ForUserId:UserId
         }
 
         let ReportsPayload={
-            forUserId:UserId,
+            forUserId:UserType === 0 ? OwnerId : UserId,
             PackageIds:"",
             Tags:"",
             SectorIds:"",
@@ -52,7 +113,7 @@ class UserDetails extends React.Component {
 
         console.log(payload)
         get_sub_detail(AuthHeader,payload).then(result=>{
-            console.log(result)
+            console.log("User Detail",result)
             if(result.IsSuccess)
             {
                 this.setState({UserDetails:result.Data})
@@ -65,6 +126,8 @@ class UserDetails extends React.Component {
                 this.setState({Reports:result.Data})
             }
         })
+    }
+
     }
 
     resetDetails=()=>{
@@ -87,22 +150,54 @@ class UserDetails extends React.Component {
         })
     }
 
+    MoveToPackageDetails=(OwnerId,PackageId,PackageName)=>{
+        console.log(OwnerId,PackageId,PackageName)
+        this.props.navigation.navigate("PackageDetails",{
+            OwnerId:OwnerId,
+            PackageId:PackageId,
+            PackageName:PackageName
+        })
+    }
+
+    ActivateDeActivateUser=(Action)=>{
+        let payload={
+            userIdToBeActedOn:this.props.navigation.state.params.UserId,
+            Action:Action,
+            tillDate:""
+        }
+        change_user_status(this.props.loginState.AuthHeader,payload).then(result =>{
+            if(result.IsSuccess)
+            {
+                this.setState({IsActive:!this.state.IsActive},()=>{
+                    verbose(true,"Action Completed",`User Has Been ${this.state.IsActive ? "Activated":"DeActivated"}`)    
+                })
+            }
+            else
+            {
+                verbose(false,"Failed To Complete Action",result.DisplayMsg)
+            }
+        })
+    }
+
     render()
     {
+        const {UserType}=this.props.navigation.state.params
+      
         return(
            <Container style={styles.CustomContainer}>
                <NavigationEvents onDidFocus={() => this.onInitialize()} onDidBlur={()=>this.resetDetails()}/>
                <View style={styles.ProfileHeading}>
-                    {this.state.UserDetails.length > 0 ? 
+                    {this.state.UserDetails.length > 0 || this.state.OwnerDetails.length > 0 || this.state.CustomerDetails.length > 0 ? 
                     <View style={{width:'100%',height:125,flexDirection:'row',alignItems:'center',paddingHorizontal:10}}>
                         <View style={{width:'30%',alignItems:'flex-start',justifyContent:'center'}}>
                             <View>
-                                <NormalText style={{...styles.AccuracyNo,...{backgroundColor:this.props.navigation.state.params.UserColor}}}>{parseInt(this.state.UserDetails[0].Accuracy)}</NormalText>
+                                <NormalText style={{...styles.AccuracyNo,...{backgroundColor:this.props.navigation.state.params.UserColor}}}>{UserType === 0 ? parseInt(this.state.OwnerDetails[0].Accuracy):UserType === 7 ? 20:parseInt(this.state.UserDetails[0].Accuracy)}</NormalText>
                             </View>
+        
                             <AnimatedCircularProgress
                                 size={80}
                                 width={5}
-                                fill={parseInt(this.state.UserDetails[0].Accuracy)}
+                                fill={UserType === 0 ?  parseInt(this.state.OwnerDetails[0].Accuracy):UserType === 7 ? 20:parseInt(this.state.UserDetails[0].Accuracy)}
                                 tintColor={this.props.navigation.state.params.UserColor}
                                 onAnimationComplete={() =>{}}
                                 backgroundColor="white"
@@ -115,49 +210,66 @@ class UserDetails extends React.Component {
                             </AnimatedCircularProgress>
                             <NormalText style={{...styles.AccuracyText,...{backgroundColor:this.props.navigation.state.params.UserColor}}}>Accuracy</NormalText>
                         </View>
+                        
                         <View style={{width:'70%'}}>
-                            <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>{this.state.UserDetails[0].Name}</NormalText>
+                            <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>{UserType === 0 ?  this.state.OwnerDetails[0].OwnerName : UserType === 7 ? this.state.CustomerDetails[0].CustomerName :this.state.UserDetails[0].Name}</NormalText>
+                            {UserType === 0 ? 
+                            <>
+                            <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>{this.state.OwnerDetails[0].OwnerEMailId}</NormalText>
+                            <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>{this.state.OwnerDetails[0].OwnerMobileNo}</NormalText>
+                            </>:null}
+                            {UserType !== 0  ? 
                             <View style={{flexDirection:'row'}}>
                                 <CustomButton style={{height:20,width:90,borderRadius:5,backgroundColor:"#378E61"}}>
                                     <TouchableOpacity onPress={()=>this.MoveToUserPermissions()}>
                                         <NormalText style={{fontSize:10,color:'white',marginBottom:0}}>User Permission</NormalText>
                                     </TouchableOpacity>
                                 </CustomButton>
-                                <CustomButton style={{height:20,width:90,borderRadius:5,backgroundColor:"#378E61",marginLeft:5}}>
-                                    <TouchableOpacity >
-                                        <NormalText style={{fontSize:10,color:'white',marginBottom:0}}>Activate User</NormalText>
-                                    </TouchableOpacity>
-                                </CustomButton>    
-                            </View>
+
+                                {this.state.IsActive ? 
+                                    <CustomButton style={{height:20,width:90,borderRadius:5,backgroundColor:"#ff6961",marginLeft:5}}>
+                                        <TouchableOpacity onPress={()=>this.ActivateDeActivateUser('DeActivate')}>
+                                            <NormalText style={{fontSize:10,color:'white',marginBottom:0}}>De-Activate User</NormalText>
+                                        </TouchableOpacity>
+                                    </CustomButton>
+                                :
+                                    <CustomButton style={{height:20,width:90,borderRadius:5,backgroundColor:"#378E61",marginLeft:5}}>
+                                        <TouchableOpacity onPress={()=>this.ActivateDeActivateUser('Activate')}>
+                                            <NormalText style={{fontSize:10,color:'white',marginBottom:0}}>Activate User</NormalText>
+                                        </TouchableOpacity>
+                                    </CustomButton>
+                                }    
+                            </View>:null}
                         </View>
                     </View>:
                     <View style={{height:'100%',width:'100%',align:'center',justifyContent:'center'}}>
                         <ActivityIndicator size="large" color="white" />
                     </View>   
                     }
-                    {this.state.UserDetails.length > 0 ? 
+                    {this.state.UserDetails.length > 0 ||this.state.OwnerDetails.length > 0 || this.state.CustomerDetails.length > 0  ? 
                     <View style={{width:'100%',height:75,borderWidth:1,borderColor:'#25395D',flexDirection:'row'}}>
                         <View style={{width:'33%',alignItems:'center',justifyContent:'center'}}>
                             <View style={{borderRightWidth:1,borderRightColor:'#25395D',width:'100%',alignItems:'center',justifyContent:'center'}}>
                                 <NormalText style={{fontSize:15,color:'#859BC3',marginBottom:5}}>Profit</NormalText>
-                                <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>₹ {this.state.UserDetails[0].ProfitPerInvestment}</NormalText>
+                                <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>₹ {UserType === 0 ? this.state.OwnerDetails[0].Profit : UserType === 7 ? "30000":this.state.UserDetails[0].ProfitPerInvestment}</NormalText>
                             </View>
                         </View>
                         <View style={{width:'33%',alignItems:'center',justifyContent:'center'}}>
                             <View style={{borderRightWidth:1,borderRightColor:'#25395D',width:'100%',alignItems:'center',justifyContent:'center'}}>
                                 <NormalText style={{fontSize:15,color:'#859BC3',marginBottom:5}}>ROI</NormalText>
-                                <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>{this.state.UserDetails[0].ROI} %</NormalText>
+                                <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>{UserType === 0 ? this.state.OwnerDetails[0].Roi :UserType === 7 ? "30" :this.state.UserDetails[0].ROI} %</NormalText>
                             </View>
                         </View>
                         <View style={{width:'33%',alignItems:'center',justifyContent:'center'}}>
                             <View style={{borderRightWidth:1,borderRightColor:'#25395D',width:'100%',alignItems:'center',justifyContent:'center'}}>
                                 <NormalText style={{fontSize:15,color:'#859BC3',marginBottom:5}}>Calls</NormalText>
-                                <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>{this.state.UserDetails[0].Calls}</NormalText>
+                                <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>{UserType === 0 ? this.state.OwnerDetails[0].TotalCalls :UserType === 7 ? "125":this.state.UserDetails[0].Calls}</NormalText>
                             </View>
                         </View>
                     </View>:null}
                </View>
-
+                
+                {UserType !== "7" ?
                <View style={styles.TabContainer}>
                     <View style={this.state.SelectedTab === "" ? styles.TabsSelected:styles.Tabs}>
                         <TouchableOpacity onPress={()=>this.SelectTab("")}>
@@ -184,7 +296,30 @@ class UserDetails extends React.Component {
                             <NormalText style={this.state.SelectedTab === "3" ? styles.TabsTextSelected:styles.TabsText}>Reports</NormalText>
                         </TouchableOpacity>
                     </View>
+                </View>:
+                <View style={styles.TabContainer}>
+                    <View style={this.state.SelectedTab === "" ? styles.TabsSelectedCustomer:styles.TabsCustomer}>
+                        <TouchableOpacity onPress={()=>this.SelectTab("")}>
+                            <NormalText style={this.state.SelectedTab === "" ? styles.TabsTextSelected:styles.TabsText}>Details</NormalText>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={this.state.SelectedTab === "1" ? styles.TabsSelectedCustomer:styles.TabsCustomer}>
+                        <TouchableOpacity onPress={()=>this.SelectTab("1")}>
+                            <NormalText style={this.state.SelectedTab === "1" ? styles.TabsTextSelected:styles.TabsText}>Calls</NormalText>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={this.state.SelectedTab === "2" ? styles.TabsSelectedCustomer:styles.TabsCustomer}>
+                        <TouchableOpacity onPress={()=>this.SelectTab("2")}>
+                            <NormalText style={this.state.SelectedTab === "2" ? styles.TabsTextSelected:styles.TabsText}>Packages</NormalText>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={this.state.SelectedTab === "3" ? styles.TabsSelectedCustomer:styles.TabsCustomer}>
+                        <TouchableOpacity onPress={()=>this.SelectTab("3")}>
+                            <NormalText style={this.state.SelectedTab === "3" ? styles.TabsTextSelected:styles.TabsText}>Reports</NormalText>
+                        </TouchableOpacity>
+                    </View>
                 </View>
+                }
 
                 <View style={styles.ContentsContainer}>
                     {this.state.SelectedTab === "1" ? 
@@ -204,9 +339,9 @@ class UserDetails extends React.Component {
                             CallDetails={this.MoveToCallDetails}/>
                         </View>:
                         this.state.SelectedTab === "" ? 
-                        this.state.UserDetails.length > 0 ?
+                        this.state.UserDetails.length > 0 || this.state.OwnerDetails.length > 0 ?
                         <ScrollView style={{width:'100%'}}>
-                             
+                            {UserType !== 0 ?
                             <CollapsibleCard style={styles.CustomCollapsibleCard} Heading={"Profile & Contact Info"}>
                                 <View style={styles.CollapsibleCardContent}>
                                     <View style={styles.ContentRow}>
@@ -222,17 +357,17 @@ class UserDetails extends React.Component {
                                         <NormalText style={{fontSize:14,color:`${this.state.UserDetails[0].EmailId === "" || this.state.UserDetails[0].EmailId === null ? "grey":"black"}`,marginBottom:0}}>{this.state.UserDetails[0].EmailId === "" || this.state.UserDetails[0].EmailId === null ? "Not Available":this.state.UserDetails[0].EmailId }</NormalText>
                                     </View>
                                 </View>
-                            </CollapsibleCard>
+                            </CollapsibleCard>:null}
 
                             <CollapsibleCard style={styles.CustomCollapsibleCard} Heading={"Buisness Registration"}>
                                 <View style={styles.CollapsibleCardContent}>
                                     <View style={styles.ContentRow}>
                                         <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>SEBI Registration No.</NormalText>
-                                        <NormalText style={{fontSize:14,marginBottom:0,color:`${this.state.UserDetails[0].SEBIRegistrationNo === "" || this.state.UserDetails[0].SEBIRegistrationNo === null ? "grey":"black"}`}}>{this.state.UserDetails[0].SEBIRegistrationNo === "" || this.state.UserDetails[0].SEBIRegistrationNo === null ? "Not Available":this.state.UserDetails[0].SEBIRegistrationNo}</NormalText>
+                                        <NormalText style={{fontSize:14,marginBottom:0,color:`${UserType === 0 ? "grey":this.state.UserDetails[0].SEBIRegistrationNo === "" || this.state.UserDetails[0].SEBIRegistrationNo === null ? "grey":"black"}`}}>{UserType === 0 ? "NA" :this.state.UserDetails[0].SEBIRegistrationNo === "" || this.state.UserDetails[0].SEBIRegistrationNo === null ? "Not Available":this.state.UserDetails[0].SEBIRegistrationNo}</NormalText>
                                     </View>
                                     <View style={styles.ContentRow}>
                                         <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>PAN No.</NormalText>
-                                        <NormalText style={{fontSize:14,marginBottom:0,color:`${this.state.UserDetails[0].PanNo === "" || this.state.UserDetails[0].PanNo === null ? "grey":"black"}`}}>{this.state.UserDetails[0].PanNo === "" || this.state.UserDetails[0].PanNo === null ? "Not Available":this.state.UserDetails[0].PanNo}</NormalText>
+                                        <NormalText style={{fontSize:14,marginBottom:0,color:`${UserType === 0 ? "grey" :this.state.UserDetails[0].PanNo === "" || this.state.UserDetails[0].PanNo === null ? "grey":"black"}`}}>{UserType === 0 ? "NA":this.state.UserDetails[0].PanNo === "" || this.state.UserDetails[0].PanNo === null ? "Not Available":this.state.UserDetails[0].PanNo}</NormalText>
                                     </View>
                                 </View>
                             </CollapsibleCard>
@@ -241,15 +376,15 @@ class UserDetails extends React.Component {
                                 <View style={styles.CollapsibleCardContent}>
                                     <View style={styles.ContentRow}>
                                         <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total Profit</NormalText>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{this.state.UserDetails[0].ProfitPerInvestment} ₹</NormalText>
+                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{UserType === 0 ? this.state.OwnerDetails[0].Profit:this.state.UserDetails[0].ProfitPerInvestment} ₹</NormalText>
                                     </View>
                                     <View style={styles.ContentRow}>
                                         <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total ROI</NormalText>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{this.state.UserDetails[0].ROI} %</NormalText>
+                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{UserType === 0 ? this.state.OwnerDetails[0].Roi:this.state.UserDetails[0].ROI} %</NormalText>
                                     </View>
                                     <View style={styles.ContentRow}>
                                         <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total Accuracy</NormalText>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{this.state.UserDetails[0].Accuracy}%</NormalText>
+                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{UserType === 0 ? this.state.OwnerDetails[0].Accuracy:this.state.UserDetails[0].Accuracy}%</NormalText>
                                     </View>
                                     <View style={styles.ContentRow}>
                                         <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total Sub-Brokers</NormalText>
@@ -269,7 +404,7 @@ class UserDetails extends React.Component {
                                     </View>
                                     <View style={styles.ContentRow}>
                                         <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total Calls</NormalText>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{this.state.UserDetails[0].Calls}</NormalText>
+                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{UserType === 0 ? this.state.OwnerDetails[0].TotalCalls:this.state.UserDetails[0].Calls}</NormalText>
                                     </View>
                                 </View>
                             </CollapsibleCard>
@@ -279,7 +414,7 @@ class UserDetails extends React.Component {
                         </View>
                         :
                         this.state.SelectedTab === "2" ? 
-                            <Packages Type={2} SelectedTab={"2"} UserProfile={true} UserId={this.props.navigation.state.params.UserId} OwnerId={this.props.navigation.state.params.OwnerId} assignedToMe={false} createdByMe={true} />
+                            <Packages SelectPackage={this.MoveToPackageDetails} Type={2} SelectedTab={"2"} UserProfile={true} UserId={this.props.navigation.state.params.UserId} OwnerId={this.props.navigation.state.params.OwnerId} assignedToMe={false} createdByMe={true} />
                         :
                         this.state.SelectedTab === "3" ? 
                         <FlatList 
@@ -322,6 +457,18 @@ const styles=StyleSheet.create({
     },
     TabsSelected:{
         width:'20%',
+        alignItems:'center',
+        justifyContent:'center',
+        borderBottomColor:'#F0B22A',
+        borderBottomWidth:3
+    },
+    TabsCustomer:{
+        width:'25%',
+        alignItems:'center',
+        justifyContent:'center'
+    },
+    TabsSelectedCustomer:{
+        width:'25%',
         alignItems:'center',
         justifyContent:'center',
         borderBottomColor:'#F0B22A',

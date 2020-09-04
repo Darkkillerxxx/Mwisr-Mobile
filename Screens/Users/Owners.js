@@ -1,40 +1,41 @@
-import React from 'react'
-import { View, StyleSheet } from 'react-native'
+import React from 'react';
+import { render } from 'react-dom';
+import { View, StyleSheet } from 'react-native';
 import Container from '../../Components/Container'
-import { connect }from 'react-redux'
 import Users from '../../Components/Users'
+import { connect }from 'react-redux'
 
-
-class Partner extends React.Component{
-    constructor()
-    {
-        super()
-        this.state={
-
-        }
+class Owners extends React.Component{
+    constructor(){
+        super();
     }
 
     onUserSelected=(UserId,OwnerId)=>{
         this.props.navigation.navigate('UserDetails',{
             UserId:UserId,
             OwnerId:OwnerId,
-            UserType:5,
-            UserColor:"#f39834"
+            UserType:0,
+            UserColor:"#fa8072",
         })
     }
 
+
     render()
     {
-        return(
-            <Container style={styles.SubContainer}>
-                <Users onSelectUser={this.onUserSelected} UserColor="#f39834" UserType={5} AuthHeader={this.props.loginState.AuthHeader} IsOwner={false}/>
-            </Container>
+    return(
+        <Container style={styles.OwnerContainer}>
+            <Users onSelectUser={this.onUserSelected} UserColor="#fa8072" UserType={2} AuthHeader={this.props.loginState.AuthHeader} IsOwner={true} IsCustomer={false}/>
+        </Container>
         )
     }
 }
 
+
+
+
+
 const styles=StyleSheet.create({
-    SubContainer:{
+    OwnerContainer:{
         alignItems:'flex-start',
         justifyContent:'flex-start'
     }
@@ -52,4 +53,4 @@ const mapDispatchToProps = dispatch =>{
     }
 }
 
-export default connect(mapStateToProps,mapDispatchToProps)(Partner);
+export default connect(mapStateToProps,mapDispatchToProps)(Owners);

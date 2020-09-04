@@ -135,6 +135,18 @@ class AssignPackage extends React.Component{
         }
     }
 
+    GetSubList=(UserType)=>{
+        get_sub_list(null,UserType,true,this.props.loginState.AuthHeader).then(result =>{
+            if(result.IsSuccess)
+                {
+                        this.setState({User:result.Data},()=>{
+                        this.setState({SelectedUser:result.Data[0].UserId})
+                        this.setState({isLoading:false})
+                    })
+                }
+        })
+    }
+
 
     Inititialize=()=>{
         const {UserId,OwnerId,route}=this.props.navigation.state.params
@@ -154,15 +166,7 @@ class AssignPackage extends React.Component{
             this.setState({AssignPart:0})
             this.setState({StepState:0})
             this.setState({isLoading:true})
-            get_sub_list(null,this.state.SelectedUserType,true,this.props.loginState.AuthHeader).then(result=>{
-                if(result.IsSuccess)
-                {
-                        this.setState({User:result.Data},()=>{
-                        this.setState({SelectedUser:result.Data[0].UserId})
-                        this.setState({isLoading:false})
-                    })
-                }
-            })
+            this.GetSubList(this.state.SelectedUserType)
          }
     }
 
@@ -182,9 +186,9 @@ class AssignPackage extends React.Component{
     fetchPackage=()=>{
         const {AuthHeader,IsOwner,UserId,SuperOwnerId}=this.props.loginState
         const {OwnerId,route}=this.props.navigation.state.params
-
+        console.log("PassedOwnerId",OwnerId)
         let payload1={
-            forOwnerId:IsOwner ? UserId:SuperOwnerId,
+            forOwnerId:route === 2 || route === 3 ?  OwnerId : IsOwner ? UserId:SuperOwnerId,
             userTypeId:"",
             assignedToMe:route === null ? false:"",//temp soln.
             forUserId:route === null ? this.state.SelectedUser:"",//temp soln.
@@ -287,7 +291,7 @@ class AssignPackage extends React.Component{
         this.setState({ButtonLoading:true})
         const {AuthHeader,IsOwner,UserId,SuperOwnerId}=this.props.loginState
         let payload={
-            "ForOwnerIds":IsOwner ? this.StringifyOwnerIds(UserId):this.StringifyOwnerIds(SuperOwnerId),
+            "ForOwnerIds":this.props.navigation.state.params.route === 2 || this.props.navigation.state.params.route === 3 ? this.StringifyOwnerIds(this.props.navigation.state.params.OwnerId) : IsOwner ? this.StringifyOwnerIds(UserId):this.StringifyOwnerIds(SuperOwnerId),
             "PackageIds":this.StringifyPackageIds(),
             "AssignedToUserIds":this.StringifyUserIds(this.state.SelectedUser),
             "Durations":this.StringifyDurations()
@@ -303,7 +307,7 @@ class AssignPackage extends React.Component{
                     this.props.navigation.navigate('PackagePermission',{
                         RouteNo:1,
                         SelectedUser:this.state.SelectedUser,
-                        OwnerId:null
+                        OwnerId:this.props.navigation.state.params.route === 2 || this.props.navigation.state.params.route === 3 ? this.props.navigation.state.params.OwnerId :IsOwner ? UserId:SuperOwnerId
                     })
                 } 
             }
@@ -402,7 +406,7 @@ class AssignPackage extends React.Component{
                <View style={{flex:1,width:'100%'}}>
                     <NormalText style={{fontSize:14,color:'black'}}>Choose User Type : </NormalText>
                     <View style={styles.CustomPicker}>
-                        <Picker selectedValue={this.state.SelectedUserType} style={styles.CustomPicker} onValueChange={(val)=>this.setState({SelectedUserType:val})}>
+                        <Picker selectedValue={this.state.SelectedUserType} style={styles.CustomPicker} onValueChange={(val)=>this.setState({SelectedUserType:val},()=>this.GetSubList(val))}>
                             {ShowUserTypes}
                         </Picker>
                     </View>

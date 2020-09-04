@@ -26,6 +26,13 @@ import AddUser from '../Screens/Users/AddUser'
 import UserPermission from '../Screens/Permissions/UserPermission'
 import UserDetails from '../Screens/Users/UserDetails'
 import PackageDetails from '../Screens/Package/PackageDetails'
+import Owners from '../Screens/Users/Owners'
+import Customer from '../Screens/Users/Customer'
+import AssignUsers from '../Screens/Package/AssignUsers'
+import AddReports from '../Screens/Reports/AddReport'
+import Notifications from '../Screens/Settings/Notifications'
+
+
 
 const Drawer=createDrawerNavigator({
     Home:createBottomTabNavigator({
@@ -52,6 +59,15 @@ const Drawer=createDrawerNavigator({
                     tabBarLabel:'Add Package',
                     tabBarIcon:(tabIcon)=>{
                         return <FontAwesome name="dropbox" size={25} color={tabIcon.tintColor} />
+                    }
+                }
+            },
+            AddReports:{
+                screen:AddReports,
+                navigationOptions:{
+                    tabBarLabel:'Add Reports',
+                    tabBarIcon:(tabIcon)=>{
+                        return <FontAwesome name="file-o" size={23} color={tabIcon.tintColor} />
                     }
                 }
             }
@@ -105,6 +121,18 @@ const Drawer=createDrawerNavigator({
     },
     PackageDetails:{
         screen:PackageDetails
+    },
+    Owners:{
+        screen:Owners
+    },
+    Customer:{
+        screen:Customer
+    },
+    AssignUsers:{
+        screen:AssignUsers
+    },
+    Notifications:{
+        screen:Notifications
     }
 },{
     contentComponent:CustomDrawer,
