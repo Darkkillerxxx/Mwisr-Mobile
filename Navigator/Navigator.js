@@ -33,7 +33,7 @@ import AddReports from '../Screens/Reports/AddReport'
 import Notifications from '../Screens/Settings/Notifications'
 import AddOns from '../Screens/Subscription/AddOns'
 import Credits from '../Screens/Subscription/Credits'
-
+import AssignPackageChannel from '../Screens/Telegram/AssignPackageChannel'
 
 const Drawer=createDrawerNavigator({
     Home:createBottomTabNavigator({
@@ -140,6 +140,9 @@ const Drawer=createDrawerNavigator({
     },
     Credits:{
         screen:Credits
+    },
+    AssignPackageChannel:{
+        screen:AssignPackageChannel
     }
 },{
     contentComponent:CustomDrawer,

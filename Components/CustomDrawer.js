@@ -127,7 +127,8 @@ class CustomDrawer extends React.Component{
                         },
                         {
                             Name:"Package Channel",
-                            isVisible:true
+                            isVisible:true,
+                            Key:"AssignPackageChannel"
                         }
                     ],
                     Chevron:true,
