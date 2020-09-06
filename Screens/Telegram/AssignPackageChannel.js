@@ -1,10 +1,12 @@
 import React from 'react'
-import {StyleSheet,View,Picker,TouchableOpacity} from 'react-native'
+import {StyleSheet,View,Picker,TouchableOpacity, FlatList} from 'react-native'
 import { connect }from 'react-redux'
 import Container from '../../Components/Container'
 import NormalText from '../../Components/NormalText'
-import {get_channel_packages} from '../../Utils/api'
+import {get_channel_packages,getPackageFontColor,get_packages,assign_unassigne_package_channel, verbose} from '../../Utils/api'
 import CustomButton from '../../Components/Button'
+import MiniPackage from '../../Components/MiniPackage'
+import {Checkbox} from 'react-native-paper'
 
 class AssignPackageChannels extends React.Component{
     constructor()
@@ -15,16 +17,41 @@ class AssignPackageChannels extends React.Component{
             isLoading:false,
             ButtonLoader:false,
             ShowAssigned:true,
+            ReceivedPackages:[],
             ReceivedChannels:[],
             ReceivedChannelsCopy:[],
             ChannelValue:"",
             SelectedChannelName:"",
             SelectedChannelId:"",
-            SelectedChannelIndex:null
+            SelectedChannelIndex:0,
+            SelectedPackage:[]
         }
     }
 
+    get_packages_channels=()=>{
+        let Payload={
+            forOwnerId:"",
+            userTypeId:"",
+            assignedToMe:"",
+            forUserId:"",
+            AuthHeader:this.props.loginState.AuthHeader,
+            createdByMe:true,
+            currentPage:"1",
+            pageSize:"100",
+            forDebug:false 
+    }
+
+        get_packages(Payload).then(result=>{
+            if(result.IsSuccess)
+            {
+                this.setState({ReceivedPackages:result.Data})
+            }
+        })
+    }
+
     Init=()=>{
+       
+
         get_channel_packages(this.props.loginState.AuthHeader).then(result => {
             if(result.IsSuccess)
             {
@@ -46,7 +73,6 @@ class AssignPackageChannels extends React.Component{
                 console.log("222",channel)
                 this.setState({ReceivedChannels:channel},()=>{
                     console.log("1111",this.state.ReceivedChannels)
-                   
                     // this.setState({ReceivedChannelsCopy:channel},()=>{
                     // //   this.onSearchSubmit();
                     //   this.setState({ShowSpinner:false})
@@ -58,10 +84,85 @@ class AssignPackageChannels extends React.Component{
 
     componentDidMount() {
         this.Init()
+        this.get_packages_channels()
+    }
+
+
+    SelectUnSelectPackage=(Id)=>{
+        let temp=this.state.SelectedPackage
+        if(!this.state.SelectedPackage.includes(Id))
+        {
+            temp.push(Id)
+        }
+        else
+        {
+            let index=temp.indexOf(Id)
+            temp.splice(index,1)
+        }
+        this.setState({SelectedPackage:temp})
+    }
+
+    showAssignedPackages=(itemData)=>{
+        return(
+            <View style={{width:'100%',flexDirection:'row',marginVertical:5}}>
+                <MiniPackage 
+                    Package={itemData.item} 
+                    ShowClose={false} 
+                    ShowDate={false} 
+                    ForTele={true} 
+                    style={{borderLeftColor:getPackageFontColor(itemData.item.SegmentName),marginVertical:5,width:'85%',height:90,alignItems:'center'}}/>
+                
+                <View style={{width:'15%',alignItems:'center',justifyContent:'center'}}>
+                  <Checkbox 
+                      status={this.state.SelectedPackage.includes(itemData.item.PackageId) ? "checked":"unchecked"}
+                      onPress={() => this.SelectUnSelectPackage(itemData.item.PackageId)}/>  
+                </View>
+            </View>
+        )
+    }
+
+    showUnAssignedPackages=(itemData)=>{
+        return(
+            <View style={{width:'100%',flexDirection:'row',marginVertical:5}}>
+                <MiniPackage 
+                    Package={itemData.item} 
+                    ShowClose={false} 
+                    ShowDate={false} 
+                    ForTele={false} 
+                    style={{borderLeftColor:getPackageFontColor(itemData.item.PackageTypeName),marginVertical:5,width:'85%',height:90,alignItems:'center'}}/>
+                
+                <View style={{width:'15%',alignItems:'center',justifyContent:'center'}}>
+                  <Checkbox 
+                      status={this.state.SelectedPackage.includes(itemData.item.PackageId) ? "checked":"unchecked"}
+                      onPress={() => this.SelectUnSelectPackage(itemData.item.PackageId)}/>  
+                </View>
+            </View>
+        )
+    }
+
+    AssignUnAssignPackage=()=>{
+        let payload={
+            "PackageId":parseInt(this.state.SelectedPackage.toString()),
+            "ChannelIds":parseInt(this.state.SelectedChannelId),
+            "UnAssign":this.state.ShowAssigned
+        }
+        console.log(payload);
+        assign_unassigne_package_channel(this.props.loginState.AuthHeader,payload).then(result=>{
+            if(result.IsSuccess)
+            {
+                verbose(true,"Packages Assigned",`Pacakges Sucessfully Have Been Assigned To ${this.state.SelectedChannelName}`)
+                this.Init()
+            }
+            else
+            {
+                verbose(false,"Assignment Error",result.DisplayMsg)
+            }
+        })
     }
 
     SelectChannel=(val)=>{
         let tempVal=val.split(',')
+        // console.log("72",tempVal)
         this.setState({ChannelValue: val})
         this.setState({SelectedChannelName:tempVal[1]},()=>{
             console.log(this.state.SelectedChannelName)
@@ -70,10 +171,15 @@ class AssignPackageChannels extends React.Component{
         this.setState({SelectedChannelIndex:tempVal[2]})
     }
 
+    ChangeType=()=>{
+        this.setState({SelectedPackage:[]})
+        this.setState({ShowAssigned:!this.state.ShowAssigned})
+    }
+
     render()
     {
         let ShowChannels=this.state.ReceivedChannels.map((result,index)=>(
-            <Picker.Item value={`${result.ChannelId},${result.Title},${result.index}`} label={result.Title} />
+            <Picker.Item key={index} value={`${result.ChannelId},${result.Title},${index}`} label={result.Title} />
         ))
 
         return(
@@ -89,12 +195,12 @@ class AssignPackageChannels extends React.Component{
                     <View style={styles.TypeSelectorContainer}>
                         <View style={styles.TypeSelector}>
                             <View style={this.state.ShowAssigned ?  styles.TypesSideSelected:styles.TypeSides}>
-                                <TouchableOpacity onPress={()=>this.changeType()}>
+                                <TouchableOpacity onPress={()=>this.ChangeType()}>
                                     <NormalText style={{marginBottom:0,color:'black',fontSize:14,color:`${this.state.ShowAssigned ? "white":"#f5bb18"}`}}>Assigned</NormalText>
                                 </TouchableOpacity>
                             </View>
                             <View style={this.state.ShowAssigned ?  styles.TypeSides : styles.TypesSideSelected}>
-                                <TouchableOpacity onPress={()=>this.changeType()}>
+                                <TouchableOpacity onPress={()=>this.ChangeType()}>
                                     <NormalText style={{marginBottom:0,color:'black',fontSize:14,color:`${this.state.ShowAssigned ? "#f5bb18":"white"}`}}>Un-Assigned</NormalText>
                                 </TouchableOpacity>
                             </View>
@@ -102,16 +208,29 @@ class AssignPackageChannels extends React.Component{
                     </View>
                 </View>
                 
+               
                 <View style={styles.PackagesContainer}>
-                    {this.state.ShowAssigned ? null:null}
+                    {/* {console.log("In Render",this.state.ReceivedChannels[this.state.SelectedChannelIndex].Packages)} */}
+                    {this.state.ReceivedChannels.length > 0 ? 
+                    this.state.ShowAssigned ? 
+                    <FlatList 
+                        keyExtractor={(item,index)=>index.toString()}
+                        data={this.state.ReceivedChannels[this.state.SelectedChannelIndex].Packages}
+                        renderItem={this.showAssignedPackages}
+                    />:
+                    <FlatList 
+                        keyExtractor={(item,index)=>index.toString()}
+                        data={this.state.ReceivedPackages}
+                        renderItem={this.showUnAssignedPackages}
+                    />:null}
                 </View>
 
                 <View style={styles.AssignButtonContainer}>
-                    <TouchableOpacity onPress={()=>this.AssignUnAssignUser(true)}>
+                    <TouchableOpacity onPress={()=>this.AssignUnAssignPackage()}>
                         <CustomButton style={{width:150,height:35,borderRadius:5}}>
                             {this.state.ButtonLoader ? 
                             <ActivityIndicator size="small" color="white" />
-                            :<NormalText style={{color:'white',marginBottom:0,fontSize:14}}>{this.state.ShowAssigned ? "Un-Assign Users":"Assign Users"}</NormalText>}
+                            :<NormalText style={{color:'white',marginBottom:0,fontSize:14}}>{this.state.ShowAssigned ? "Un-Assign Pacakges":"Assign Packages"}</NormalText>}
                         </CustomButton>
                     </TouchableOpacity>
                 </View>

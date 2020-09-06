@@ -68,6 +68,7 @@ const endpoint_url={
     GetReceivedMessages:base_url_Mwisr+"RTTracker/GetReceivedMessages",
     GetUserCreditDetail:base_url_wealthyFox + "/RTTracker/GetUserCreditDetail",
     GetChannelWisePackage:base_url_Mwisr+"Analyst/GetChannelWiseAssignedPackages?packageId=0",
+    AssignUnAssignPackageToChannel:base_url_Mwisr+"Analyst/AssignUnAssignPackageToChannel",
 }
 
 /********* Normal Functions **********/
@@ -1056,5 +1057,13 @@ export function get_channel_packages(authHeader)
       return JSON.parse(data)
   }).catch(err => err)
 }
+
+export function assign_unassigne_package_channel(authHeader,payload)
+{
+  return apiCall(endpoint_url['AssignUnAssignPackageToChannel'],"POST",payload,authHeader).then(data =>{
+    return JSON.parse(data)
+  }).catch(err => err)
+}
+
 
 
