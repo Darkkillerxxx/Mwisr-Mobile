@@ -34,6 +34,9 @@ import Notifications from '../Screens/Settings/Notifications'
 import AddOns from '../Screens/Subscription/AddOns'
 import Credits from '../Screens/Subscription/Credits'
 import AssignPackageChannel from '../Screens/Telegram/AssignPackageChannel'
+import ViewMessage from '../Screens/Messages/ViewMessage'
+import ConfigTele from '../Screens/Telegram/ConfigTele'
+
 
 const Drawer=createDrawerNavigator({
     Home:createBottomTabNavigator({
@@ -143,6 +146,12 @@ const Drawer=createDrawerNavigator({
     },
     AssignPackageChannel:{
         screen:AssignPackageChannel
+    },
+    ViewMessage:{
+        screen:ViewMessage
+    },
+    ConfigTele:{
+        screen:ConfigTele
     }
 },{
     contentComponent:CustomDrawer,

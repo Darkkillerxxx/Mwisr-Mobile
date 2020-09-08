@@ -91,7 +91,8 @@ const styles=StyleSheet.create({
         borderLeftColor:'#16d39a',
         elevation:1,
         padding:5,
-        flexDirection:'row'
+        flexDirection:'row',
+        backgroundColor:'white'
     }
 })
 

@@ -8,6 +8,7 @@ class MwisrSelector extends React.Component{
         this.props.onSelect(this.props.value)
     }
 
+
     render() {
         return(
             <TouchableOpacity onPress={()=>this.onSelected()}>
