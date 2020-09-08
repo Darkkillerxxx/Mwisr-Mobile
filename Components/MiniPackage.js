@@ -29,8 +29,8 @@ class MiniPackage extends React.Component{
             <View style={{...styles.MiniCard,...this.props.style}}>
                 <View style={{width:'90%'}}>
                     <NormalText style={{marginBottom:5,color:'black',fontSize:12}}>Package : {this.props.Package.PackageName}</NormalText>
-                    <NormalText style={{marginBottom:5,color:'black',fontSize:12}}>Exchanges : {this.props.Package.ForExchanges}</NormalText>
-                    <NormalText style={{marginBottom:5,color:'black',fontSize:12}}>Type : {this.props.Package.PackageTypeName}</NormalText>
+                    <NormalText style={{marginBottom:5,color:'black',fontSize:12}}>Exchanges : {this.props.ForTele ? this.props.Package.Exchanges:this.props.Package.ForExchanges}</NormalText>
+                    <NormalText style={{marginBottom:5,color:'black',fontSize:12}}>Type : {this.props.ForTele ? this.props.Package.SegmentName : this.props.Package.PackageTypeName}</NormalText>
                     {this.props.ShowDate ?
                     <View style={{flexDirection:'row',alignItems:'center',marginTop:-10}}>
                         <NormalText style={{marginBottom:0,color:'black',fontSize:12,marginRight:10}}>Valid Till : {this.state.Date}</NormalText>
@@ -91,7 +91,8 @@ const styles=StyleSheet.create({
         borderLeftColor:'#16d39a',
         elevation:1,
         padding:5,
-        flexDirection:'row'
+        flexDirection:'row',
+        backgroundColor:'white'
     }
 })
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import { View,StyleSheet,TouchableOpacity,FlatList } from 'react-native'
+import { View,StyleSheet,TouchableOpacity,FlatList,Picker} from 'react-native'
 import Container from '../../Components/Container'
 import Card from '../../Components/Card'
 import NormalText from '../../Components/NormalText'
@@ -14,128 +14,128 @@ class Notifications extends React.Component{
     {
         super()
         this.state={
-            NTYpeSub:[
-                {
-                    Id:1,
-                    Name:"Tip Status Notifications",
-                    icon:"fas fa-question",
-                    alias:"GS"
-                },
-                {
-                    Id:1,
-                    Name:"Reports Notifications",
-                    icon:"fas fa-print",
-                    alias:"RP"
-                },
-                {
-                    Id:3,
-                    Name:"User Addition Notifications",
-                    icon:"fas fa-user",
-                    alias:"UD"
-                },
-                {
-                    Id:3,
-                    Name:"User Accept Notifications",
-                    icon:"fas fa-check",
-                    alias:"UA"
-                },
-                {
-                    Id:1,
-                    Name:"Assign Package Notifications",
-                    icon:"fas fa-arrows-alt-h",
-                    alias:"AP"
-                },
-                {
-                    Id:2,
-                    Name:"New Call Notifications",
-                    icon:"fas fa-plus",
-                    alias:"CN"
-                },
-                {
-                    Id:2,
-                    Name:"Edit Call Notifications",
-                    icon:"fas fa-pencil-ruler",
-                    alias:"CE"
-                },
-                {
-                    Id:2,
-                    Name:"Target 1 Notifications",
-                    icon:"fas fa-bullseye",
-                    alias:"T1"
-                },
-                {
-                    Id:2,
-                    Name:"Target 2 Notifications",
-                    icon:"fas fa-bullseye",
-                    alias:"T2"
-                },
-                {
-                    Id:2,
-                    Name:"Target 3 Notifications",
-                    icon:"fas fa-bullseye",
-                    alias:"T3"
-                },
-                {
-                    Id:2,
-                    Name:"Stoploss 1 Notifications",
-                    icon:"fas fa-stop-circle",
-                    alias:"S1"
-                },
-                {
-                    Id:2,
-                    Name:"Stoploss 2 Notifications",
-                    icon:"fas fa-stop-circle",
-                    alias:"S2"
-                },
-                {
-                    Id:2,
-                    Name:"Stoploss 3 Notifications",
-                    icon:"fas fa-stop-circle",
-                    alias:"S3"
-                },
-                {
-                    Id:2,
-                    Name:"Book Profit 1 Notifications",
-                    icon:"fas fa-wallet",
-                    alias:"BP1"
-                },
-                {
-                    Id:2,
-                    Name:"Book Profit 2 Notifications",
-                    icon:"fas fa-wallet",
-                    alias:"BP2"
-                },
-                {
-                    Id:2,
-                    Name:"Book Profit 3 Notifications",
-                    icon:"fas fa-wallet",
-                    alias:"BP3"
-                },
-                {
-                    Id:2,
-                    Name:"Exit Value Notifications",
-                    icon:"fas fa-sign-out-alt",
-                    alias:"XV"
-                },
-                {
-                    Id:2,
-                    Name:"Stop Call Notifications",
-                    icon:"fas fa-stop-circle",
-                    alias:"SC"
-                },
-                {
-                    Id:2,
-                    Name:"Call Expired Notifications",
-                    icon:"fas fa-power-off",
-                    alias:"EX"
-                },
-                {
-                    Id:2,
-                    Name:"Call Activision Notifications",
-                    icon:"fas fa-check-double",
-                    alias:"TG"
-                }
+            CallSub:[  {
+                Id:"T1",
+                Name:"New Call ",
+                icon:"fas fa-plus",
+                alias:"CN"
+            },
+            {
+                Id:"T1",
+                Name:"Edit Call ",
+                icon:"fas fa-pencil-ruler",
+                alias:"CE"
+            },
+            {
+                Id:"T1",
+                Name:"Target 1 ",
+                icon:"fas fa-bullseye",
+                alias:"T1"
+            },
+            {
+                Id:"T1",
+                Name:"Target 2 ",
+                icon:"fas fa-bullseye",
+                alias:"T2"
+            },
+            {
+                Id:"T1",
+                Name:"Target 3 ",
+                icon:"fas fa-bullseye",
+                alias:"T3"
+            },
+            {
+                Id:"T1",
+                Name:"Stoploss 1 ",
+                icon:"fas fa-stop-circle",
+                alias:"S1"
+            },
+            {
+                Id:"T1",
+                Name:"Stoploss 2 ",
+                icon:"fas fa-stop-circle",
+                alias:"S2"
+            },
+            {
+                Id:"T1",
+                Name:"Stoploss 3 ",
+                icon:"fas fa-stop-circle",
+                alias:"S3"
+            },
+            {
+                Id:"T1",
+                Name:"Book Profit 1 ",
+                icon:"fas fa-wallet",
+                alias:"BP1"
+            },
+            {
+                Id:"T1",
+                Name:"Book Profit 2 ",
+                icon:"fas fa-wallet",
+                alias:"BP2"
+            },
+            {
+                Id:"T1",
+                Name:"Book Profit 3 ",
+                icon:"fas fa-wallet",
+                alias:"BP3"
+            },
+            {
+                Id:"T1",
+                Name:"Exit Value ",
+                icon:"fas fa-sign-out-alt",
+                alias:"XV"
+            },
+            {
+                Id:"T1",
+                Name:"Stop Call ",
+                icon:"fas fa-stop-circle",
+                alias:"SC"
+            },
+            {
+                Id:"T1",
+                Name:"Call Expired ",
+                icon:"fas fa-power-off",
+                alias:"EX"
+            },
+            {
+                Id:"T1",
+                Name:"Call Activision ",
+                icon:"fas fa-check-double",
+                alias:"TG"
+            }],
+            GeneralSub:[{
+                Id:"GS",
+                Name:"Tip Status ",
+                icon:"fas fa-question",
+                alias:"GS"
+            },
+            {
+                Id:"GS",
+                Name:"Reports ",
+                icon:"fas fa-print",
+                alias:"RP",
+            },
+            {
+                Id:"GS",
+                Name:"Assign Package ",
+                icon:"fas fa-arrows-alt-h",
+                alias:"AP"
+            }
             ],
+            UsersSub:[  
+            {
+                Id:"UA",
+                Name:"User Addition ",
+                icon:"fas fa-user",
+                alias:"UD"
+            },
+            {
+                Id:"UA",
+                Name:"User Accept ",
+                icon:"fas fa-check",
+                alias:"UA"
+            }],
             NType:[
                 {
                     Name:"All Notifications",
@@ -163,7 +163,7 @@ class Notifications extends React.Component{
             ReceivedFromDate:moment(new Date()).subtract(15,'days').format("YYYY/MM/DD"),
             SelectedType:"",
             ReceivedFromBackDays:15,
-            SelectedTypeName:"All Notifications",
+            SelectedTypeName:null,
             SpinnerStatus:false
         }
     }
@@ -178,7 +178,9 @@ class Notifications extends React.Component{
             receivedFromDate:this.state.ReceivedFromDate,
             receivedToDate:moment(new Date()).format("YYYY/MM/DD") 
         }
+        console.log("Payload",payload)
         get_received_messages(this.props.loginState.AuthHeader,payload).then(res => {
+            console.log("result",res)
             if(res.IsSuccess)
             {
                 this.setState({ReceivedNotifications:res.Data})
@@ -191,7 +193,11 @@ class Notifications extends React.Component{
     }
 
     SelectTab=(Tab)=>{
-        this.setState({SelectedType:Tab})
+        this.setState({MessageType:Tab},()=>{    
+            this.setState({SelectedType:Tab},()=>{
+                this.InitializeNotifications(Tab,"")
+            })
+        })
     }
 
     getDateAndTime=(data,isDate)=>{
@@ -221,7 +227,22 @@ class Notifications extends React.Component{
            </View> 
     )
 
+    
+
     render() {
+        let ShowCall=this.state.CallSub.map(result=>(
+            <Picker.Item value={result.alias} label={result.Name} />
+        ))
+
+        let ShowGS=this.state.GeneralSub.map(result=>(
+            <Picker.Item value={result.alias} label={result.Name} />
+        ))
+
+        let ShowUsers=this.state.UsersSub.map(result=>(
+            <Picker.Item value={result.alias} label={result.Name} />
+        ))
+      
+    
         return(
             <Container style={styles.Contianer}>
                 <View style={styles.TabContainer}>
@@ -232,12 +253,12 @@ class Notifications extends React.Component{
                     </View>
                     <View style={this.state.SelectedType === "GS" ? styles.TabsSelected:styles.Tabs}>
                         <TouchableOpacity onPress={()=>this.SelectTab("GS")}>
-                            <NormalText style={this.state.SelectedType === "GS" ? styles.TabsTextSelected:styles.TabsText}>General </NormalText>
+                            <NormalText style={this.state.SelectedType === "GS" ? styles.TabsTextSelected:styles.TabsText}>General</NormalText>
                         </TouchableOpacity>
                     </View>
                     <View style={this.state.SelectedType === "T1" ? styles.TabsSelected:styles.Tabs}>
                         <TouchableOpacity onPress={()=>this.SelectTab("T1")}>
-                            <NormalText style={this.state.SelectedType === "T1" ? styles.TabsTextSelected:styles.TabsText}>Call </NormalText>
+                            <NormalText style={this.state.SelectedType === "T1" ? styles.TabsTextSelected:styles.TabsText}>Call</NormalText>
                         </TouchableOpacity>
                     </View>
                      <View style={this.state.SelectedType === "UA" ? styles.TabsSelected:styles.Tabs}>
@@ -248,8 +269,20 @@ class Notifications extends React.Component{
                 </View>
 
                 <View style={styles.NotificationsContainer}>
+                        {this.state.SelectedType !== "" ? 
+                        <View style={styles.FilterContainer}>
+                            <View style={styles.Filter}>
+                                <Picker selectedValue={this.state.SelectedTypeName} onValueChange={(val)=>this.setState({SelectedTypeName:val},()=>{
+                                    this.setState({MessageType:val},()=>{
+                                            this.InitializeNotifications(this.state.MessageType,"")
+                                    })
+                                    // console.log(this.state.SelectedTypeName)
+                                    })} style={{color: 'white'}}>
+                                    {this.state.SelectedType === "GS" ? ShowGS:this.state.SelectedType === "T1" ? ShowCall:this.state.SelectedType === "UA" ? ShowUsers:null}
+                                </Picker>
+                            </View>
+                       </View>:null}
                     <Card style={styles.CustomCard}>
-                       
                         <FlatList
                             keyExtractor={(item,index)=>index.toString()}
                             data={this.state.ReceivedNotifications}
@@ -333,19 +366,21 @@ const styles=StyleSheet.create({
         width:'20%',
         alignItems:'center',
         justifyContent:'center'
-    }
-    // FilterContainer:{
-    //     width:'100%',
-    //     height:50,
-    //     alignItems:'flex-end'
-    // },
-    // Filter:{
-    //     width:125,
-    //     height:35,
-    //     borderRadius:5,
-    //     backgroundColor:"#f5bb18",
-    //     elevation:2
-    // }   
+    },
+    FilterContainer:{
+        width:'100%',
+        height:50,
+        alignItems:'flex-start',
+        justifyContent:'center'
+    },
+    Filter:{
+        minWidth:150,
+        height:35,
+        borderRadius:5,
+        backgroundColor:"#f5bb18",
+        elevation:2,
+        justifyContent:'center'
+    }   
 })
 
 const mapStateToProps= state =>{

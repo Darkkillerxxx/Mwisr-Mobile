@@ -123,11 +123,13 @@ class CustomDrawer extends React.Component{
                     SubContents:[
                         {
                             Name:"Configure Telegram",
-                            isVisible:true
+                            isVisible:true,
+                            Key:"ConfigTele"
                         },
                         {
                             Name:"Package Channel",
-                            isVisible:true
+                            isVisible:true,
+                            Key:"AssignPackageChannel"
                         }
                     ],
                     Chevron:true,
@@ -144,7 +146,8 @@ class CustomDrawer extends React.Component{
                         },
                         {
                             Name:"Received Message",
-                            isVisible:true
+                            isVisible:true,
+                            Key:'ViewMessage'
                         }
                     ],
                     Chevron:true,
@@ -157,11 +160,13 @@ class CustomDrawer extends React.Component{
                     SubContents:[
                         {
                             Name:"Buy Subscription",
-                            isVisible:true
+                            isVisible:true,
+                            Key:'Credits'
                         },
                         {
                             Name:"Add-Ons",
-                            isVisible:true
+                            isVisible:true,
+                            Key:'AddOns'
                         }
                     ],
                     Chevron:true,
