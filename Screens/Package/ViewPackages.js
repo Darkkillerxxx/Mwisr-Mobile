@@ -112,33 +112,34 @@ class ViewPackages extends React.Component{
     {
         return(
             <Container style={styles.ViewPackageContainer}>
+               {this.props.loginState.UserTypeId !== 7 ? 
                 <View style={styles.TabContainer}>
                     <View style={this.state.SelectedTab === 1 ? styles.TabsSelected:styles.Tabs}>
                         <TouchableOpacity onPress={()=>this.ChangeTabs(1)}>
-                            <NormalText style={styles.TabsText}>Own</NormalText>
+                            <NormalText style={this.state.SelectedTab === 1 ? styles.TabsTextSelected:styles.TabsText}>Own</NormalText>
                         </TouchableOpacity>
                     </View>
                     <View style={this.state.SelectedTab === 2 ? styles.TabsSelected:styles.Tabs}>
                         <TouchableOpacity onPress={()=>this.ChangeTabs(2)}>
-                            <NormalText style={styles.TabsText}>Sub-Broker</NormalText>
+                            <NormalText style={this.state.SelectedTab === 2 ? styles.TabsTextSelected:styles.TabsText}>Sub-Broker</NormalText>
                         </TouchableOpacity>
                     </View>
                     <View style={this.state.SelectedTab === 3 ? styles.TabsSelected:styles.Tabs}>
                         <TouchableOpacity onPress={()=>this.ChangeTabs(3)}>
-                            <NormalText style={styles.TabsText}>Analyst</NormalText>
+                            <NormalText style={this.state.SelectedTab === 3 ? styles.TabsTextSelected:styles.TabsText}>Analyst</NormalText>
                         </TouchableOpacity>
                     </View>
                      <View style={this.state.SelectedTab === 4 ? styles.TabsSelected:styles.Tabs}>
                         <TouchableOpacity onPress={()=>this.ChangeTabs(4)}>
-                            <NormalText style={styles.TabsText}>Partner</NormalText>
+                            <NormalText style={this.state.SelectedTab === 4 ? styles.TabsTextSelected:styles.TabsText}>Partner</NormalText>
                         </TouchableOpacity>
                     </View>
                      <View style={this.state.SelectedTab === 5 ? styles.TabsSelected:styles.Tabs}>
                         <TouchableOpacity onPress={()=>this.ChangeTabs(5)}>
-                            <NormalText style={styles.TabsText}>Assigned To Me</NormalText>
+                            <NormalText style={this.state.SelectedTab === 5 ? styles.TabsTextSelected:styles.TabsText}>Assigned To Me</NormalText>
                         </TouchableOpacity>
                     </View>
-                </View>
+                </View>:null}
 
                 <View style={styles.PackageContainer}> 
                     <Packages SelectPackage={this.MoveToPackageDetails} Segments={this.state.Segments} SelectedTab={this.state.SelectedTab} />
@@ -156,24 +157,32 @@ const styles=StyleSheet.create({
     TabContainer:{
         width:'100%',
         height:35,
-        backgroundColor:'#7fc3ff',
-        flexDirection:'row'  
+        backgroundColor:'white',
+        flexDirection:'row',
+        elevation:3  
     },
     Tabs:{
-        width:'20%',
+        width:'25%',
         alignItems:'center',
         justifyContent:'center'
     },
     TabsSelected:{
-        width:'20%',
+        width:'25%',
         alignItems:'center',
         justifyContent:'center',
-        borderBottomColor:'white',
+        borderBottomColor:'#F0B22A',
         borderBottomWidth:3
     },
     TabsText:{
         fontSize:10,
-        color:'white',
+        color:'black',
+        marginBottom:0,
+        fontSize:12
+    },
+    TabsTextSelected:{
+        fontFamily:'open-sans-bold',
+        fontSize:12,
+        color:'black',
         marginBottom:0
     },
     PackageContainer:{

@@ -34,34 +34,39 @@ class Home extends React.Component{
         })
     }
 
+    NavigateToAddCall=()=>{
+        this.props.navigation.navigate('AddCall')
+    }
+
     render()
     {
         return(
             <Container style={styles.HomeContainer}>
-                <Dashboard AuthHeader={this.props.loginState.AuthHeader}/>
+                <Dashboard UserType={this.props.loginState.UserTypeId} MoveToAddCall={this.NavigateToAddCall} AuthHeader={this.props.loginState.AuthHeader}/>
                 
-                <View style={styles.TabContainer}>
-                    <View style={this.state.SelectedTab === "" ? styles.TabsSelected:styles.Tabs}>
-                        <TouchableOpacity onPress={()=>this.SelectTab("")}>
-                            <NormalText style={this.state.SelectedTab === "" ? styles.TabsTextSelected:styles.TabsText}>Active Calls</NormalText>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={this.state.SelectedTab === "2" ? styles.TabsSelected:styles.Tabs}>
-                        <TouchableOpacity onPress={()=>this.SelectTab("2")}>
-                            <NormalText style={this.state.SelectedTab === "2" ? styles.TabsTextSelected:styles.TabsText}>Sub-Broker Calls</NormalText>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={this.state.SelectedTab === "6" ? styles.TabsSelected:styles.Tabs}>
-                        <TouchableOpacity onPress={()=>this.SelectTab("6")}>
-                            <NormalText style={this.state.SelectedTab === "6" ? styles.TabsTextSelected:styles.TabsText}>Analyst Calls</NormalText>
-                        </TouchableOpacity>
-                    </View>
-                     <View style={this.state.SelectedTab === "5" ? styles.TabsSelected:styles.Tabs}>
-                        <TouchableOpacity onPress={()=>this.SelectTab("5")}>
-                            <NormalText style={this.state.SelectedTab === "5" ? styles.TabsTextSelected:styles.TabsText}>Partner Calls</NormalText>
-                        </TouchableOpacity>
-                    </View>
-                </View>
+                {this.props.loginState.UserTypeId !== 7 ? 
+                    <View style={styles.TabContainer}>
+                        <View style={this.state.SelectedTab === "" ? styles.TabsSelected:styles.Tabs}>
+                            <TouchableOpacity onPress={()=>this.SelectTab("")}>
+                                <NormalText style={this.state.SelectedTab === "" ? styles.TabsTextSelected:styles.TabsText}>Active Calls</NormalText>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={this.state.SelectedTab === "2" ? styles.TabsSelected:styles.Tabs}>
+                            <TouchableOpacity onPress={()=>this.SelectTab("2")}>
+                                <NormalText style={this.state.SelectedTab === "2" ? styles.TabsTextSelected:styles.TabsText}>Sub-Broker Calls</NormalText>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={this.state.SelectedTab === "6" ? styles.TabsSelected:styles.Tabs}>
+                            <TouchableOpacity onPress={()=>this.SelectTab("6")}>
+                                <NormalText style={this.state.SelectedTab === "6" ? styles.TabsTextSelected:styles.TabsText}>Analyst Calls</NormalText>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={this.state.SelectedTab === "5" ? styles.TabsSelected:styles.Tabs}>
+                            <TouchableOpacity onPress={()=>this.SelectTab("5")}>
+                                <NormalText style={this.state.SelectedTab === "5" ? styles.TabsTextSelected:styles.TabsText}>Partner Calls</NormalText>
+                            </TouchableOpacity>
+                        </View>
+                    </View>:null}
                   <View style={{flex:1,width:'100%',backgroundColor:'#EBECF1',padding:5}}>
                     <View style={styles.CallsContainer}>
                         <ViewCalls 

@@ -181,11 +181,11 @@ class CustomDrawer extends React.Component{
                             Name:"Notifications",
                             Key:"Notifications",
                             isVisible:true
-                        },
-                        {
-                            Name:"Brokerage Account",
-                            isVisible:true
                         }
+                        // {
+                        //     Name:"Brokerage Account",
+                        //     isVisible:true
+                        // }
                     ],
                     Chevron:true,
                     Expanded:false
@@ -205,7 +205,8 @@ class CustomDrawer extends React.Component{
 
     componentDidMount()
     {
-        const {AuthHeader}=this.props.loginState
+        console.log("Login State",this.props.loginState)
+        const {AuthHeader,UserTypeId}=this.props.loginState
         console.log("Route State",this.props.routeState)
         get_user_photo(AuthHeader).then(result=>{
             if(result.IsSuccess)
@@ -226,6 +227,26 @@ class CustomDrawer extends React.Component{
                 }
             }
         })
+
+        if(UserTypeId === 7)
+        {
+            let tempContent=this.state.MenuContents
+            tempContent[1].isVisible=false
+            tempContent[2].isVisible=false
+            tempContent[3].SubContents[1].isVisible=false
+            tempContent[3].SubContents[2].isVisible=false
+            tempContent[3].SubContents[3].isVisible=false
+            tempContent[3].SubContents[4].isVisible=false
+            tempContent[4].isVisible=false
+            tempContent[5].SubContents[1].isVisible=false
+            tempContent[7].isVisible=false
+
+            this.setState({MenuContents: tempContent})
+        }
+
+
+
+
     }
 
     ExpandMinimizeMenu=(index)=>{
@@ -293,7 +314,7 @@ class CustomDrawer extends React.Component{
                                         this.NavigateToRoute(data.Key,data.info)
                                         :null
                                         }}>
-                                        <NormalText style={{color:`${this.props.routeState === data.Key ? "yellow":"white"}`,fontSize:14,textAlign:'left'}}>{data.Name}</NormalText>
+                                        <NormalText style={{color:"white",fontSize:14,textAlign:'left'}}>{data.Name}</NormalText>
                                     </TouchableOpacity>
                                 </View>:null
                             )
@@ -310,7 +331,7 @@ class CustomDrawer extends React.Component{
                 <Image 
                     source={this.state.ImageError ? this.state.Image :{uri:this.state.UriImage}} 
                     onError={()=>this.setState({ImageError:true})} 
-                    style={styles.ImageContainer} />
+                    style={{...styles.ImageContainer,...{borderWidth:this.state.ImageError ? 0:1}}} />
                 
                 <View style={{alignItems:'center',justifyContent:'center',marginVertical:10}}>
                     <NormalText style={{color:'white',fontSize:16,marginBottom:0}}>{UserName}</NormalText>

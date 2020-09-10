@@ -136,7 +136,7 @@ class PackageDetails extends React.Component{
                         <View style={styles.PackageTop}>
                             <View style={styles.PackageTopLeft}>
                                 <NormalText style={{fontSize:14,color:'white',marginBottom:0}}>Total Profit</NormalText>
-                                <NormalText style={{fontSize:14,color:'green'}}> ₹ {this.state.Details[this.state.HeadingDetails].ProfitPerInvestment} </NormalText>
+                                <NormalText style={{fontSize:14,color:`${this.state.Details[this.state.HeadingDetails].ProfitPerInvestment > 0 ?"green":this.state.Details[this.state.HeadingDetails].ProfitPerInvestment < 0 ? "red":"white"}`}}> ₹ {this.state.Details[this.state.HeadingDetails].ProfitPerInvestment} </NormalText>
                             </View>
                             <View style={styles.PackageTopRight}>
                                 <NormalText style={{fontSize:14,color:'white',marginBottom:0}}>{this.state.Details[this.state.HeadingDetails].PackageName}</NormalText>
@@ -167,7 +167,7 @@ class PackageDetails extends React.Component{
                             <View style={styles.PackageBottomContent}>
                                 <View style={{borderRightWidth:1,borderRightColor:'#25395D',width:'100%',alignItems:'center',justifyContent:'center'}}>
                                     <NormalText style={{fontSize:15,color:'#859BC3',marginBottom:5}}>ROI</NormalText>
-                                    <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>{this.state.Details[this.state.HeadingDetails].AvgROI} %</NormalText>
+                                    <NormalText style={{fontSize:15,color:`${this.state.Details[this.state.HeadingDetails].AvgROI > 0 ? "green":this.state.Details[this.state.HeadingDetails].AvgROI < 0 ? "red":"white"}`,marginBottom:5}}>{this.state.Details[this.state.HeadingDetails].AvgROI} %</NormalText>
                                 </View>
                             </View>
                             <View style={styles.PackageBottomContent}>

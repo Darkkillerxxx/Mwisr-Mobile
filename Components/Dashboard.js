@@ -3,7 +3,7 @@ import { View,StyleSheet,Image,TouchableOpacity } from 'react-native'
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import NormalText from './NormalText'
 import {FontAwesome}  from '@expo/vector-icons';
-import {get_Dashboard} from '../Utils/api'
+import {get_Dashboard,get_customer_dashboard,verbose} from '../Utils/api'
 
 class Dashboard extends React.Component {
     constructor() {
@@ -15,14 +15,37 @@ class Dashboard extends React.Component {
     }
 
     componentDidMount() {
-        get_Dashboard(this.props.AuthHeader).then(result => {
-            if(result.IsSuccess)
-            {
-                this.setState({Dashboard:result.Data},()=>{
-                    console.log("Length",this.state.Dashboard)
-                })
-            }
-        })
+        
+        if(this.props.UserType !== 7)
+        {
+            get_Dashboard(this.props.AuthHeader).then(result => {
+                if(result.IsSuccess)
+                {
+                    this.setState({Dashboard:result.Data},()=>{
+                        console.log("Length",this.state.Dashboard)
+                    })
+                }
+                else
+                {
+                    verbose(false,"Dashboard Error",result.DisplayMsg)
+                }
+            })
+        } 
+        else
+        {
+            get_customer_dashboard(this.props.AuthHeader).then(result =>{
+                if(result.IsSuccess)
+                {
+                    this.setState({Dashboard:result.Data},()=>{
+                        console.log("Length",this.state.Dashboard)
+                    })
+                }
+                else
+                {
+                    verbose(false,"Dashboard Error",result.DisplayMsg)
+                }
+            })
+        }
     }
 
     IncreaseIndex=()=>{
@@ -36,7 +59,6 @@ class Dashboard extends React.Component {
         if(this.state.SelectedIndex !== 0)
         {
             this.setState({SelectedIndex:this.state.SelectedIndex - 1})
-            
         }
     }
 
@@ -45,17 +67,18 @@ class Dashboard extends React.Component {
 
             <View style={styles.DashboardContainer} >
                 {this.state.Dashboard.length > 0 ?
+                   this.props.UserType !== 7 ?
                 <>
                 <View style={styles.DashboardTop}>
-                    <View>
+                    <View style={{width:'25%'}}>
                         <View>
-                            <NormalText style={{...styles.AccuracyNo,...{backgroundColor:'#16d39a'}}}>{parseInt(this.state.Dashboard[this.state.SelectedIndex].Accuracy)}</NormalText>
+                            <NormalText style={{...styles.AccuracyNo,...{backgroundColor:'#f5bb18'}}}>{parseInt(this.state.Dashboard[this.state.SelectedIndex].Accuracy)}</NormalText>
                         </View>
                         <AnimatedCircularProgress
                         size={80}
                         width={5}
                         fill={parseInt(this.state.Dashboard[this.state.SelectedIndex].Accuracy)}
-                        tintColor={'#16d39a'}
+                        tintColor={'#f5bb18'}
                         onAnimationComplete={() =>{}}
                         backgroundColor="white"
                         rotation={180}>
@@ -65,19 +88,29 @@ class Dashboard extends React.Component {
                                 )
                             }
                         </AnimatedCircularProgress>
-                        <NormalText style={{...styles.AccuracyText,...{backgroundColor:'#16d39a'}}}>Accuracy</NormalText>
+                        <NormalText style={{...styles.AccuracyText,...{backgroundColor:'#f5bb18'}}}>Accuracy</NormalText>
                     </View>
                     <View style={styles.NameContainer}>
                         <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>{this.state.Dashboard[this.state.SelectedIndex].InformationType === "C" ? this.state.Dashboard[this.state.SelectedIndex].OwnerName:this.state.Dashboard[this.state.SelectedIndex].UserName}</NormalText>
                         <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>ID : {this.state.Dashboard[this.state.SelectedIndex].InformationType === "C" ? this.state.Dashboard[this.state.SelectedIndex].OwnerId:this.state.Dashboard[this.state.SelectedIndex].userId}</NormalText>
                         <NormalText style={{marginBottom:0,color:'#4A5A7C',fontSize:14}}>{this.state.Dashboard[this.state.SelectedIndex].InformationType === "C" ? "Company":"Self"}</NormalText>
                     </View>
+                    <View style={styles.AddCallContainer}>
+                        <TouchableOpacity onPress={()=>this.props.MoveToAddCall()}>
+                            <>
+                                <View style={styles.AddCallButton}>
+                                    <FontAwesome name="flash" size={24} color="white" />
+                                </View>
+                                <NormalText style={{marginBottom:0,marginTop:5,color:'white',fontSize:14}}>Add Call</NormalText>
+                            </>
+                        </TouchableOpacity>
+                    </View>
                 </View>
 
                 <View style={styles.DasboardBottom}>
                     <View style={styles.DashboardBottomSides}>
                         <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Profit</NormalText>
-                        <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>₹ {this.state.Dashboard[this.state.SelectedIndex].ProfitPerInvestment}</NormalText>
+                        <NormalText style={{marginBottom:0,color:'white',fontSize:14,color:`${this.state.Dashboard[this.state.SelectedIndex].ProfitPerInvestment > 0 ? "green":this.state.Dashboard[this.state.SelectedIndex].ProfitPerInvestment < 0 ? "red":"white"}`}}>₹ {this.state.Dashboard[this.state.SelectedIndex].ProfitPerInvestment}</NormalText>
                     </View>
 
                     <View style={styles.DashboardBottomSides}>
@@ -87,7 +120,7 @@ class Dashboard extends React.Component {
 
                     <View style={styles.DashboardBottomNoBorder}>
                         <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>ROI</NormalText>
-                        <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>{this.state.Dashboard[this.state.SelectedIndex].ROI} %</NormalText>
+                        <NormalText style={{marginBottom:0,color:'white',fontSize:14,color:`${this.state.Dashboard[this.state.SelectedIndex].ROI > 0 ? "green":this.state.Dashboard[this.state.SelectedIndex].ROI < 0 ? "red":"white"}`}}>{this.state.Dashboard[this.state.SelectedIndex].ROI} %</NormalText>
                     </View>
                 </View>
 
@@ -122,7 +155,60 @@ class Dashboard extends React.Component {
                     
 
                     </View>
-                </>:null}
+                </>
+                :
+                <>
+                    <View style={styles.DashboardTop}>
+                        <View style={{width:'25%'}}>
+                            <View>
+                                <NormalText style={{...styles.AccuracyNo,...{backgroundColor:'#f5bb18'}}}>{this.state.Dashboard[0].AVGAccuracy !== null ? 0:parseInt(this.state.Dashboard[0].AVGAccuracy)}</NormalText>
+                            </View>
+                            <AnimatedCircularProgress
+                            size={80}
+                            width={5}
+                            fill={this.state.Dashboard[0].AVGAccuracy === null ? 0:parseInt(this.state.Dashboard[0].AVGAccuracy)}
+                            tintColor={'#f5bb18'}
+                            onAnimationComplete={() =>{}}
+                            backgroundColor="white"
+                            rotation={180}>
+                                {
+                                    (fill)=>(
+                                        <Image source={require('../assets/Images/Analyst.png')} style={styles.ProfilePic}/>
+                                    )
+                                }
+                            </AnimatedCircularProgress>
+                            <NormalText style={{...styles.AccuracyText,...{backgroundColor:'#f5bb18'}}}>Accuracy</NormalText>
+                        </View>
+                        <View style={styles.NameContainer}>
+                            <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>{this.state.Dashboard[0].UserName}</NormalText>
+                            <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>ID : {this.state.Dashboard[0].UserId}</NormalText>
+                        </View>
+                    </View>
+
+                    <View style={styles.DasboardBottom}>
+                        <View style={{...styles.DashboardBottomSides,...{width:'25%'}}}>
+                            <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Profit</NormalText>
+                            <NormalText style={{marginBottom:0,color:'white',fontSize:14,color:`${this.state.Dashboard[0].TotalProfit > 0 ? "green":this.state.Dashboard[0].TotalProfit < 0 ? "red":"white"}`}}>₹ {this.state.Dashboard[0].TotalProfit === null ? 0:this.state.Dashboard[0].TotalProfit}</NormalText>
+                        </View>
+
+                        <View style={{...styles.DashboardBottomSides,...{width:'25%'}}}>
+                            <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>ROI</NormalText>
+                            <NormalText style={{marginBottom:0,color:'white',fontSize:14,color:`${this.state.Dashboard[0].AvgROI > 0 ? "green":this.state.Dashboard[0].AvgROI < 0 ? "red":"white"}`}}>% {this.state.Dashboard[0].AvgROI === null ? 0:this.state.Dashboard[0].AvgROI}</NormalText>
+                        </View>
+
+                        <View style={{...styles.DashboardBottomSides,...{width:'25%'}}}>
+                            <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Packages</NormalText>
+                            <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>{this.state.Dashboard[0].TotalPackages}</NormalText>
+                        </View>
+
+                        <View style={{...styles.DashboardBottomSides,...{width:'25%',borderRightWidth:0}}}>
+                            <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Owners</NormalText>
+                            <NormalText style={{marginBottom:0,color:'white',fontSize:14,}}>{this.state.Dashboard[0].TotalOwners}</NormalText>
+                        </View>
+                    </View>
+                </>
+                :
+                null}
             </View>
         )
     }
@@ -153,14 +239,30 @@ const styles=StyleSheet.create({
         height:80
     },
     NameContainer:{
-        marginLeft:15
+        width:'50%'
+    },
+    AddCallContainer:{
+        width:'25%',
+        alignItems:'center',
+        justifyContent:'center'
+    },
+    AddCallButton:{
+        width:45,
+        height:45,
+        borderWidth:1,
+        borderRadius:100,
+        backgroundColor:'black',
+        opacity:0.3,
+        alignItems:'center',
+        justifyContent:'center'
     },
     AccuracyText:{
         textAlign:'center',
         borderRadius:10,
         backgroundColor:'#00e0ff',
         color:'white',
-        marginTop:-15
+        marginTop:-15,
+        width:85
     },
     DasboardBottom:{
         width:'100%',
@@ -189,7 +291,9 @@ const styles=StyleSheet.create({
         paddingVertical:5,
         fontSize:12,
         backgroundColor:'#00e0ff',
-        color:'white'
+        color:'white',
+        width:25,
+        textAlign:'center'
     },
     LeftRightArrowContainers:{
         width:'100%',

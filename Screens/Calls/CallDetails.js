@@ -127,12 +127,12 @@ class CallDetails extends React.Component{
                                 <View style={styles.CustomCardCompanyLeft}>
                                     <BoldText style={{fontSize:15,color:'black',marginBottom:0}}>Trigger Min</BoldText>
                                     <NormalText style={{fontSize:17,marginBottom:0,marginTop:5}}>{CMPMin}</NormalText>
-                                    <NormalText style={{fontSize:17,color:'black',marginBottom:0,marginTop:15}}>Triggers at 1500</NormalText>
+                                    {/* <NormalText style={{fontSize:17,color:'black',marginBottom:0,marginTop:15}}>Triggers at 1500</NormalText> */}
                                 </View>
                                 <View style={{...styles.CustomCardCompanyRight,...{alignItems:'flex-start'}}}>
                                     <BoldText style={{fontSize:15,marginBottom:0,color:'black'}}>Trigger Max</BoldText>
                                     <NormalText style={{fontSize:17,marginBottom:0,marginTop:5}}>{CMPMax}</NormalText>
-                                    <NormalText style={{fontSize:17,color:'black',marginBottom:0,marginTop:15}}>Activates at 9.30</NormalText>
+                                    {/* <NormalText style={{fontSize:17,color:'black',marginBottom:0,marginTop:15}}>Activates at 9.30</NormalText> */}
                                 </View>
                             </View>                            
                         </CollapsibleCard>

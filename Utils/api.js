@@ -5,11 +5,11 @@ import store from '../store/store'
 import {setMsg,setNrmlMsg} from '../store/Actions/ActionLogin'
 
 // store.dispatch(setMsg("This is a Test Message"))
-const base_url_wealthyFox="https://wfanalytics.mwisr.com//api//"
-const base_url_Mwisr="https://wfanalytics.mwisr.com//api//"
+// const base_url_wealthyFox="https://wfanalytics.mwisr.com//api//"
+// const base_url_Mwisr="https://wfanalytics.mwisr.com//api//"
 
-// const base_url_wealthyFox="http://202.38.173.113//api//"
-// const base_url_Mwisr="http://202.38.173.113//api//"
+const base_url_wealthyFox="http://202.38.173.113//api//"
+const base_url_Mwisr="http://202.38.173.113//api//"
 
 const endpoint_url={
     login: base_url_wealthyFox+"Authentication/Login/",
@@ -69,6 +69,7 @@ const endpoint_url={
     GetUserCreditDetail:base_url_wealthyFox + "/RTTracker/GetUserCreditDetail",
     GetChannelWisePackage:base_url_Mwisr+"Analyst/GetChannelWiseAssignedPackages?packageId=0",
     AssignUnAssignPackageToChannel:base_url_Mwisr+"Analyst/AssignUnAssignPackageToChannel",
+    GetCustomerDashboard:base_url_Mwisr+"AnalystQuery/GetCustomerDashBoard"
 }
 
 /********* Normal Functions **********/
@@ -1063,6 +1064,14 @@ export function assign_unassigne_package_channel(authHeader,payload)
   return apiCall(endpoint_url['AssignUnAssignPackageToChannel'],"POST",payload,authHeader).then(data =>{
     return JSON.parse(data)
   }).catch(err => err)
+}
+
+export function get_customer_dashboard(authheader)
+{
+  return apiCall(endpoint_url['GetCustomerDashboard'],"GET",{},authheader).then(data =>
+    {
+      return JSON.parse(data)
+    }).catch(err=>err)
 }
 
 
