@@ -1,5 +1,5 @@
 import React from 'react'
-import {View, StyleSheet,Picker,ActivityIndicator,TouchableOpacity,FlatList, ToastAndroid} from 'react-native'
+import {View, StyleSheet,Picker,ActivityIndicator,TouchableOpacity,FlatList, ToastAndroid, Image} from 'react-native'
 import Container from '../../Components/Container'
 import NormalText from '../../Components/NormalText'
 import {NavigationEvents} from 'react-navigation';
@@ -429,11 +429,17 @@ class AssignPackage extends React.Component{
                <View style={{flex:1,width:"100%"}}>
                    {this.state.ErrorCode === 2 ?
                     <NormalText style={{fontSize:12,color:'red',marginBottom:5}}>Need To To Select Atleast One Package</NormalText>:null}  
-                   <FlatList
-                    key={1}
-                    keyExtractor={(item,index)=>index.toString()}
-                    data={this.state.Packages}
-                    renderItem={this.ShowUnAssignedPackages}/>
+                   {this.state.Packages.length > 0 ? 
+                        <FlatList
+                            key={1}
+                            keyExtractor={(item,index)=>index.toString()}
+                            data={this.state.Packages}
+                            renderItem={this.ShowUnAssignedPackages}/>
+                        :
+                        <View style={{flex:1,width:'100%',alignItems:'center',justifyContent:'center'}}>
+                                <Image source={require('../../assets/Images/searching.png')} style={{width:150,height:150}}/>
+                                <NormalText style={{fontSize:14,marginBottom:5,marginTop:10}}>No Packages Found</NormalText>
+                        </View>}
                </View>:
                <View style={{flex:1,width:"100%"}}>
                    <FlatList
@@ -444,34 +450,36 @@ class AssignPackage extends React.Component{
                     numColumns={2}/>
                </View>
                }
-               <View style={{height:50,width:'100%',alignItems:'center',justifyContent:'space-evenly',flexDirection:'row'}}>
-                    { console.log("433",this.state.AssignPart)}
-                    {
-                        this.state.AssignPart === 1  ?
-                            this.props.navigation.state.params.route !== 2 && this.props.navigation.state.params.route !== 3 ?  
-                            <TouchableOpacity style={{width:'45%'}} onPress={()=>this.HandleBackButton()}>
+               {this.state.User.length > 0 ? 
+                    <View style={{height:50,width:'100%',alignItems:'center',justifyContent:'space-evenly',flexDirection:'row'}}>
+                            { console.log("433",this.state.AssignPart)}
+                            {
+                                this.state.AssignPart === 1  ?
+                                    this.props.navigation.state.params.route !== 2 && this.props.navigation.state.params.route !== 3 ?  
+                                    <TouchableOpacity style={{width:'45%'}} onPress={()=>this.HandleBackButton()}>
+                                        <CustomButton style={{width:'100%'}}>
+                                            <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Back</NormalText>
+                                        </CustomButton>
+                                    </TouchableOpacity>
+                                    :null
+                                    :this.state.AssignPart === 2 ? 
+                                        <TouchableOpacity style={{width:'45%'}} onPress={()=>this.HandleBackButton()}>
+                                            <CustomButton style={{width:'100%'}}>
+                                                <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Back</NormalText>
+                                            </CustomButton>
+                                        </TouchableOpacity>:null
+                            }
+                            <TouchableOpacity style={{width:'45%'}} onPress={()=>this.Proceed()}>
                                 <CustomButton style={{width:'100%'}}>
-                                    <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Back</NormalText>
+                                    {
+                                        this.state.ButtonLoading ?
+                                        <ActivityIndicator size="small" color="white" />:
+                                        <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>{this.state.AssignPart === 0 ? "Proceed":this.state.AssignPart === 1 ? "Assign":"Proceed"}</NormalText>
+                                    }
                                 </CustomButton>
                             </TouchableOpacity>
-                            :null
-                            :this.state.AssignPart === 2 ? 
-                                <TouchableOpacity style={{width:'45%'}} onPress={()=>this.HandleBackButton()}>
-                                    <CustomButton style={{width:'100%'}}>
-                                        <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>Back</NormalText>
-                                    </CustomButton>
-                                </TouchableOpacity>:null
-                    }
-                    <TouchableOpacity style={{width:'45%'}} onPress={()=>this.Proceed()}>
-                        <CustomButton style={{width:'100%'}}>
-                            {
-                                this.state.ButtonLoading ?
-                                <ActivityIndicator size="small" color="white" />:
-                                <NormalText style={{marginBottom:0,color:'white',fontSize:14}}>{this.state.AssignPart === 0 ? "Proceed":this.state.AssignPart === 1 ? "Assign":"Proceed"}</NormalText>
-                            }
-                        </CustomButton>
-                    </TouchableOpacity>
-               </View>
+                    </View>
+               :null}
            </Container>
         )
     }
@@ -481,7 +489,8 @@ const styles=StyleSheet.create({
     AssignContainer:{
         padding:10,
         justifyContent:'flex-start',
-        alignItems:'flex-start'
+        alignItems:'flex-start',
+        backgroundColor:'#FAFAFA'
     },
     UserTypes:{
         width:'30%',

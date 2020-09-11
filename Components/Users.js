@@ -197,7 +197,7 @@ class Users extends React.Component{
                                      </NormalText>
                                 </View>
                                
-                                <NormalText style={{...styles.CardBottomProfitNo,...{color:itemData.item.Profit === 0 ? 'black':itemData.item.Profit > 0 ? 'green':'red'}}}> { itemData.item.Profit > 100000 ? "100000+":itemData.item.Profit} ₹</NormalText>
+                                <NormalText style={{...styles.CardBottomProfitNo,...{color:itemData.item.Profit === 0 ? 'black':itemData.item.Profit > 0 ? 'green':'red'}}}>₹ { itemData.item.Profit > 100000 ? "100000+":itemData.item.Profit}</NormalText>
                             </View>
                         </View>
                     </View>               
@@ -275,7 +275,7 @@ class Users extends React.Component{
                                      </NormalText>
                                 </View>
                                
-                                <NormalText style={{...styles.CardBottomProfitNo,...{color:itemData.item.ProfitPerInvestment === 0 ? 'black':itemData.item.ProfitPerInvestment > 0 ? 'green':'red'}}}> { itemData.item.ProfitPerInvestment > 100000 ? "100000+":itemData.item.ProfitPerInvestment} ₹</NormalText>
+                                <NormalText style={{...styles.CardBottomProfitNo,...{color:itemData.item.ProfitPerInvestment === 0 ? 'black':itemData.item.ProfitPerInvestment > 0 ? 'green':'red'}}}>₹ { itemData.item.ProfitPerInvestment > 100000 ? "100000+":itemData.item.ProfitPerInvestment} </NormalText>
                             </View>
                         </View>
                     </View>               
@@ -310,10 +310,9 @@ class Users extends React.Component{
                            data={this.state.ReceivedOwnerList}
                            renderItem={this.ShowOwnerCards} />
                            :
-
-                         <View style={{flex:1,alignSelf:'stretch',alignItems:'center',justifyContent:'center'}}>
-                             <ActivityIndicator size="large" color={this.props.UserColor} />
-                        </View>  
+                            <View style={{flex:1,alignSelf:'stretch',alignItems:'center',justifyContent:'center'}}>
+                                <ActivityIndicator size="large" color={this.props.UserColor} />
+                            </View>  
                 }
 
             

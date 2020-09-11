@@ -70,7 +70,7 @@ class UserDetails extends React.Component {
             if(result.IsSuccess)
             {
                 this.setState({CustomerDetails:[result.Data]},()=>{
-                
+                    console.log(this.state.CustomerDetails)
                     let payload={
                         forCustomerId:this.props.navigation.state.params.UserId
                     }

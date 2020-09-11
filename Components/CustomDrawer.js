@@ -142,7 +142,8 @@ class CustomDrawer extends React.Component{
                     SubContents:[
                         {
                             Name:"Send Message",
-                            isVisible:true
+                            isVisible:true,
+                            Key:'SendMessage',
                         },
                         {
                             Name:"Received Message",

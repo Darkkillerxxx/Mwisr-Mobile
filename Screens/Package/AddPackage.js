@@ -474,7 +474,8 @@ const style=StyleSheet.create({
         borderRadius:5,
         alignItems:'flex-start',
         padding:10,
-        marginVertical:5
+        marginVertical:5,
+        width:'95%'
     },
     HeadingText:{
         fontSize:16

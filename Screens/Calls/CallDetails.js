@@ -332,13 +332,14 @@ class CallDetails extends React.Component{
                 </ScrollView>
               </View>
               
+              {this.props.loginState.UserTypeId !== 7  ?
               <View style={styles.EditCallContainer}>
                 <TouchableOpacity style={styles.EditCallButtonContainer}>
                     <View style={styles.EditCallButton}>
                         <NormalText style={styles.EditCallButtonText}>Edit Call</NormalText>
                     </View>
                 </TouchableOpacity>
-              </View>
+              </View>:null}
           </Container>
         )
     }
