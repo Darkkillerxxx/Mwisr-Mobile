@@ -36,7 +36,7 @@ class ViewReports extends React.Component{
         const {AuthHeader,UserId}=this.props.loginState
         
         let payload={
-            forUserId:UserId,
+            forUserId:this.props.UserId === undefined ? UserId : this.props.UserId,
             PackageIds:"",
             Tags:"",
             SectorIds:"",
@@ -49,6 +49,7 @@ class ViewReports extends React.Component{
             ReportTypeIds:"",
             Symbol:SearchText
         }
+        console.log(payload)
         this.setState({isLoading:true})
         get_research_reports(AuthHeader,payload).then(result=>{
             
@@ -82,7 +83,7 @@ class ViewReports extends React.Component{
                     />:
                         <View style={{flex:1,width:'100%',alignItems:'center',justifyContent:'center'}}>
                             <Image source={require('../../assets/Images/searching.png')} style={{width:125,height:125,resizeMode:'contain'}}/>
-                            <NormalText style={{marginTop:10,marginBottom:0,fontSize:16}}>No Packages Were Found</NormalText>
+                            <NormalText style={{marginTop:10,marginBottom:0,fontSize:16}}>No Reports Were Found</NormalText>
                         </View>}
 
                     <View style={styles.FilterContainer}>

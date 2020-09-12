@@ -12,8 +12,8 @@ class Owners extends React.Component{
 
     onUserSelected=(UserId,OwnerId)=>{
         this.props.navigation.navigate('UserDetails',{
-            UserId:UserId,
-            OwnerId:OwnerId,
+            UserId:this.props.loginState.UserId,
+            OwnerId:UserId,
             UserType:0,
             UserColor:"#fa8072",
         })

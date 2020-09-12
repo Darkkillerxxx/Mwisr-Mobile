@@ -767,8 +767,19 @@ export function get_sub_list(userId,listType,IsBase,authHeader) {
     PackageNameSize:10,
     IsBaseLevel:IsBase
   };
-  console.log(payload,authHeader)
+  // console.log(payload,authHeader)
 
+  return apiCall(endpoint_url["GetSubList"], "POST", payload, authHeader)
+    .then(data => {
+      return JSON.parse(data)
+    })
+    .catch(err => err);
+}
+
+//temp
+export function get_sub_list_message(authHeader,payload) {
+  
+  // console.log(payload,authHeader)
   return apiCall(endpoint_url["GetSubList"], "POST", payload, authHeader)
     .then(data => {
       return JSON.parse(data)

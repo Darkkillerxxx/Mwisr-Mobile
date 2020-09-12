@@ -12,6 +12,7 @@ import CustomButton from '../../Components/Button'
 import Packages from '../../Components/Pacakges'
 import ReportsCard from '../../Components/ReportsCard'
 import Users from '../../Components/Users'
+import ViewReports from '../Reports/ViewReports'
 
 class UserDetails extends React.Component {
     constructor() {
@@ -27,7 +28,14 @@ class UserDetails extends React.Component {
             CustomerDetails:[],
             CallStatus:true,
             CallSearch:"",
-            CustomerAnswers:[]
+            CustomerAnswers:[],
+            Name:"",
+            Email:"",
+            Contact:"",
+            Profit:"",
+            ROI:"",
+            Calls:"",
+            Accuracy:""
         }
     }
 
@@ -50,6 +58,14 @@ class UserDetails extends React.Component {
             {
                 this.setState({OwnerDetails: result.Data},()=>{
                     console.log("Owner Details",result.Data)
+                    this.setState({Name:result.Data[0].OwnerName})
+                    this.setState({Email:result.Data[0].OwnerEMailId})
+                    this.setState({Contact:result.Data[0].OwnerMobileNo})
+                    this.setState({Profit:result.Data[0].Profit})
+                    this.setState({ROI:result.Data[0].Roi})
+                    this.setState({Calls:result.Data[0].TotalCalls})
+                    this.setState({Accuracy:result.Data[0].Accuracy})
+                    
                 })
             }
             else
@@ -116,7 +132,15 @@ class UserDetails extends React.Component {
             console.log("User Detail",result)
             if(result.IsSuccess)
             {
-                this.setState({UserDetails:result.Data})
+                this.setState({UserDetails:result.Data},()=>{
+                    this.setState({Name:result.Data[0].Name})
+                    this.setState({Email:result.Data[0].EmailId})
+                    this.setState({Contact:result.Data[0].MobileNo})
+                    this.setState({Profit:result.Data[0].ProfitPerInvestment})
+                    this.setState({ROI:result.Data[0].ROI})
+                    this.setState({Calls:result.Data[0].Calls})
+                    this.setState({Accuracy:result.Data[0].Accuracy})
+                })
             }
         })
 
@@ -181,7 +205,7 @@ class UserDetails extends React.Component {
 
     render()
     {
-        const {UserType}=this.props.navigation.state.params
+        const {UserType,UserId} = this.props.navigation.state.params
       
         return(
            <Container style={styles.CustomContainer}>
@@ -191,13 +215,13 @@ class UserDetails extends React.Component {
                     <View style={{width:'100%',height:125,flexDirection:'row',alignItems:'center',paddingHorizontal:10}}>
                         <View style={{width:'30%',alignItems:'flex-start',justifyContent:'center'}}>
                             <View>
-                                <NormalText style={{...styles.AccuracyNo,...{backgroundColor:this.props.navigation.state.params.UserColor}}}>{UserType === 0 ? parseInt(this.state.OwnerDetails[0].Accuracy):UserType === 7 ? 20:parseInt(this.state.UserDetails[0].Accuracy)}</NormalText>
+                                <NormalText style={{...styles.AccuracyNo,...{backgroundColor:this.props.navigation.state.params.UserColor}}}>{parseInt(this.state.Accuracy)}</NormalText>
                             </View>
         
                             <AnimatedCircularProgress
                                 size={80}
                                 width={5}
-                                fill={UserType === 0 ?  parseInt(this.state.OwnerDetails[0].Accuracy):UserType === 7 ? 20:parseInt(this.state.UserDetails[0].Accuracy)}
+                                fill={parseInt(this.state.Accuracy)}
                                 tintColor={this.props.navigation.state.params.UserColor}
                                 onAnimationComplete={() =>{}}
                                 backgroundColor="white"
@@ -212,11 +236,11 @@ class UserDetails extends React.Component {
                         </View>
                         
                         <View style={{width:'70%'}}>
-                            <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>{UserType === 0 ?  this.state.OwnerDetails[0].OwnerName : UserType === 7 ? this.state.CustomerDetails[0].CustomerName :this.state.UserDetails[0].Name}</NormalText>
+                            <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>{this.state.Name}</NormalText>
                             {UserType === 0 ? 
                             <>
-                            <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>{this.state.OwnerDetails[0].OwnerEMailId}</NormalText>
-                            <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>{this.state.OwnerDetails[0].OwnerMobileNo}</NormalText>
+                            <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>{this.state.Email}</NormalText>
+                            <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>{this.state.Contact}</NormalText>
                             </>:null}
                             {UserType !== 0  ? 
                             <View style={{flexDirection:'row'}}>
@@ -251,19 +275,19 @@ class UserDetails extends React.Component {
                         <View style={{width:'33%',alignItems:'center',justifyContent:'center'}}>
                             <View style={{borderRightWidth:1,borderRightColor:'#25395D',width:'100%',alignItems:'center',justifyContent:'center'}}>
                                 <NormalText style={{fontSize:15,color:'#859BC3',marginBottom:5}}>Profit</NormalText>
-                                <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>₹ {UserType === 0 ? this.state.OwnerDetails[0].Profit : UserType === 7 ? "30000":this.state.UserDetails[0].ProfitPerInvestment}</NormalText>
+                                <NormalText style={{fontSize:15,color:`${this.state.Profit > 0 ? "green":this.state.Profit < 0 ? "red":"white"}`,marginBottom:5}}>₹ {this.state.Profit}</NormalText>
                             </View>
                         </View>
                         <View style={{width:'33%',alignItems:'center',justifyContent:'center'}}>
                             <View style={{borderRightWidth:1,borderRightColor:'#25395D',width:'100%',alignItems:'center',justifyContent:'center'}}>
                                 <NormalText style={{fontSize:15,color:'#859BC3',marginBottom:5}}>ROI</NormalText>
-                                <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>{UserType === 0 ? this.state.OwnerDetails[0].Roi :UserType === 7 ? "30" :this.state.UserDetails[0].ROI} %</NormalText>
+                                <NormalText style={{fontSize:15,color:`${this.state.ROI > 0 ? "green":this.state.ROI < 0 ? "red":"white"}`,marginBottom:5}}>{this.state.ROI} %</NormalText>
                             </View>
                         </View>
                         <View style={{width:'33%',alignItems:'center',justifyContent:'center'}}>
                             <View style={{borderRightWidth:1,borderRightColor:'#25395D',width:'100%',alignItems:'center',justifyContent:'center'}}>
                                 <NormalText style={{fontSize:15,color:'#859BC3',marginBottom:5}}>Calls</NormalText>
-                                <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>{UserType === 0 ? this.state.OwnerDetails[0].TotalCalls :UserType === 7 ? "125":this.state.UserDetails[0].Calls}</NormalText>
+                                <NormalText style={{fontSize:15,color:'white',marginBottom:5}}>{this.state.Calls}</NormalText>
                             </View>
                         </View>
                     </View>:null}
@@ -327,7 +351,7 @@ class UserDetails extends React.Component {
                             <ViewCalls 
                             AuthHeader={this.props.loginState.AuthHeader} 
                             STab={""}
-                            UserId={this.props.navigation.state.params.UserId}
+                            UserId={this.props.navigation.state.params.UserId }
                             OwnerId={this.props.navigation.state.params.OwnerId}
                             ShowActive={true}
                             PackageId=""
@@ -335,8 +359,9 @@ class UserDetails extends React.Component {
                             CallId=""
                             Exchange=""
                             Symbol=""
-                            AssignedToMe={false}
-                            CallDetails={this.MoveToCallDetails}/>
+                            AssignedToMe={UserType === 0 ? true: false}
+                            CallDetails={this.MoveToCallDetails}
+                            From={1}/>
                         </View>:
                         this.state.SelectedTab === "" ? 
                         this.state.UserDetails.length > 0 || this.state.OwnerDetails.length > 0 ?
@@ -413,15 +438,13 @@ class UserDetails extends React.Component {
                             <ActivityIndicator size="large" color="#F0B22A" />
                         </View>
                         :
-                        this.state.SelectedTab === "2" ? 
-                            <Packages SelectPackage={this.MoveToPackageDetails} Type={2} SelectedTab={"2"} UserProfile={true} UserId={this.props.navigation.state.params.UserId} OwnerId={this.props.navigation.state.params.OwnerId} assignedToMe={false} createdByMe={true} />
+                        this.state.SelectedTab === "2" ?
+                            <View style={{width:'100%',flex:1,justifyContent:'center'}}>
+                                <Packages SelectPackage={this.MoveToPackageDetails} Type={2} SelectedTab={"2"} UserProfile={true} UserId={this.props.navigation.state.params.UserId} OwnerId={this.props.navigation.state.params.OwnerId} assignedToMe={false} createdByMe={true} />
+                            </View>         
                         :
                         this.state.SelectedTab === "3" ? 
-                        <FlatList 
-                            keyExtractor={(item, index) => index.toString()}
-                            data={this.state.Reports}
-                            renderItem={this.ShowReports}
-                            showsVerticalScrollIndicator={true}/>
+                        <ViewReports UserId={UserId}/>
                         : 
                         this.state.SelectedTab === "4" ? 
                             <Users UserColor="#16d39a" UserType={2} AuthHeader={this.props.loginState.AuthHeader} Type={2}/>       
@@ -455,12 +478,20 @@ const styles=StyleSheet.create({
         alignItems:'center',
         justifyContent:'center'
     },
+    TabsOwners:{
+        width:'25%',
+        alignItems:'center',
+        justifyContent:'center'
+    },
     TabsSelected:{
         width:'20%',
         alignItems:'center',
         justifyContent:'center',
         borderBottomColor:'#F0B22A',
         borderBottomWidth:3
+    },
+    TabsSelectedOwners:{
+
     },
     TabsCustomer:{
         width:'25%',
