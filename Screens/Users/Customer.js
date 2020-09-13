@@ -20,7 +20,8 @@ class Customer extends React.Component {
             OwnerId:OwnerId,
             UserType:7,
             UserColor:"#2dcee3",
-            IsActive:IsActive
+            IsActive:IsActive,
+            CustomerDetails:[]
         })
     }
 

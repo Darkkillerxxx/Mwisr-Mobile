@@ -1,5 +1,5 @@
 import React from 'react';
-import { View,StyleSheet,TouchableOpacity, ScrollView,Image,FlatList,ActivityIndicator} from 'react-native';
+import { View,StyleSheet,TouchableOpacity, ScrollView,Image,FlatList,ActivityIndicator,Modal} from 'react-native';
 import Container from '../../Components/Container';
 import NormalText from '../../Components/NormalText';
 import { connect }from 'react-redux'
@@ -13,6 +13,8 @@ import Packages from '../../Components/Pacakges'
 import ReportsCard from '../../Components/ReportsCard'
 import Users from '../../Components/Users'
 import ViewReports from '../Reports/ViewReports'
+import { FontAwesome } from '@expo/vector-icons';
+import CallsFilter from '../../Components/CallsFilter'
 
 class UserDetails extends React.Component {
     constructor() {
@@ -45,7 +47,7 @@ class UserDetails extends React.Component {
 
     onInitialize=()=>{
         const {AuthHeader}=this.props.loginState
-      
+      console.log("UserType",this.props.navigation.state.params.UserType)
       if(this.props.navigation.state.params.UserType === 0)
       {
         let payload={
@@ -157,7 +159,9 @@ class UserDetails extends React.Component {
     resetDetails=()=>{
         this.setState({SelectedTab:"",
                        UserDetails:[],
-                       Reports:[]})
+                       Reports:[],
+                       CustomerDetails:[],
+                       OwnerDetails:[]})
     }
 
     ShowReports=(itemData)=>{
@@ -293,7 +297,9 @@ class UserDetails extends React.Component {
                     </View>:null}
                </View>
                 
-                {UserType !== "7" ?
+                {/* Tabs Start Here */}
+
+                {UserType !== 7 && UserType !== 0  ?
                <View style={styles.TabContainer}>
                     <View style={this.state.SelectedTab === "" ? styles.TabsSelected:styles.Tabs}>
                         <TouchableOpacity onPress={()=>this.SelectTab("")}>
@@ -345,24 +351,43 @@ class UserDetails extends React.Component {
                 </View>
                 }
 
+                {/* Tabs End Here */}
+
                 <View style={styles.ContentsContainer}>
                     {this.state.SelectedTab === "1" ? 
-                        <View style={styles.CallsCard}>
-                            <ViewCalls 
-                            AuthHeader={this.props.loginState.AuthHeader} 
-                            STab={""}
-                            UserId={this.props.navigation.state.params.UserId }
-                            OwnerId={this.props.navigation.state.params.OwnerId}
-                            ShowActive={true}
-                            PackageId=""
-                            PackageOwnerId=""
-                            CallId=""
-                            Exchange=""
-                            Symbol=""
-                            AssignedToMe={UserType === 0 ? true: false}
-                            CallDetails={this.MoveToCallDetails}
-                            From={1}/>
+                    <View style={{width:'100%',flex:1,alignItems: "flex-end",justifyContent:'flex-end'}}>
+                            <View style={{width:'100%',minHeight:100,position:'absolute',elevation:6,alignItems:'flex-end',justifyContent:'center',zIndex:1}}>
+                                <TouchableOpacity onPress={()=>this.setState({ShowFilterModal:true})}>
+                                    <View style={{width:60,height:60,borderRadius:100,backgroundColor:'#F0B22A',alignItems:'center',justifyContent:'center'}}>
+                                        <FontAwesome name="filter" size={28} color="white" />
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+
+                            <View style={styles.CallsCard}>
+                                <ViewCalls 
+                                AuthHeader={this.props.loginState.AuthHeader} 
+                                STab={""}
+                                UserId={this.props.navigation.state.params.UserId }
+                                OwnerId={this.props.navigation.state.params.OwnerId}
+                                ShowActive={true}
+                                PackageId=""
+                                PackageOwnerId=""
+                                CallId=""
+                                Exchange=""
+                                Symbol=""
+                                AssignedToMe={UserType === 0 ? true: false}
+                                CallDetails={this.MoveToCallDetails}
+                                From={1}/>
+                            </View>
+
+                            <Modal visible={this.state.ShowFilterModal} animationType="slide" transparent={true}>
+                            <CallsFilter 
+                                UserOwners={[]}
+                                closeFilter={this.closeFilterModal}/>
+                            </Modal>
                         </View>:
+
                         this.state.SelectedTab === "" ? 
                         this.state.UserDetails.length > 0 || this.state.OwnerDetails.length > 0 ?
                         <ScrollView style={{width:'100%'}}>
@@ -371,15 +396,15 @@ class UserDetails extends React.Component {
                                 <View style={styles.CollapsibleCardContent}>
                                     <View style={styles.ContentRow}>
                                         <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Name</NormalText>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{this.state.UserDetails[0].Name}</NormalText>
+                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{this.state.Name}</NormalText>
                                     </View>
                                     <View style={styles.ContentRow}>
                                         <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Mobile No.</NormalText>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>+91{this.state.UserDetails[0].MobileNo}</NormalText>
+                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>+91{this.state.Contact}</NormalText>
                                     </View>
                                     <View style={styles.ContentRow}>
                                         <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Email Id</NormalText>
-                                        <NormalText style={{fontSize:14,color:`${this.state.UserDetails[0].EmailId === "" || this.state.UserDetails[0].EmailId === null ? "grey":"black"}`,marginBottom:0}}>{this.state.UserDetails[0].EmailId === "" || this.state.UserDetails[0].EmailId === null ? "Not Available":this.state.UserDetails[0].EmailId }</NormalText>
+                                        <NormalText style={{fontSize:14,color:`${this.state.EmailId === "" || this.state.EmailId === null ? "grey":"black"}`,marginBottom:0}}>{this.state.EmailId === "" || this.state.EmailId === null ? "Not Available":this.state.EmailId }</NormalText>
                                     </View>
                                 </View>
                             </CollapsibleCard>:null}
@@ -491,7 +516,11 @@ const styles=StyleSheet.create({
         borderBottomWidth:3
     },
     TabsSelectedOwners:{
-
+        width:'25%',
+        alignItems:'center',
+        justifyContent:'center',
+        borderBottomColor:'#F0B22A',
+        borderBottomWidth:3
     },
     TabsCustomer:{
         width:'25%',

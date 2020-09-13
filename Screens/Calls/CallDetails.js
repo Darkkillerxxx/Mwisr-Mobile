@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, StyleSheet, TouchableOpacity,ActivityIndicator } from 'react-native';
+import { View, StyleSheet, TouchableOpacity,ActivityIndicator,FlatList } from 'react-native';
 import Container from '../../Components/Container';
 import NormalText from '../../Components/NormalText';
 import BoldText from '../../Components/BoldText'
@@ -18,7 +18,8 @@ class CallDetails extends React.Component{
         this.state={
             MaxDetails:[],
             isLoading:false,
-            SelectedTab:0
+            SelectedTab:0,
+            TotalLegs:1
         }
     }
 
@@ -27,7 +28,8 @@ class CallDetails extends React.Component{
     }
 
     getCallDetails=(pId,cId)=>{
-        console.log(this.props.MiniCDState.Legs[this.state.SelectedTab])
+        this.setState({TotalLegs:this.props.MiniCDState.Legs.length})
+        console.log(this.props.MiniCDState.Legs)
         this.setState({isLoading:true})
         let payload={
             packageId:pId,
@@ -53,12 +55,33 @@ class CallDetails extends React.Component{
         return `${formatDate(DateTime)} ${Temp[1]} ${Temp[2]} `
     }
 
+    ChangeTab=(SelectedTab)=>{
+        const {PackageId,CallId,MarketSegmentId,MarketSegmentName,ProfitPerInvestment,ExpiryDate,FutOption,CallStatus,StrikePrice,TipStartDate,CMPMin,CMPMax,CMPName}=this.props.MiniCDState.Legs[SelectedTab]
+        this.setState({SelectedTab:SelectedTab},()=>{
+            this.getCallDetails(PackageId,CallId)
+        })
+    }
+
     render()
     {
+        let ShowTabs=this.props.MiniCDState.Legs.map((result,index)=>{
+            return(
+                <TouchableOpacity onPress={()=>this.ChangeTab(index)} style={{width:`${100/this.props.MiniCDState.Legs.length}%`}}>
+                    <View style={this.state.SelectedTab === index ? styles.SelectedTab:styles.Tabs}>
+                        <NormalText style={this.state.SelectedTab === index ? styles.TabsTextSelected:styles.TabsText}>LEG {index + 1}</NormalText>
+                    </View>
+                </TouchableOpacity>
+            )
+        })
+
        const {PackageId,CallId,MarketSegmentId,MarketSegmentName,ProfitPerInvestment,ExpiryDate,FutOption,CallStatus,StrikePrice,TipStartDate,CMPMin,CMPMax,CMPName}=this.props.MiniCDState.Legs[this.state.SelectedTab]
         return(
           <Container style={styles.CallDetailsContainer}>
               <NavigationEvents onDidFocus={() => this.getCallDetails(PackageId,CallId) } />
+              {this.state.TotalLegs > 1 ? 
+              <View style={styles.TabsContainer}>
+                {ShowTabs}
+              </View>:null}
               <View style={styles.CallDetailsContentContainer}>
                 <ScrollView style={styles.CallDetailsScrollView}>
                     <View style={styles.ContentTopContainer} >
@@ -152,30 +175,53 @@ class CallDetails extends React.Component{
                                 </View>
                                 <View style={styles.CustomCardTargetStoplossContent}>
                                     <View style={styles.TargetStoplossColumnLeft}>
-                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>3000</NormalText>
+                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].Target1}</NormalText>
                                     </View>
                                     <View style={styles.TargetStoplossColumnMid}>
-                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>8.30</NormalText>
+                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].T1Time === null ? '-':this.state.MaxDetails[0].T1Time}</NormalText>
                                     </View>
                                     <View style={styles.TargetStoplossColumnHit}>
+                                        {this.state.MaxDetails[0].T1Value !== null ? 
                                         <View style={styles.Check}>
                                             <FontAwesome name="check" size={12} color="black" />
-                                        </View>
-                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>3000</NormalText>
+                                        </View>:null}
+                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].T1Value === null ? "-":this.state.MaxDetails[0].T1Value}</NormalText>
                                     </View>
                                 </View>
+
+                                {this.state.MaxDetails[0].Target2 !== 0 ? 
                                 <View style={styles.CustomCardTargetStoplossContent}>
                                     <View style={styles.TargetStoplossColumnLeft}>
-                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>3800</NormalText>
+                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].Target2}</NormalText>
                                     </View>
                                     <View style={styles.TargetStoplossColumnMid}>
-                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>-</NormalText>
+                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].T2Time === null ? '-':this.state.MaxDetails[0].T2Time}</NormalText>
                                     </View>
                                     <View style={styles.TargetStoplossColumnHit}>
-                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>-</NormalText>
+                                        {this.state.MaxDetails[0].T2Value !== null ? 
+                                        <View style={styles.Check}>
+                                            <FontAwesome name="check" size={12} color="black" />
+                                        </View>:null}
+                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].T2Value === null ? "-":this.state.MaxDetails[0].T2Value}</NormalText>
                                     </View>
-                                </View>
-                          
+                                </View>:null}
+                                
+                                {this.state.MaxDetails[0].Target3 !== 0 ? 
+                                <View style={styles.CustomCardTargetStoplossContent}>
+                                    <View style={styles.TargetStoplossColumnLeft}>
+                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].Target3}</NormalText>
+                                    </View>
+                                    <View style={styles.TargetStoplossColumnMid}>
+                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].T3Time === null ? '-':this.state.MaxDetails[0].T3Time}</NormalText>
+                                    </View>
+                                    <View style={styles.TargetStoplossColumnHit}>
+                                        {this.state.MaxDetails[0].T3Value !== null ? 
+                                        <View style={styles.Check}>
+                                            <FontAwesome name="check" size={12} color="black" />
+                                        </View>:null}
+                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].T3Value === null ? "-":this.state.MaxDetails[0].T3Value}</NormalText>
+                                    </View>
+                                </View>:null}
                         </CollapsibleCard>
 
                         <CollapsibleCard style={styles.CustomCard} Heading="Stoploss">
@@ -548,6 +594,37 @@ const styles=StyleSheet.create({
         borderRadius:25,
         alignItems:'center',
         justifyContent:'center'
+    },
+    TabsContainer:{
+        width:'100%',
+        height:35,
+        flexDirection:'row',
+        elevation:3
+    },
+    Tabs:{
+        alignItems:'center',
+        justifyContent:'center',
+        height:35,
+        backgroundColor:'white'
+    },
+    SelectedTab:{
+        alignItems:'center',
+        justifyContent:'center',
+        height:35,
+        backgroundColor:'white',
+        borderBottomWidth:3,
+        borderColor:'#f5bb18'
+    },
+    TabsText:{
+        fontSize:12,
+        color:'black',
+        marginBottom:0
+    },
+    TabsTextSelected:{
+        fontFamily:'open-sans-bold',
+        fontSize:12,
+        color:'black',
+        marginBottom:0
     }
 })
 

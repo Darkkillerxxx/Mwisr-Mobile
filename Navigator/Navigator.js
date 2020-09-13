@@ -37,6 +37,7 @@ import AssignPackageChannel from '../Screens/Telegram/AssignPackageChannel'
 import ViewMessage from '../Screens/Messages/ViewMessage'
 import ConfigTele from '../Screens/Telegram/ConfigTele'
 import SendMessage from '../Screens/Messages/SendMessage'
+import CustomBottomNavigator from '../Components/CustomBottomNavigator'
 
 const Drawer=createDrawerNavigator({
     Home:createBottomTabNavigator({
@@ -74,11 +75,22 @@ const Drawer=createDrawerNavigator({
                         return <FontAwesome name="file-o" size={23} color={tabIcon.tintColor} />
                     }
                 }
+            },
+            ViewReports:{
+                screen:ViewReports
+            },
+            ViewCalls:{
+                screen:ViewCall
+            },
+            ViewPackage:{
+                screen:ViewPackage
             }
-        },{
+        },
+        {
             tabBarOptions:{
                 activeTintColor:"#f5bb18"
-            }
+        },
+        tabBarComponent:CustomBottomNavigator
         }),
 
     Package:{
