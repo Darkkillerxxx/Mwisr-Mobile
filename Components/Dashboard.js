@@ -239,7 +239,8 @@ const styles=StyleSheet.create({
         height:80
     },
     NameContainer:{
-        width:'50%'
+        width:'50%',
+        paddingHorizontal:10
     },
     AddCallContainer:{
         width:'25%',

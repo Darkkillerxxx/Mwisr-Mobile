@@ -238,6 +238,7 @@ class CustomDrawer extends React.Component{
             tempContent[3].SubContents[2].isVisible=false
             tempContent[3].SubContents[3].isVisible=false
             tempContent[3].SubContents[4].isVisible=false
+            tempContent[3].SubContents[5].isVisible=false
             tempContent[4].isVisible=false
             tempContent[5].SubContents[1].isVisible=false
             tempContent[7].isVisible=false
@@ -291,7 +292,9 @@ class CustomDrawer extends React.Component{
                                   <TouchableOpacity onPress={()=>data.Key !== undefined ? this.NavigateToRoute(data.Key,data.info):null}>
                                         <NormalText style={{color:'white',fontSize:14}}>{data.Name}</NormalText>
                                    </TouchableOpacity>:
-                                   <NormalText style={{color:'white',fontSize:14}}>{data.Name}</NormalText>
+                                   <TouchableOpacity onPress={()=>this.ExpandMinimizeMenu(index)}>
+                                        <NormalText style={{color:'white',fontSize:14}}>{data.Name}</NormalText>
+                                   </TouchableOpacity>
                             }
                           
                         </View>

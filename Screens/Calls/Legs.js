@@ -216,7 +216,7 @@ class Legs extends React.Component{
                    <View style={styles.SelectSymbolContainer}>
                        <NormalText style={{marginBottom:0,fontSize:14,color:'black'}}>Select Symbol</NormalText>
                        <View style={styles.TextInputContainer}>
-                           <TextInput value={this.props.Symbol} onChangeText={this.onSymbolChange}/>
+                           <TextInput value={this.props.Symbol} editable={this.props.MarketSegmentId !== null ? true : false} onChangeText={this.onSymbolChange}/>
                        </View>
                      {this.state.ReceivedSymbols.length > 0 ?
                         <> 

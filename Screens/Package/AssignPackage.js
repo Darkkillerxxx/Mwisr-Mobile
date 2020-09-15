@@ -217,6 +217,25 @@ class AssignPackage extends React.Component{
         })
     }
 
+    onPackageRemove=(Id)=>{
+        let temp=this.state.SelectedPackageArray
+        temp.every((element,index)=>{
+            if(element.PackageId === Id)
+            {
+                temp.splice(index,1)
+                return false
+            }
+            else
+            {
+                return true
+            }
+        })
+
+        console.log(temp)
+        this.setState({SelectedPackageArray:temp})
+        // console.log("Close Pressed",Id)
+    }   
+
     onDateEdit=(date,id)=>{
         console.log("Date",date,id)
         let TempSelectedPackages=this.state.SelectedPackageArray
@@ -248,7 +267,7 @@ class AssignPackage extends React.Component{
     ShowAssignedPackages=(itemData)=>{
         return(
             <View style={{width:'48%',alignItems:'center',justifyContent:'center',margin:5}}>
-                <MiniPackage onDateChange={this.onDateEdit} ShowDate={true} ShowClose={true} style={{borderLeftColor:getPackageFontColor(itemData.item.PackageTypeName)}} Package={itemData.item} />
+                <MiniPackage onDateChange={this.onDateEdit} ShowDate={true} ShowClose={true} onClosePress={this.onPackageRemove} style={{borderLeftColor:getPackageFontColor(itemData.item.PackageTypeName)}} Package={itemData.item} />
             </View>
         )
     }

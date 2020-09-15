@@ -69,7 +69,8 @@ const endpoint_url={
     GetUserCreditDetail:base_url_wealthyFox + "/RTTracker/GetUserCreditDetail",
     GetChannelWisePackage:base_url_Mwisr+"Analyst/GetChannelWiseAssignedPackages?packageId=0",
     AssignUnAssignPackageToChannel:base_url_Mwisr+"Analyst/AssignUnAssignPackageToChannel",
-    GetCustomerDashboard:base_url_Mwisr+"AnalystQuery/GetCustomerDashBoard"
+    GetCustomerDashboard:base_url_Mwisr+"AnalystQuery/GetCustomerDashBoard",
+    SendMessage: base_url_Mwisr+"Broadcast/SendMessage",
 }
 
 /********* Normal Functions **********/
@@ -1085,5 +1086,12 @@ export function get_customer_dashboard(authheader)
     }).catch(err=>err)
 }
 
+
+export function send_message(authHeader,payload)
+{
+  return apiCall(endpoint_url['SendMessage'],"POST",payload,authHeader).then(data=>{
+    return JSON.parse(data)
+  }).catch(err=>err)
+}
 
 

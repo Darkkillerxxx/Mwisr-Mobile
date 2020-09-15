@@ -440,6 +440,7 @@ class AddCall extends React.Component{
             if(result.IsSuccess)
             {
                 verbose(true,"Call Added","Call Added Successfully")
+                this.props.navigation.navigate('Home')
             }
             else
             {

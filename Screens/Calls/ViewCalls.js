@@ -31,7 +31,7 @@ class ViewCall extends React.Component{
     }
 
     componentDidMount()
-    {
+    {   
         get_user_owners(this.props.loginState.AuthHeader).then(result=>{
             if(result.IsSuccess)
             {
@@ -68,28 +68,29 @@ class ViewCall extends React.Component{
     {
         return(
             <Container style={styles.ViewCallsContainer}>
-                <View style={styles.TabContainer}>
-                    <View style={this.state.SelectedTab === "" ? styles.TabsSelected:styles.Tabs}>
-                        <TouchableOpacity onPress={()=>this.SelectTab("")}>
-                            <NormalText style={this.state.SelectedTab === "" ? styles.TabsTextSelected:styles.TabsText}>All Calls</NormalText>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={this.state.SelectedTab === "2" ? styles.TabsSelected:styles.Tabs}>
-                        <TouchableOpacity onPress={()=>this.SelectTab("2")}>
-                            <NormalText style={this.state.SelectedTab === "2" ? styles.TabsTextSelected:styles.TabsText}>Sub-Broker Calls</NormalText>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={this.state.SelectedTab === "6" ? styles.TabsSelected:styles.Tabs}>
-                        <TouchableOpacity onPress={()=>this.SelectTab("6")}>
-                            <NormalText style={this.state.SelectedTab === "6" ? styles.TabsTextSelected:styles.TabsText}>Analyst Calls</NormalText>
-                        </TouchableOpacity>
-                    </View>
-                     <View style={this.state.SelectedTab === "5" ? styles.TabsSelected:styles.Tabs}>
-                        <TouchableOpacity onPress={()=>this.SelectTab("5")}>
-                            <NormalText style={this.state.SelectedTab === "5" ? styles.TabsTextSelected:styles.TabsText}>Partner Calls</NormalText>
-                        </TouchableOpacity>
-                    </View>
-                </View>
+                {this.props.loginState.UserTypeId !== 7 ? 
+                    <View style={styles.TabContainer}>
+                        <View style={this.state.SelectedTab === "" ? styles.TabsSelected:styles.Tabs}>
+                            <TouchableOpacity onPress={()=>this.SelectTab("")}>
+                                <NormalText style={this.state.SelectedTab === "" ? styles.TabsTextSelected:styles.TabsText}>All Calls</NormalText>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={this.state.SelectedTab === "2" ? styles.TabsSelected:styles.Tabs}>
+                            <TouchableOpacity onPress={()=>this.SelectTab("2")}>
+                                <NormalText style={this.state.SelectedTab === "2" ? styles.TabsTextSelected:styles.TabsText}>Sub-Broker Calls</NormalText>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={this.state.SelectedTab === "6" ? styles.TabsSelected:styles.Tabs}>
+                            <TouchableOpacity onPress={()=>this.SelectTab("6")}>
+                                <NormalText style={this.state.SelectedTab === "6" ? styles.TabsTextSelected:styles.TabsText}>Analyst Calls</NormalText>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={this.state.SelectedTab === "5" ? styles.TabsSelected:styles.Tabs}>
+                            <TouchableOpacity onPress={()=>this.SelectTab("5")}>
+                                <NormalText style={this.state.SelectedTab === "5" ? styles.TabsTextSelected:styles.TabsText}>Partner Calls</NormalText>
+                            </TouchableOpacity>
+                        </View>
+                    </View>:null}
 
                 <View style={{width:'100%',flex:1,padding:5,justifyContent:'flex-end',alignItems:'center'}} >
    

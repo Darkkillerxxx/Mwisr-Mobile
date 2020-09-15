@@ -132,7 +132,7 @@ class AddReports extends React.Component{
         this.setState({Authors:temp})
     }
 
-    onAuthorEmailCahnge=(e,index)=>{
+    onAuthorsEmailChange=(e,index)=>{
         let temp=this.state.Authors
         temp[index].EMailId=e
         this.setState({Authors:temp})

@@ -5,7 +5,7 @@ import Card from '../../Components/Card'
 import NormalText from '../../Components/NormalText'
 import { FontAwesome } from '@expo/vector-icons';
 import CustomButton from '../../Components/Button'
-import {get_owners,get_sub_list_message,get_package_addCall,verbose} from '../../Utils/api'
+import {get_owners,get_sub_list_message,get_package_addCall,send_message,verbose} from '../../Utils/api'
 import { connect }from 'react-redux'
 
 class SendMessage extends React.Component{
@@ -16,6 +16,8 @@ class SendMessage extends React.Component{
             Owners:[],
             Users:[],
             SendType:0,
+            SelectedUserId:null,
+            SelectedUserType:2,
             SelectedOwner:null,
             Message:"",
             Packages:[],
@@ -31,22 +33,27 @@ class SendMessage extends React.Component{
             if(result.IsSuccess)
             {
                 this.setState({Owners:result.Data},()=>{
-                    this.setState({SelectedOwner:result.Data[0].OwnerId},()=>{
-                        this.getUsers(null,2,true)
-                        get_package_addCall(this.props.loginState.AuthHeader).then(result=>{
-                            if(result.IsSuccess)
+                  
+                        this.setState({SelectedOwner:result.Data.length > 0 ? result.Data[0].OwnerId:null},()=>{
+                            if(this.props.loginState.UserTypeId !== 7)
                             {
-                                this.setState({Packages:result.Data},()=>{
-                                    console.log("39",this.state.Packages)
-                                    this.setState({SelectedPacakges:result.Data[0].PackageId});
-                                })     
-                            }
-                            else
-                            {
-    
+                                this.getUsers(result.Data.length > 0 ? result.Data[0].OwnerId:this.props.loginState.UserId,2,true)
+                                get_package_addCall(this.props.loginState.AuthHeader).then(result=>{
+                                    if(result.IsSuccess)
+                                    {
+                                        this.setState({Packages:result.Data},()=>{
+                                            console.log("39",this.state.Packages)
+                                            this.setState({SelectedPackageId:result.Data[0].PackageId});
+                                        })     
+                                    }
+                                    else
+                                    {
+            
+                                    }
+                                })
                             }
                         })
-                    })
+                
                 })
                
             }
@@ -65,11 +72,14 @@ class SendMessage extends React.Component{
             PackageNameSize:10,
             IsBaseLevel:IsBase
           };
-
+          console.log("Payload",payload)
         get_sub_list_message(this.props.loginState.AuthHeader,payload).then(result=>{
+            console.log(result);
             if(result.IsSuccess)
             {
-                this.setState({Users:result.Data})
+                this.setState({Users:result.Data},()=>{
+                    this.setState({SelectedUserId:result.Data.length > 0 ? result.Data[0].UserId:null})
+                })
             }
             else
             {
@@ -83,7 +93,48 @@ class SendMessage extends React.Component{
     }
 
     sendMessage=()=>{
-        
+        let payload={
+            Msg:this.state.Message,
+            UserTypeId:this.props.loginState.UserTypeId !== 7 ? this.state.SendType !== 1 ? this.state.SelectedUserType:null:null,
+            PackageIds:this.props.loginState.UserTypeId !== 7 ? this.state.SendType === 1 ? this.state.SelectedPackageId:null:null,
+            UserIds:this.props.loginState.UserTypeId !== 7 ? this.state.SendType === 0 ? this.state.SelectedUserId:null:null,
+            OwnerIds:187,
+            SendToMedium:this.state.SendToTelegram ? "M,T" : "M"
+        }  
+
+        console.log(payload)
+        if(this.state.Message !== "")
+        {
+            send_message(this.props.loginState.AuthHeader,payload).then(res =>{
+                if(res.IsSuccess)
+                {
+                    verbose(true,"Message Sent","Message Has Been Successfully Sent To The Selected User")
+                }
+                else
+                {
+                    verbose(false,"Message Sending Error",res.DisplayMsg)
+                }
+            })
+        }
+    }
+
+    onOwnerChange=(OwnerId)=>{
+        // console.log(OwnerId)
+        this.setState({SelectedOwner:OwnerId},()=>{
+            // console.log(this.state.SelectedOwner)
+        })
+        this.getUsers(OwnerId,this.state.SelectedUserType,true)
+    }
+
+    changeUserType=(UserType)=>{
+        this.setState({Users:[]})
+        this.setState({SelectedUserType:UserType},()=>{
+            this.getUsers(this.state.SelectedOwner,this.state.SelectedUserType,true)
+        })
+    }
+
+    onUserChange=(User)=>{
+        this.setState({SelectedUserId:User})   
     }
 
     render()
@@ -108,8 +159,10 @@ class SendMessage extends React.Component{
 
         return (
             <Container style={styles.CustomContainer}>
-                <ScrollView style={{padding:5}}>
+                <ScrollView style={{padding:5,width:'100%'}}>
                     <Card style={styles.CustomCard}>
+                        {this.props.loginState.UserTypeId !== 7 ?
+                        <>
                         <NormalText style={{fontSize:14}}>Send Message To</NormalText>
                         <View style={styles.SelectorContainer}>
                         <TouchableOpacity onPress={()=>this.setState({SendType:0})} style={{width:'30%'}} > 
@@ -133,39 +186,44 @@ class SendMessage extends React.Component{
                                 </View>
                             </TouchableOpacity>
                         </View>
+                        </>:null}
 
+                        {this.state.SelectedOwner !== null ?
+                        <> 
                         <NormalText style={{fontSize:14,alignSelf:"flex-start",marginVertical:10}}>Select Owners</NormalText>
                         <View style={{width:'100%',borderWidth:1,borderColor:'#d3d7dc',borderRadius:5}}>
-                            <Picker selectedValue={this.state.SelectedStrategyId} onValueChange={(val)=>this.setState({SelectedStrategyId:val})}  style={styles.CustomPicker}>
+                            <Picker selectedValue={this.state.SelectedOwner} onValueChange={(val)=>this.onOwnerChange(val)} style={styles.CustomPicker}>
                                 {ShowOwners}
+                                {this.props.loginState.IsOwner ? 
+                                <Picker label="Self" value={this.props.loginState.UserId}/>:null}
                             </Picker>
                         </View>
+                        </>:null}
 
-                        {this.state.SendType !== 1    ? 
+                        {this.state.SendType !== 1 && this.props.loginState.UserTypeId !== 7  ? 
                         <>
                             <NormalText style={{fontSize:14,alignSelf:"flex-start",marginVertical:10}}>Select User Type</NormalText>
                             <View style={{width:'100%',borderWidth:1,borderColor:'#d3d7dc',borderRadius:5}}>
-                                <Picker selectedValue={this.state.SelectedStrategyId} onValueChange={(val)=>this.setState({SelectedStrategyId:val})}  style={styles.CustomPicker}>
+                                <Picker selectedValue={this.state.SelectedUserType} onValueChange={(val)=>this.changeUserType(val)}  style={styles.CustomPicker}>
                                     <Picker label="Sub-Broker" value={2}/>
                                     <Picker label="Analyst" value={6}/>
                                     <Picker label="Partner" value={5}/>
                                     <Picker label="Customers" value={7}/>
-                                    <Picker label="Owner" value={0}/>
                                 </Picker>
                             </View>
                         </>:null}
 
-                        {this.state.SendType !== 1 && this.state.SendType !== 2 ? 
+                        {this.state.SendType !== 1 && this.state.SendType !== 2 && this.props.loginState.UserTypeId !== 7 ? 
                         <>
                         <NormalText style={{fontSize:14,alignSelf:"flex-start",marginVertical:10}}>Select User</NormalText>
                         <View style={{width:'100%',borderWidth:1,borderColor:'#d3d7dc',borderRadius:5}}>
-                            <Picker selectedValue={this.state.SelectedStrategyId} onValueChange={(val)=>this.setState({SelectedStrategyId:val})}  style={styles.CustomPicker}>
+                            <Picker selectedValue={this.state.SelectedUserId} onValueChange={(val)=>this.onUserChange(val)} style={styles.CustomPicker}>
                                 {ShowUsers}
                             </Picker>
                         </View>
                         </>:null}
 
-                        {this.state.SendType !== 0 && this.state.SendType !== 2  ? 
+                        {this.state.SendType !== 0 && this.state.SendType !== 2 && this.props.loginState.UserTypeId !== 7  ? 
                         <>
                             <NormalText style={{fontSize:14,alignSelf:"flex-start",marginVertical:10}}>Select Package</NormalText>
                             <View style={{width:'100%',borderWidth:1,borderColor:'#d3d7dc',borderRadius:5}}>
@@ -192,7 +250,7 @@ class SendMessage extends React.Component{
                         </View>
                     </Card>
 
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={()=>this.sendMessage()}>
                         <CustomButton style={{alignSelf:'center',marginBottom:15}}>
                             <NormalText style={{fontSize:14,color:'white',marginBottom:0}}>Send Message</NormalText>
                         </CustomButton>

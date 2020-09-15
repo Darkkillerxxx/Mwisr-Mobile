@@ -236,6 +236,8 @@ class AddPackage extends React.Component{
                             this.setState({ShowFlashMessage:false})
                         },3000)
                     })
+
+                    this.props.navigation.navigate('ViewPackage')
                 }
             })
         }

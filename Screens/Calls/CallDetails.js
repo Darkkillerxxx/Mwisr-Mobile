@@ -239,30 +239,52 @@ class CallDetails extends React.Component{
                                 </View>
                                 <View style={styles.CustomCardTargetStoplossContent}>
                                     <View style={styles.TargetStoplossColumnLeft}>
-                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>3000</NormalText>
+                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].StopLoss1}</NormalText>
                                     </View>
                                     <View style={styles.TargetStoplossColumnMid}>
-                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>8.30</NormalText>
+                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}> {this.state.MaxDetails[0].S1Time === null ? '-':this.state.MaxDetails[0].S1Time} </NormalText>
                                     </View>
                                     <View style={styles.TargetStoplossColumnHit}>
+                                        {this.state.MaxDetails[0].S1Value !== null ?
                                         <View style={styles.Check}>
                                             <FontAwesome name="check" size={12} color="black" />
-                                        </View>
-                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>3000</NormalText>
+                                        </View>:null}
+                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].S1Value === null ? "-":this.state.MaxDetails[0].S1Value}</NormalText>
                                     </View>
                                 </View>
+                                {this.state.MaxDetails[0].StopLoss2 !== 0 ? 
                                 <View style={styles.CustomCardTargetStoplossContent}>
                                     <View style={styles.TargetStoplossColumnLeft}>
-                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>3800</NormalText>
+                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].StopLoss2}</NormalText>
                                     </View>
                                     <View style={styles.TargetStoplossColumnMid}>
-                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>-</NormalText>
+                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}> {this.state.MaxDetails[0].S2Time === null ? '-':this.state.MaxDetails[0].S2Time} </NormalText>
                                     </View>
                                     <View style={styles.TargetStoplossColumnHit}>
-                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>-</NormalText>
+                                        {this.state.MaxDetails[0].S2Value !== null ?
+                                        <View style={styles.Check}>
+                                            <FontAwesome name="check" size={12} color="black" />
+                                        </View>:null}
+                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].S2Value === null ? "-":this.state.MaxDetails[0].S2Value}</NormalText>
                                     </View>
-                                </View>
-                          
+                                </View>:null}
+
+                                {this.state.MaxDetails[0].StopLoss3 !== 0 ? 
+                                <View style={styles.CustomCardTargetStoplossContent}>
+                                    <View style={styles.TargetStoplossColumnLeft}>
+                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].StopLoss3}</NormalText>
+                                    </View>
+                                    <View style={styles.TargetStoplossColumnMid}>
+                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}> {this.state.MaxDetails[0].S3Time === null ? '-':this.state.MaxDetails[0].S3Time} </NormalText>
+                                    </View>
+                                    <View style={styles.TargetStoplossColumnHit}>
+                                        {this.state.MaxDetails[0].S3Value !== null ?
+                                        <View style={styles.Check}>
+                                            <FontAwesome name="check" size={12} color="black" />
+                                        </View>:null}
+                                        <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].S3Value === null ? "-":this.state.MaxDetails[0].S3Value}</NormalText>
+                                    </View>
+                                </View>:null}
                         </CollapsibleCard>
 
                         <Card style={styles.CustomCard}>
@@ -277,7 +299,7 @@ class CallDetails extends React.Component{
                         </Card>
 
                         
-
+                        {this.state.MaxDetails[0].BP1 !== null ? 
                         <View style={styles.BpExitContainer}>
                                 <View style={styles.BPExitTopHeader}>
                                     <NormalText style={{color:'white',marginBottom:0,fontSize:17}}>Book Profit</NormalText>
@@ -291,54 +313,85 @@ class CallDetails extends React.Component{
                                         <View style={{width:'100%',flexDirection:'row',marginVertical:5}} >
                                             <View style={{width:'50%',alignItems:'center'}}>
                                                 <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>Book Profit</NormalText>
-                                                <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>3000</NormalText>
+                                                <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].BP1}</NormalText>
                                             </View>
                                             <View style={{width:'50%',alignItems:'center'}}>
                                                 <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>Investment Size</NormalText>
-                                                <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>2,50,000</NormalText>
+                                                <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].BPTargetAmt1}</NormalText>
                                             </View>
                                         </View>
                                         <View style={{width:'100%',flexDirection:'row',marginVertical:5}} >
                                             <View style={{width:'50%',alignItems:'center'}}>
                                                 <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>Profit</NormalText>
-                                                <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>1000</NormalText>
+                                                <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].BPTargetPrice1}</NormalText>
                                             </View>
                                             <View style={{width:'50%',alignItems:'center'}}>
                                                 <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>Time</NormalText>
-                                                <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>2:50</NormalText>
+                                                <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].BPHitDate1}</NormalText>
                                             </View>
                                         </View>
                                     </View>
                                 </View>
 
-                                <View style={{flexDirection:'row',width:'100%',paddingHorizontal:15,marginTop:15,alignItems:'center',justifyContent:'center'}}>
-                                    <View style={{height:30,width:30,backgroundColor:'#102346',borderRadius:100,elevation:5,zIndex:5,justifyContent:'center',alignItems:'center'}}>
-                                        <NormalText style={{color:'white',marginBottom:0,fontSize:15}}>2</NormalText>
-                                    </View>
-                                    <View style={{width:'80%',marginLeft:-15,paddingHorizontal:15,borderRadius:5,borderWidth:4,backgroundColor:'white',elevation:3,borderLeftColor:'white',borderTopColor:'white',borderBottomColor:'white',borderRightColor:'#F0B22A'}}>
-                                        <View style={{width:'100%',flexDirection:'row',marginVertical:5}} >
-                                            <View style={{width:'50%',alignItems:'center'}}>
-                                                <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>Book Profit</NormalText>
-                                                <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>3000</NormalText>
+
+                                {this.state.MaxDetails[0].BP2 !== null ? 
+                                    <View style={{flexDirection:'row',width:'100%',paddingHorizontal:15,marginTop:15,alignItems:'center',justifyContent:'center'}}>
+                                        <View style={{height:30,width:30,backgroundColor:'#102346',borderRadius:100,elevation:5,zIndex:5,justifyContent:'center',alignItems:'center'}}>
+                                            <NormalText style={{color:'white',marginBottom:0,fontSize:15}}>2</NormalText>
+                                        </View>
+                                        <View style={{width:'80%',marginLeft:-15,paddingHorizontal:15,borderRadius:5,borderWidth:4,backgroundColor:'white',elevation:3,borderLeftColor:'white',borderTopColor:'white',borderBottomColor:'white',borderRightColor:'#F0B22A'}}>
+                                            <View style={{width:'100%',flexDirection:'row',marginVertical:5}} >
+                                                <View style={{width:'50%',alignItems:'center'}}>
+                                                    <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>Book Profit</NormalText>
+                                                    <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].BP2}</NormalText>
+                                                </View>
+                                                <View style={{width:'50%',alignItems:'center'}}>
+                                                    <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>Investment Size</NormalText>
+                                                    <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].BPTargetAmt2}</NormalText>
+                                                </View>
                                             </View>
-                                            <View style={{width:'50%',alignItems:'center'}}>
-                                                <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>Investment Size</NormalText>
-                                                <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>2,50,000</NormalText>
+                                            <View style={{width:'100%',flexDirection:'row',marginVertical:5}} >
+                                                <View style={{width:'50%',alignItems:'center'}}>
+                                                    <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>Profit</NormalText>
+                                                    <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].BPTargetPrice2}</NormalText>
+                                                </View>
+                                                <View style={{width:'50%',alignItems:'center'}}>
+                                                    <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>Time</NormalText>
+                                                    <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].BPHitDate2}</NormalText>
+                                                </View>
                                             </View>
                                         </View>
-                                        <View style={{width:'100%',flexDirection:'row',marginVertical:5}} >
-                                            <View style={{width:'50%',alignItems:'center'}}>
-                                                <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>Profit</NormalText>
-                                                <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>1000</NormalText>
+                                    </View>:null}
+
+                                    {this.state.MaxDetails[0].BP3 !== null ? 
+                                    <View style={{flexDirection:'row',width:'100%',paddingHorizontal:15,marginTop:15,alignItems:'center',justifyContent:'center'}}>
+                                        <View style={{height:30,width:30,backgroundColor:'#102346',borderRadius:100,elevation:5,zIndex:5,justifyContent:'center',alignItems:'center'}}>
+                                            <NormalText style={{color:'white',marginBottom:0,fontSize:15}}>3</NormalText>
+                                        </View>
+                                        <View style={{width:'80%',marginLeft:-15,paddingHorizontal:15,borderRadius:5,borderWidth:4,backgroundColor:'white',elevation:3,borderLeftColor:'white',borderTopColor:'white',borderBottomColor:'white',borderRightColor:'#F0B22A'}}>
+                                            <View style={{width:'100%',flexDirection:'row',marginVertical:5}} >
+                                                <View style={{width:'50%',alignItems:'center'}}>
+                                                    <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>Book Profit</NormalText>
+                                                    <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].BP3}</NormalText>
+                                                </View>
+                                                <View style={{width:'50%',alignItems:'center'}}>
+                                                    <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>Investment Size</NormalText>
+                                                    <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].BPTargetAmt3}</NormalText>
+                                                </View>
                                             </View>
-                                            <View style={{width:'50%',alignItems:'center'}}>
-                                                <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>Time</NormalText>
-                                                <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>2:50</NormalText>
+                                            <View style={{width:'100%',flexDirection:'row',marginVertical:5}} >
+                                                <View style={{width:'50%',alignItems:'center'}}>
+                                                    <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>Profit</NormalText>
+                                                    <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].BPTargetPrice3}</NormalText>
+                                                </View>
+                                                <View style={{width:'50%',alignItems:'center'}}>
+                                                    <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>Time</NormalText>
+                                                    <NormalText style={{fontSize:15,color:'black',marginBottom:0}}>{this.state.MaxDetails[0].BPHitDate3}</NormalText>
+                                                </View>
                                             </View>
                                         </View>
-                                    </View>
-                                </View>
-                        </View>
+                                    </View>:null}
+                        </View>:null}
 
                         <CollapsibleCard style={styles.CustomCard} Heading="Performance">
                             <View style={styles.CustomCardCompanyContainer}>

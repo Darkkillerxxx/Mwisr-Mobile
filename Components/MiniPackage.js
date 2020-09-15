@@ -71,7 +71,7 @@ class MiniPackage extends React.Component{
                 </View>
                 <View style={{width:'10%',alignItems:'center',justifyContent:'flex-start'}} >
                     {this.props.ShowClose ?                     
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={()=>this.props.onClosePress(this.props.Package.PackageId)}>
                         <FontAwesome name="close" size={12} color="black" />
                     </TouchableOpacity>:null}
                 </View>
