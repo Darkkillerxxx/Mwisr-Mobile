@@ -7,6 +7,7 @@ import ViewCalls from '../../Components/ViewCalls.js'
 import {NavigationEvents} from 'react-navigation'
 import {get_sub_detail,get_research_reports,change_user_status,getUserOwnerDetails,get_customer_details,get_customer_answers,verbose} from '../../Utils/api'
 import CollapsibleCard from '../../Components/CollapsibleCard'
+import Card from '../../Components/Card'
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import CustomButton from '../../Components/Button'
 import Packages from '../../Components/Pacakges'
@@ -96,7 +97,29 @@ class UserDetails extends React.Component {
                     get_customer_answers(AuthHeader,payload).then(result=>{
                         if(result.IsSuccess)
                         {
-                            this.setState({CustomerAnswers:result.Data})
+                            this.setState({CustomerAnswers:result.Data},()=>{
+                                // console.log(this.state.CustomerAnswers)
+                                const {CustomerDetails}=this.props.navigation.state.params
+                                console.log("Customer Details",CustomerDetails)
+                                this.setState({Name:CustomerDetails[0].CustomerName})
+                                this.setState({Email:CustomerDetails[0].CustomerContact})
+                                this.setState({Contact:CustomerDetails[0].CustomerContact})
+                                this.setState({Profit:CustomerDetails[0].TotalProfit})
+                                this.setState({ROI:CustomerDetails[0].TotalROI})
+                                this.setState({Calls:CustomerDetails[0].TotalCalls})
+                                this.setState({Accuracy:CustomerDetails[0].Accuracy})
+
+                                let payload={
+                                    UserId:this.props.navigation.state.params.UserId
+                                }
+
+                                get_customer_details(this.props.loginState.AuthHeader,payload).then(res => {
+                                    if(res.IsSuccess)
+                                    {
+                                        this.setState({CustomerDetails:result.Data})
+                                    }
+                                })
+                            })
                         }
                     })
                 })
@@ -248,13 +271,16 @@ class UserDetails extends React.Component {
                             </>:null}
                             {UserType !== 0  ? 
                             <View style={{flexDirection:'row'}}>
+                                {UserType !== 7 ? 
                                 <CustomButton style={{height:20,width:90,borderRadius:5,backgroundColor:"#378E61"}}>
                                     <TouchableOpacity onPress={()=>this.MoveToUserPermissions()}>
                                         <NormalText style={{fontSize:10,color:'white',marginBottom:0}}>User Permission</NormalText>
                                     </TouchableOpacity>
-                                </CustomButton>
+                                </CustomButton>:null}
 
-                                {this.state.IsActive ? 
+
+                                {UserType !== 7 ?
+                                this.state.IsActive ? 
                                     <CustomButton style={{height:20,width:90,borderRadius:5,backgroundColor:"#ff6961",marginLeft:5}}>
                                         <TouchableOpacity onPress={()=>this.ActivateDeActivateUser('DeActivate')}>
                                             <NormalText style={{fontSize:10,color:'white',marginBottom:0}}>De-Activate User</NormalText>
@@ -266,7 +292,9 @@ class UserDetails extends React.Component {
                                             <NormalText style={{fontSize:10,color:'white',marginBottom:0}}>Activate User</NormalText>
                                         </TouchableOpacity>
                                     </CustomButton>
-                                }    
+                                :null} 
+
+                                {UserType === 7 && this.state.CustomerAnswers.length !== 0 ? null:null}   
                             </View>:null}
                         </View>
                     </View>:
@@ -389,75 +417,84 @@ class UserDetails extends React.Component {
                         </View>:
 
                         this.state.SelectedTab === "" ? 
-                        this.state.UserDetails.length > 0 || this.state.OwnerDetails.length > 0 ?
+                        this.state.UserDetails.length > 0 || this.state.OwnerDetails.length > 0 || this.state.CustomerDetails.length > 0 ?
                         <ScrollView style={{width:'100%'}}>
-                            {UserType !== 0 ?
-                            <CollapsibleCard style={styles.CustomCollapsibleCard} Heading={"Profile & Contact Info"}>
-                                <View style={styles.CollapsibleCardContent}>
-                                    <View style={styles.ContentRow}>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Name</NormalText>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{this.state.Name}</NormalText>
-                                    </View>
-                                    <View style={styles.ContentRow}>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Mobile No.</NormalText>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>+91{this.state.Contact}</NormalText>
-                                    </View>
-                                    <View style={styles.ContentRow}>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Email Id</NormalText>
-                                        <NormalText style={{fontSize:14,color:`${this.state.EmailId === "" || this.state.EmailId === null ? "grey":"black"}`,marginBottom:0}}>{this.state.EmailId === "" || this.state.EmailId === null ? "Not Available":this.state.EmailId }</NormalText>
-                                    </View>
-                                </View>
-                            </CollapsibleCard>:null}
+                             {UserType === 7 ? 
+                                this.state.CustomerAnswers.length === 0 ?
+                                <Card style={{flex:1,width:'100%'}}>
 
-                            <CollapsibleCard style={styles.CustomCollapsibleCard} Heading={"Buisness Registration"}>
-                                <View style={styles.CollapsibleCardContent}>
-                                    <View style={styles.ContentRow}>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>SEBI Registration No.</NormalText>
-                                        <NormalText style={{fontSize:14,marginBottom:0,color:`${UserType === 0 ? "grey":this.state.UserDetails[0].SEBIRegistrationNo === "" || this.state.UserDetails[0].SEBIRegistrationNo === null ? "grey":"black"}`}}>{UserType === 0 ? "NA" :this.state.UserDetails[0].SEBIRegistrationNo === "" || this.state.UserDetails[0].SEBIRegistrationNo === null ? "Not Available":this.state.UserDetails[0].SEBIRegistrationNo}</NormalText>
-                                    </View>
-                                    <View style={styles.ContentRow}>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>PAN No.</NormalText>
-                                        <NormalText style={{fontSize:14,marginBottom:0,color:`${UserType === 0 ? "grey" :this.state.UserDetails[0].PanNo === "" || this.state.UserDetails[0].PanNo === null ? "grey":"black"}`}}>{UserType === 0 ? "NA":this.state.UserDetails[0].PanNo === "" || this.state.UserDetails[0].PanNo === null ? "Not Available":this.state.UserDetails[0].PanNo}</NormalText>
-                                    </View>
-                                </View>
-                            </CollapsibleCard>
+                                </Card>
+                                :null
+                            : 
+                            <>
+                                {UserType !== 0 ?
+                                    <CollapsibleCard style={styles.CustomCollapsibleCard} Heading={"Profile & Contact Info"}>
+                                        <View style={styles.CollapsibleCardContent}>
+                                            <View style={styles.ContentRow}>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Name</NormalText>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{this.state.Name}</NormalText>
+                                            </View>
+                                            <View style={styles.ContentRow}>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Mobile No.</NormalText>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>+91{this.state.Contact}</NormalText>
+                                            </View>
+                                            <View style={styles.ContentRow}>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Email Id</NormalText>
+                                                <NormalText style={{fontSize:14,color:`${this.state.EmailId === "" || this.state.EmailId === null ? "grey":"black"}`,marginBottom:0}}>{this.state.EmailId === "" || this.state.EmailId === null ? "Not Available":this.state.EmailId }</NormalText>
+                                            </View>
+                                        </View>
+                                    </CollapsibleCard>:null}
 
-                            <CollapsibleCard style={styles.CustomCollapsibleCard} Heading={"Mwisr Information"}>
-                                <View style={styles.CollapsibleCardContent}>
-                                    <View style={styles.ContentRow}>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total Profit</NormalText>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{UserType === 0 ? this.state.OwnerDetails[0].Profit:this.state.UserDetails[0].ProfitPerInvestment} ₹</NormalText>
-                                    </View>
-                                    <View style={styles.ContentRow}>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total ROI</NormalText>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{UserType === 0 ? this.state.OwnerDetails[0].Roi:this.state.UserDetails[0].ROI} %</NormalText>
-                                    </View>
-                                    <View style={styles.ContentRow}>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total Accuracy</NormalText>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{UserType === 0 ? this.state.OwnerDetails[0].Accuracy:this.state.UserDetails[0].Accuracy}%</NormalText>
-                                    </View>
-                                    <View style={styles.ContentRow}>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total Sub-Brokers</NormalText>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>10</NormalText>
-                                    </View>
-                                    <View style={styles.ContentRow}>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total Analyst</NormalText>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>7</NormalText>
-                                    </View>
-                                    <View style={styles.ContentRow}>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total Partner</NormalText>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>5</NormalText>
-                                    </View>
-                                    <View style={styles.ContentRow}>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total Customer</NormalText>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>35</NormalText>
-                                    </View>
-                                    <View style={styles.ContentRow}>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total Calls</NormalText>
-                                        <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{UserType === 0 ? this.state.OwnerDetails[0].TotalCalls:this.state.UserDetails[0].Calls}</NormalText>
-                                    </View>
-                                </View>
-                            </CollapsibleCard>
+                                    <CollapsibleCard style={styles.CustomCollapsibleCard} Heading={"Buisness Registration"}>
+                                        <View style={styles.CollapsibleCardContent}>
+                                            <View style={styles.ContentRow}>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>SEBI Registration No.</NormalText>
+                                                <NormalText style={{fontSize:14,marginBottom:0,color:`${UserType === 0 ? "grey":this.state.UserDetails[0].SEBIRegistrationNo === "" || this.state.UserDetails[0].SEBIRegistrationNo === null ? "grey":"black"}`}}>{UserType === 0 ? "NA" :this.state.UserDetails[0].SEBIRegistrationNo === "" || this.state.UserDetails[0].SEBIRegistrationNo === null ? "Not Available":this.state.UserDetails[0].SEBIRegistrationNo}</NormalText>
+                                            </View>
+                                            <View style={styles.ContentRow}>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>PAN No.</NormalText>
+                                                <NormalText style={{fontSize:14,marginBottom:0,color:`${UserType === 0 ? "grey" :this.state.UserDetails[0].PanNo === "" || this.state.UserDetails[0].PanNo === null ? "grey":"black"}`}}>{UserType === 0 ? "NA":this.state.UserDetails[0].PanNo === "" || this.state.UserDetails[0].PanNo === null ? "Not Available":this.state.UserDetails[0].PanNo}</NormalText>
+                                            </View>
+                                        </View>
+                                    </CollapsibleCard>
+
+                                    <CollapsibleCard style={styles.CustomCollapsibleCard} Heading={"Mwisr Information"}>
+                                        <View style={styles.CollapsibleCardContent}>
+                                            <View style={styles.ContentRow}>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total Profit</NormalText>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{UserType === 0 ? this.state.OwnerDetails[0].Profit:this.state.UserDetails[0].ProfitPerInvestment} ₹</NormalText>
+                                            </View>
+                                            <View style={styles.ContentRow}>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total ROI</NormalText>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{UserType === 0 ? this.state.OwnerDetails[0].Roi:this.state.UserDetails[0].ROI} %</NormalText>
+                                            </View>
+                                            <View style={styles.ContentRow}>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total Accuracy</NormalText>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{UserType === 0 ? this.state.OwnerDetails[0].Accuracy:this.state.UserDetails[0].Accuracy}%</NormalText>
+                                            </View>
+                                            <View style={styles.ContentRow}>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total Sub-Brokers</NormalText>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>10</NormalText>
+                                            </View>
+                                            <View style={styles.ContentRow}>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total Analyst</NormalText>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>7</NormalText>
+                                            </View>
+                                            <View style={styles.ContentRow}>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total Partner</NormalText>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>5</NormalText>
+                                            </View>
+                                            <View style={styles.ContentRow}>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total Customer</NormalText>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>35</NormalText>
+                                            </View>
+                                            <View style={styles.ContentRow}>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>Total Calls</NormalText>
+                                                <NormalText style={{fontSize:14,color:'black',marginBottom:0}}>{UserType === 0 ? this.state.OwnerDetails[0].TotalCalls:this.state.UserDetails[0].Calls}</NormalText>
+                                            </View>
+                                        </View>
+                                    </CollapsibleCard>
+                            </>}
                         </ScrollView>:
                         <View style={{height:'100%',width:'100%',align:'center',justifyContent:'center'}}>
                             <ActivityIndicator size="large" color="#F0B22A" />

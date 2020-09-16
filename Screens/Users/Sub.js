@@ -14,7 +14,7 @@ class Sub extends React.Component{
         }
     }
 
-    onUserSelected=(UserId,OwnerId,IsActive)=>{
+    onUserSelected=(UserId,OwnerId,IsActive,Name,Contact,Calls,ROI,Profit,Accuracy)=>{
         console.log(UserId,OwnerId,IsActive)
         this.props.navigation.navigate('UserDetails',{
             UserId:UserId,

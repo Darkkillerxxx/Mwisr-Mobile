@@ -13,7 +13,7 @@ class Customer extends React.Component {
         }
     }
 
-    onUserSelected=(UserId,OwnerId,IsActive)=>{
+    onUserSelected=(UserId,OwnerId,IsActive,Name,Contact,Calls,ROI,Profit,Accuracy)=>{
         console.log(UserId,OwnerId,IsActive)
         this.props.navigation.navigate('UserDetails',{
             UserId:UserId,
@@ -21,7 +21,16 @@ class Customer extends React.Component {
             UserType:7,
             UserColor:"#2dcee3",
             IsActive:IsActive,
-            CustomerDetails:[]
+            CustomerDetails:[
+                {
+                    CustomerName:Name,
+                    CustomerContact:Contact,
+                    TotalCalls:Calls,
+                    TotalROI:ROI,
+                    TotalProfit:Profit,
+                    Accuracy:Accuracy
+                }
+            ]
         })
     }
 

@@ -11,8 +11,8 @@ class MwisrSelector extends React.Component{
 
     render() {
         return(
-            <TouchableOpacity onPress={()=>this.onSelected()}>
-                <View style={{...styles.UserType,...{backgroundColor:!this.props.Selected ? 'white' :'#F0B22A',borderColor:this.props.Selected ? 'white' :'#F0B22A',borderWidth:1}}}>
+            <TouchableOpacity  onPress={()=>this.onSelected()}>
+                <View style={{...styles.UserType,...{backgroundColor:!this.props.Selected ? 'white' :'#F0B22A',borderColor:this.props.Selected ? 'white' :'#F0B22A',borderWidth:1,width:this.props.width === undefined ? null:this.props.width,marginHorizontal:this.props.margin === undefined ? null:this.props.margin}}}>
                     <NormalText style={{marginBottom:0,color:'black',color:`${this.props.Selected ? 'white' :'#F0B22A'}`}}>{this.props.Text}</NormalText>
                 </View>
             </TouchableOpacity>

@@ -10,7 +10,7 @@ class Owners extends React.Component{
         super();
     }
 
-    onUserSelected=(UserId,OwnerId)=>{
+    onUserSelected=(UserId,OwnerId,Name,Contact,Calls,ROI,Profit,Accuracy)=>{
         this.props.navigation.navigate('UserDetails',{
             UserId:this.props.loginState.UserId,
             OwnerId:UserId,

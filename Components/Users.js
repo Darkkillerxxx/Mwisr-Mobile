@@ -124,9 +124,10 @@ class Users extends React.Component{
         }
     }
 
-    onUserSelect=(UserId,SuperOwnerId,IsActive)=>{
-        this.props.onSelectUser(UserId,SuperOwnerId,IsActive)
+    onUserSelect=(UserId,SuperOwnerId,IsActive,Name,Contact,Calls,ROI,Profit,Accuracy)=>{
+        this.props.onSelectUser(UserId,SuperOwnerId,IsActive,Name,Contact,Calls,ROI,Profit,Accuracy)
     }
+
 
     ShowOwnerCards=(itemData)=>(
         <Card style={styles.UserCard}>
@@ -161,7 +162,7 @@ class Users extends React.Component{
                                 <NormalText style={styles.MobileNo}>{itemData.item.OwnerMobileNo}</NormalText>
                             </View>
                             <View style={styles.CardTopRightRight}>
-                                <TouchableOpacity onPress={() => this.onUserSelect(itemData.item.OwnerId,itemData.item.SuperOwner)}>
+                                <TouchableOpacity onPress={() => this.onUserSelect(itemData.item.OwnerId,itemData.item.SuperOwner,null,null,null,null,null,null)}>
                                     <View style={{...styles.PackagesOuter,...{borderColor:this.props.UserColor}}}>
                                         <NormalText style={{...styles.PackageText,...{color:this.props.UserColor}}}>View Profile</NormalText>
                                     </View>
@@ -239,7 +240,15 @@ class Users extends React.Component{
                                 <NormalText style={styles.MobileNo}>+91{itemData.item.MobileNo}</NormalText>
                             </View>
                             <View style={styles.CardTopRightRight}>
-                                <TouchableOpacity onPress={() => this.onUserSelect(itemData.item.UserId,itemData.item.SuperOwner,itemData.item.IsActive)}>
+                                <TouchableOpacity onPress={() => this.onUserSelect(itemData.item.UserId,
+                                                                                   itemData.item.SuperOwner,
+                                                                                   itemData.item.IsActive,
+                                                                                   itemData.item.UserName,
+                                                                                   itemData.item.MobileNo,
+                                                                                   itemData.item.Calls,
+                                                                                   itemData.item.ROI,
+                                                                                   itemData.item.ProfitPerInvestment,
+                                                                                   itemData.item.Accuracy)}>
                                     <View style={{...styles.PackagesOuter,...{borderColor:this.props.UserColor}}}>
                                         <NormalText style={{...styles.PackageText,...{color:this.props.UserColor}}}>View Profile</NormalText>
                                     </View>

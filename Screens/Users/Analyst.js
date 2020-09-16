@@ -15,7 +15,7 @@ class Analyst extends React.Component{
     }
 
     
-    onUserSelected=(UserId,OwnerId)=>{
+    onUserSelected=(UserId,OwnerId,Name,Contact,Calls,ROI,Profit,Accuracy)=>{
         this.props.navigation.navigate('UserDetails',{
             UserId:UserId,
             OwnerId:OwnerId,
