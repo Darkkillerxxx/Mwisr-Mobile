@@ -64,12 +64,13 @@ class ViewPackages extends React.Component{
         }
     }  
 
-    MoveToPackageDetails=(OwnerId,PackageId,PackageName)=>{
+    MoveToPackageDetails=(OwnerId,PackageId,PackageName,IsAssigned)=>{
         console.log(OwnerId,PackageId,PackageName)
         this.props.navigation.navigate("PackageDetails",{
             OwnerId:OwnerId,
             PackageId:PackageId,
-            PackageName:PackageName
+            PackageName:PackageName,
+            IsAssigned:IsAssigned,
         })
     }
 
@@ -136,7 +137,7 @@ class ViewPackages extends React.Component{
                     </View>
                      <View style={this.state.SelectedTab === 5 ? styles.TabsSelected:styles.Tabs}>
                         <TouchableOpacity onPress={()=>this.ChangeTabs(5)}>
-                            <NormalText style={this.state.SelectedTab === 5 ? styles.TabsTextSelected:styles.TabsText}>Assigned To Me</NormalText>
+                            <NormalText style={this.state.SelectedTab === 5 ? styles.TabsTextSelected:styles.TabsText}>Assigned</NormalText>
                         </TouchableOpacity>
                     </View>
                 </View>:null}
@@ -162,7 +163,7 @@ const styles=StyleSheet.create({
         elevation:3  
     },
     Tabs:{
-        width:'25%',
+        width:'19%',
         alignItems:'center',
         justifyContent:'center'
     },

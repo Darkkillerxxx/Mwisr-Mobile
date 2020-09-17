@@ -114,7 +114,7 @@ class ViewCall extends React.Component{
                             CallId=""
                             Exchange={this.state.Exchange}
                             Symbol={this.state.SearchText}
-                            AssignedToMe={false}
+                            AssignedToMe={this.props.loginState.UserTypeId === 7 ? true : false}
                             CallDetails={this.MoveToCallDetails}/>
                     </Card>
 

@@ -27,10 +27,10 @@ class UserDetails extends React.Component {
             IsActive:null,
             OwnerDetails:[],
             ShowFilterModal:false,
-            CallExchanges:[],
+            Exchange:"",
             CustomerDetails:[],
             CallStatus:true,
-            CallSearch:"",
+            SearchText:"",
             CustomerAnswers:[],
             Name:"",
             Email:"",
@@ -230,6 +230,15 @@ class UserDetails extends React.Component {
         })
     }
 
+    closeFilterModal=(Search,Exchange,CallStatus,OwnerId)=>{
+        this.setState({CallStatus:CallStatus === 0 ? "":CallStatus === 1 ? true:false})
+        this.setState({Exchange:Exchange.toString()})
+        this.setState({SearchText:Search},()=>{
+            this.setState({ShowFilterModal:false})
+        })
+        
+    }
+
     render()
     {
         const {UserType,UserId} = this.props.navigation.state.params
@@ -396,14 +405,14 @@ class UserDetails extends React.Component {
                                 <ViewCalls 
                                 AuthHeader={this.props.loginState.AuthHeader} 
                                 STab={""}
-                                UserId={this.props.navigation.state.params.UserId }
+                                UserId={this.props.navigation.state.params.UserId}
                                 OwnerId={this.props.navigation.state.params.OwnerId}
-                                ShowActive={true}
+                                ShowActive={this.state.CallStatus}
                                 PackageId=""
                                 PackageOwnerId=""
                                 CallId=""
-                                Exchange=""
-                                Symbol=""
+                                Exchange={this.state.Exchange.toString()}
+                                Symbol={this.state.SearchText}
                                 AssignedToMe={UserType === 0 ? true: false}
                                 CallDetails={this.MoveToCallDetails}
                                 From={1}/>

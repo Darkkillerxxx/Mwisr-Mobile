@@ -206,39 +206,16 @@ class AddReports extends React.Component{
             ReportType: this.state.SelectedReportType,
             SectorId: this.state.SelectedSectorType,
             ResearchHouse: this.state.SelectedResearchHouse,
-            ReportDuration: "2018-06-15",
+            ReportDuration: this.state.ReportEndDate,
             MarketCapitalization: this.state.SelectedmarketCaps,
             CompanyName: "",
             Tags:this.state.KeywordText.toString() ,
             ReportCreationDate: this.state.ReportsCreationDate,
-            "Authors": [
-                {
-                    "AuthorId": 1645,
-                    "AuthorName": "Optional",
-                    "EMailId": "Optional"
-                }
-            ],
-            "Advisory": [
-                {
-                    "AnalystId": 9,
-                    "MasterScripCode": 0,
-                    "Symbol": undefined,
-                    "MarketExchangeCode": undefined,
-                    "MarketSegmentId": 10,
-                    "Derivate": undefined,
-                    "ExpiryDate": undefined,
-                    "StrikePrice": undefined,
-                    "CallType": 1,
-                    "DurationFrom": "2018-11-24",
-                    "DurationTo": "2018-11-30",
-                    "CMPPrice": 1200,
-                    "Target": 1300,
-                    "StopLoss": 1000,
-                    "TipId": 0,
-                    "IsExternal": false
-                }
-            ]
+            Authors: this.state.Authors,
+            Advisory: this.state.Legs
         }
+
+        console.log(payload)
     }
 
     componentDidMount(){
@@ -858,7 +835,7 @@ class AddReports extends React.Component{
                    {ShowLegs}
 
                     <View style={{width:'100%',alignItems:'center',justifyContent:'center'}}>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={()=>this.uploadReport()}>
                             <CustomButton style={{width:120}}>
                                 <NormalText style={{...styles.SelectorName,...{color:'white',fontSize:12}}}>Add Report</NormalText>
                             </CustomButton>

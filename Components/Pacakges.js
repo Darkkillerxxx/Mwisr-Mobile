@@ -75,17 +75,17 @@ class Packages extends React.Component{
             else if(this.props.SelectedTab === 2)
             {
             this.setState({ isloading: true });
-            this.getPackages("","2", "","",true);
+            this.getPackages("","2", "","",false);
             }
             else if(this.props.SelectedTab === 3)
             {
             this.setState({ isloading: true });
-            this.getPackages("","6", "","",true);
+            this.getPackages("","6", "","",false);
             }
             else if(this.props.SelectedTab === 4)
             {
             this.setState({ isloading: true });
-            this.getPackages("","5", "","",true);
+            this.getPackages("","5", "","",false);
             }
             else if(this.props.SelectedTab === 5)
             {
@@ -112,7 +112,7 @@ class Packages extends React.Component{
     }
 
     onSelectedPackage=(OwnerId,PackageId,PackageName)=>{
-        this.props.SelectPackage(OwnerId,PackageId,PackageName)
+        this.props.SelectPackage(OwnerId,PackageId,PackageName,this.props.SelectedTab === 5 ? true:false)
     }
 
     PacakgeList=(itemData)=>{

@@ -737,6 +737,7 @@ export function get_calls(authHeader, payload) {
 
 export function get_packages(body) {
   const { forOwnerId,userTypeId, assignedToMe, forUserId, AuthHeader, createdByMe,currentPage,pageSize,forDebug} = body;
+  // console.log("Get Packages",body)
   return apiCall(
     endpoint_url["GetPackages"],
     "GET",
@@ -830,6 +831,7 @@ export function get_call_details(authHeader,payload)
 
 export function get_research_reports(authHeader,payload)
 {
+  console.log("Report Payload",payload)
   return apiCall(endpoint_url['GetResearchReports'],"GET",payload,authHeader).then(data => {
     return JSON.parse(data)
     })

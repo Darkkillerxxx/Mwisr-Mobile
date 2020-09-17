@@ -16,7 +16,11 @@ class ViewReports extends React.Component{
         this.state={
             Reports:[],
             isLoading:false,
-            ShowFilterModal:false
+            ShowFilterModal:false,
+            Tags:"",
+            MarketCapIds:"",
+            ReportType:"",
+            SegmentType:""
         }
     }
 
@@ -37,13 +41,13 @@ class ViewReports extends React.Component{
         
         let payload={
             forUserId:this.props.UserId === undefined ? UserId : this.props.UserId,
-            PackageIds:"",
-            Tags:"",
+            PackageIds:this.props.packageId === undefined ? "" : this.props.packageId,
+            Tags:this.state.Tags,
             SectorIds:"",
             MasterScripCodeIds:"",
             CoverageTypeIds:"",
-            MarketCapIds:"",
-            SegmentIds:"",
+            MarketCapIds:this.state.MarketCapIds,
+            SegmentIds:this.state.SegmentType,
             ResearchHousIds:"",
             AuthorIds:"",
             ReportTypeIds:"",
@@ -63,8 +67,11 @@ class ViewReports extends React.Component{
         })
     }
 
-    CloseFilter=(SearchText)=>{
+    CloseFilter=(SearchText,SelectedMarketCap,SelectedReportType,SelectedSegmentType,OwnerId)=>{
         this.setState({ShowFilterModal:!this.state.ShowFilterModal})
+        this.setState({MarketCapIds:SelectedMarketCap})
+        this.setState({ReportType:SelectedReportType})
+        this.setState({SegmentType:SelectedSegmentType})
         this.FetchReports(SearchText)
     }
 

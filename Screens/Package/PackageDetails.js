@@ -13,6 +13,7 @@ import Card from '../../Components/Card'
 import ViewCalls from '../../Components/ViewCalls'
 import ReportsCard from '../../Components/ReportsCard'
 import CallsFilter from '../../Components/CallsFilter'
+import ViewReports from '../Reports/ViewReports'
 
 class PackageDetails extends React.Component{
     constructor(){
@@ -294,9 +295,9 @@ class PackageDetails extends React.Component{
                                 PackageId={this.props.navigation.state.params.PackageId}
                                 PackageOwnerId=""
                                 CallId=""
-                                Exchange={this.state.CallExchanges}
+                                Exchange={this.state.CallExchanges.toString()}
                                 Symbol={this.state.CallSearch}
-                                AssignedToMe={false}
+                                AssignedToMe={this.props.navigation.state.params.IsAssigned ? true:false}
                                 CallDetails={this.MoveToCallDetails}
                                 From={1}/>
                         </Card>
@@ -308,11 +309,8 @@ class PackageDetails extends React.Component{
                         </Modal>
                         </View> :
                         this.state.SelectedTab === "3" ? 
-                        <FlatList 
-                            keyExtractor={(item, index) => index.toString()}
-                            data={this.state.Reports}
-                            renderItem={this.ShowReports}
-                            showsVerticalScrollIndicator={true}/>:null}
+                            <ViewReports packageId={this.props.navigation.state.params.PackageId} userId={this.props.loginState.UserId}/>
+                        :null}
                     </View>
             </Container>
         )

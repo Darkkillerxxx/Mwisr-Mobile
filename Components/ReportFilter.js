@@ -1,8 +1,9 @@
 import React from 'react'
-import { View, StyleSheet, TouchableOpacity,TextInput,FlatList } from 'react-native';
+import { View, StyleSheet, TouchableOpacity,TextInput,FlatList,ScrollView } from 'react-native';
 import NormalText from './NormalText';
 import BoldText from './BoldText';
 import { FontAwesome } from '@expo/vector-icons';
+import { cos } from 'react-native-reanimated';
 
 
 class ReportFilter extends React.Component{
@@ -13,9 +14,12 @@ class ReportFilter extends React.Component{
             SearchText:"",
             SearchTag:"",
             SelectedMarketCap:null,
+            SelectedMarketCap:"",
+            SelectedReportType:"",
+            SelectedSegmentType:"",
             MarketCaps:[
                 {
-                    Id:null,
+                    Id:"",
                     Name:"All"
                 },
                 {
@@ -33,7 +37,7 @@ class ReportFilter extends React.Component{
             ],
             ReportType:[
                 {
-                    Id:null,
+                    Id:"",
                     Name:"All"
                 },
                 {
@@ -51,7 +55,7 @@ class ReportFilter extends React.Component{
             ],
             SegmentType:[
                 {
-                    Id:null,
+                    Id:"",
                     Name:"All"
                 },
                 {
@@ -84,6 +88,8 @@ class ReportFilter extends React.Component{
                 }
             ]
         }
+        console.disableYellowBox= true
+        console.ignoredYellowBox=true
     }
 
     showOwners=(itemData)=>{
@@ -128,9 +134,9 @@ class ReportFilter extends React.Component{
 
     ShowMarketCaps=(itemData)=>{
         return(
-            <View style={{width:'32%',borderWidth:1,alignItems:'center',justifyContent:'center',padding:5,borderRadius:5,borderColor:'#F0B22A',backgroundColor:`${this.state.CallStatus === 0 ? '#F0B22A':'white'}`,marginTop:5,marginRight:5}}>
-                <TouchableOpacity onPress={()=>this.CallStatus(0)}>
-                    <NormalText style={{marginBottom:0,color:`${this.state.CallStatus === 0 ? 'white':'#F0B22A'}`}}>{itemData.item.Name}</NormalText>
+            <View style={{width:'32%',borderWidth:1,alignItems:'center',justifyContent:'center',padding:5,borderRadius:5,borderColor:'#F0B22A',backgroundColor:`${this.state.SelectedMarketCap === itemData.item.Id ? '#F0B22A':'white'}`,marginTop:5,marginRight:5}}>
+                <TouchableOpacity onPress={()=>this.setState({SelectedMarketCap: itemData.item.Id})}>
+                    <NormalText style={{marginBottom:0,color:`${this.state.SelectedMarketCap === itemData.item.Id ? 'white':'#F0B22A'}`}}>{itemData.item.Name}</NormalText>
                 </TouchableOpacity>
             </View>
         )
@@ -138,9 +144,9 @@ class ReportFilter extends React.Component{
 
      ShowReports=(itemData)=>{
         return(
-            <View style={{width:'32%',borderWidth:1,alignItems:'center',justifyContent:'center',padding:5,borderRadius:5,borderColor:'#F0B22A',backgroundColor:`${this.state.CallStatus === 0 ? '#F0B22A':'white'}`,marginTop:5,marginRight:5}}>
-                <TouchableOpacity onPress={()=>this.CallStatus(0)}>
-                    <NormalText style={{marginBottom:0,color:`${this.state.CallStatus === 0 ? 'white':'#F0B22A'}`}}>{itemData.item.Name}</NormalText>
+            <View style={{width:'32%',borderWidth:1,alignItems:'center',justifyContent:'center',padding:5,borderRadius:5,borderColor:'#F0B22A',backgroundColor:`${this.state.SelectedReportType === itemData.item.Id ? '#F0B22A':'white'}`,marginTop:5,marginRight:5}}>
+                <TouchableOpacity onPress={()=>this.setState({SelectedReportType: itemData.item.Id})}>
+                    <NormalText style={{marginBottom:0,color:`${this.state.SelectedReportType === itemData.item.Id ? 'white':'#F0B22A'}`}}>{itemData.item.Name}</NormalText>
                 </TouchableOpacity>
             </View>
         )
@@ -148,9 +154,9 @@ class ReportFilter extends React.Component{
 
     ShowSegments=(itemData)=>{
         return(
-            <View style={{width:'32%',borderWidth:1,alignItems:'center',justifyContent:'center',padding:5,borderRadius:5,borderColor:'#F0B22A',backgroundColor:`${this.state.CallStatus === 0 ? '#F0B22A':'white'}`,marginTop:5,marginRight:5}}>
-                <TouchableOpacity onPress={()=>this.CallStatus(0)}>
-                    <NormalText style={{marginBottom:0,color:`${this.state.CallStatus === 0 ? 'white':'#F0B22A'}`}}>{itemData.item.Name}</NormalText>
+            <View style={{width:'32%',borderWidth:1,alignItems:'center',justifyContent:'center',padding:5,borderRadius:5,borderColor:'#F0B22A',backgroundColor:`${this.state.SelectedSegmentType === itemData.item.Id ? '#F0B22A':'white'}`,marginTop:5,marginRight:5}}>
+                <TouchableOpacity onPress={()=>this.setState({SelectedSegmentType: itemData.item.Id})} >
+                    <NormalText style={{marginBottom:0,color:`${this.state.SelectedSegmentType === itemData.item.Id ? 'white':'#F0B22A'}`}}>{itemData.item.Name}</NormalText>
                 </TouchableOpacity>
             </View>
         )
@@ -158,12 +164,13 @@ class ReportFilter extends React.Component{
     
     render()
     {
-        const {SearchText,Exchange,CallStatus,OwnerId}=this.state
+        const {SearchText,Exchange,CallStatus,OwnerId,SelectedMarketCap,SelectedReportType,SelectedSegmentType}=this.state
         return(
+            <ScrollView>
             <View style={styles.CallsFilterContainer}>
                 <View style={styles.FilterHeadingContainer}>
                     <BoldText style={styles.FilterHeading}>Filters</BoldText>
-                    <TouchableOpacity onPress={()=>this.props.closeFilter(SearchText)}>
+                    <TouchableOpacity onPress={()=>this.props.closeFilter(SearchText,SelectedMarketCap,SelectedReportType,SelectedSegmentType,OwnerId)}>
                         <View style={styles.FilterButton}>
                             <FontAwesome name="filter" size={24} color="white" />
                             <NormalText style={{marginBottom:0,color:'white'}}>Apply Filters</NormalText> 
@@ -222,6 +229,7 @@ class ReportFilter extends React.Component{
              
                 
             </View>
+            </ScrollView>
         )
     }
 }

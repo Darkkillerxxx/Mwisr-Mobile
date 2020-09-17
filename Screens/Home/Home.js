@@ -80,7 +80,7 @@ class Home extends React.Component{
                             CallId=""
                             Exchange=""
                             Symbol=""
-                            AssignedToMe={false}
+                            AssignedToMe={this.props.loginState.UserTypeId === 7 ? true:false}
                             CallDetails={this.MoveToCallDetails}/>
                     </View>     
                   </View>  

@@ -65,7 +65,7 @@ class CustomButtonNavigator extends React.Component{
     {
         const ShowNormalTabs=this.state.NormalTabs.map((result,index)=>{
             return(
-                <TouchableOpacity onPress={()=>this.onTabsSelected(result.Key)} style={{width:'25%'}}>
+                <TouchableOpacity key={index} onPress={()=>this.onTabsSelected(result.Key)} style={{width:'25%'}}>
                     <View style={styles.NormalTabsContainer}>
                         <FontAwesome name={result.Icon} size={22} color="grey" />
                         <NormalText style={{marginBottom:0,marginVertical:3}}>{result.Name}</NormalText>
@@ -76,7 +76,7 @@ class CustomButtonNavigator extends React.Component{
 
         const ShowCustomerTabs=this.state.CustomerTabs.map((result,index)=>{
             return(
-                <TouchableOpacity onPress={()=>this.onTabsSelected(result.Key)} style={{width:'25%'}}>
+                <TouchableOpacity key={index} onPress={()=>this.onTabsSelected(result.Key)} style={{width:'25%'}}>
                     <View style={styles.NormalTabsContainer}>
                         <FontAwesome name={result.Icon} size={22} color="grey" />
                         <NormalText style={{marginBottom:0,marginVertical:3}}>{result.Name}</NormalText>
