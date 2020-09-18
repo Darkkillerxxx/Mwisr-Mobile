@@ -38,6 +38,8 @@ import ViewMessage from '../Screens/Messages/ViewMessage'
 import ConfigTele from '../Screens/Telegram/ConfigTele'
 import SendMessage from '../Screens/Messages/SendMessage'
 import CustomBottomNavigator from '../Components/CustomBottomNavigator'
+import Profile from '../Screens/Profile/Profile'
+
 
 const Drawer=createDrawerNavigator({
     Home:createBottomTabNavigator({
@@ -167,6 +169,9 @@ const Drawer=createDrawerNavigator({
     },
     SendMessage:{
         screen:SendMessage
+    },
+    Profile:{
+        screen:Profile
     }
 },{
     contentComponent:CustomDrawer,

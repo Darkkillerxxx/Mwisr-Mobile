@@ -71,6 +71,9 @@ const endpoint_url={
     AssignUnAssignPackageToChannel:base_url_Mwisr+"Analyst/AssignUnAssignPackageToChannel",
     GetCustomerDashboard:base_url_Mwisr+"AnalystQuery/GetCustomerDashBoard",
     SendMessage: base_url_Mwisr+"Broadcast/SendMessage",
+    GetContactDetail:base_url_Mwisr+"Broker/GetContactDetail",
+    GetRegistrationDetail:base_url_Mwisr+"Broker/GetRegistrationDetail",
+    GetCompanyDetail:base_url_Mwisr+"Broker/GetCompanyDetail"
 }
 
 /********* Normal Functions **********/
@@ -1092,6 +1095,27 @@ export function get_customer_dashboard(authheader)
 export function send_message(authHeader,payload)
 {
   return apiCall(endpoint_url['SendMessage'],"POST",payload,authHeader).then(data=>{
+    return JSON.parse(data)
+  }).catch(err=>err)
+}
+
+export function get_contact_details(authHeader)
+{
+  return apiCall(endpoint_url['GetContactDetail'],"GET",{},authHeader).then(data=>{
+    return JSON.parse(data)
+  }).catch(err=>err)
+}
+
+export function get_company_details(authHeader)
+{
+  return apiCall(endpoint_url['GetCompanyDetail'],"GET",{},authHeader).then(data=>{
+    return JSON.parse(data)
+  }).catch(err=>err)
+}
+
+export function get_registration_details(authHeader)
+{
+  return apiCall(endpoint_url['GetRegistrationDetails'],"GET",{},authHeader).then(data=>{
     return JSON.parse(data)
   }).catch(err=>err)
 }

@@ -23,7 +23,8 @@ class CustomDrawer extends React.Component{
                     SubContents:[],
                     Chevron:false,
                     Expanded:null,
-                    isVisible:true
+                    isVisible:true,
+                    Key:'Profile'
                 },
                 {
                     Name:"Calls",
