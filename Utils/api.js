@@ -73,7 +73,10 @@ const endpoint_url={
     SendMessage: base_url_Mwisr+"Broadcast/SendMessage",
     GetContactDetail:base_url_Mwisr+"Broker/GetContactDetail",
     GetRegistrationDetail:base_url_Mwisr+"Broker/GetRegistrationDetail",
-    GetCompanyDetail:base_url_Mwisr+"Broker/GetCompanyDetail"
+    GetCompanyDetail:base_url_Mwisr+"Broker/GetCompanyDetail",
+    ContactDetails:base_url_Mwisr+"Broker/UpsertContactDetail",
+    RegistrationDetails:base_url_Mwisr+"Broker/UpsertRegistrationDetail",
+    UpsertCompanyDetail:base_url_Mwisr+"Broker/UpsertCompanyDetail",
 }
 
 /********* Normal Functions **********/
@@ -1120,4 +1123,9 @@ export function get_registration_details(authHeader)
   }).catch(err=>err)
 }
 
-
+export function upsert_contact_details(authHeader,payload)
+{
+  return apiCall(endpoint_url['ContactDetails'],"POST",payload,authHeader).then(data=>{
+    return JSON.parse(data)
+  }).catch(err=>err)
+}
