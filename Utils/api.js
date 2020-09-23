@@ -76,7 +76,7 @@ const endpoint_url={
     GetCompanyDetail:base_url_Mwisr+"Broker/GetCompanyDetail",
     ContactDetails:base_url_Mwisr+"Broker/UpsertContactDetail",
     RegistrationDetails:base_url_Mwisr+"Broker/UpsertRegistrationDetail",
-    UpsertCompanyDetail:base_url_Mwisr+"Broker/UpsertCompanyDetail",
+    UpsertCompanyDetail:base_url_Mwisr+"Broker/UpsertCompanyDetail"
 }
 
 /********* Normal Functions **********/
@@ -1118,7 +1118,7 @@ export function get_company_details(authHeader)
 
 export function get_registration_details(authHeader)
 {
-  return apiCall(endpoint_url['GetRegistrationDetails'],"GET",{},authHeader).then(data=>{
+  return apiCall(endpoint_url['GetRegistrationDetail'],"GET",{},authHeader).then(data=>{
     return JSON.parse(data)
   }).catch(err=>err)
 }
@@ -1126,6 +1126,13 @@ export function get_registration_details(authHeader)
 export function upsert_contact_details(authHeader,payload)
 {
   return apiCall(endpoint_url['ContactDetails'],"POST",payload,authHeader).then(data=>{
+    return JSON.parse(data)
+  }).catch(err=>err)
+}
+
+export function upsert_registration_detail(authHeader,payload)
+{
+  return apiCall(endpoint_url['RegistrationDetails'],"POST",payload,authHeader).then(data=>{
     return JSON.parse(data)
   }).catch(err=>err)
 }

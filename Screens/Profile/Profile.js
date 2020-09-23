@@ -6,7 +6,8 @@ import { FontAwesome } from '@expo/vector-icons';
 import NormalText from '../../Components/NormalText'
 import { connect }from 'react-redux'
 import CollapsibleCard from '../../Components/CollapsibleCard'
-import {get_contact_details,get_registration_details,get_company_details,upsert_contact_details, verbose} from '../../Utils/api'
+import {get_contact_details,get_registration_details,get_company_details,upsert_contact_details,upsert_registration_detail,verbose} from '../../Utils/api'
+import CustomerAnswers from './CustomerAnswers'
 import CustomButton from '../../Components/Button'
 
 
@@ -15,21 +16,37 @@ class Profile extends React.Component {
     {
         super()
         this.state={
-            ProfileContents:[]
+            ProfileContents:[],
+            RegistrationContents:[]
         }
     }
 
 
     componentDidMount()
     {
-        get_contact_details(this.props.loginState.AuthHeader).then(result=>{
-            if(result.IsSuccess)
-            {
-                let temp=[]
-                temp.push(result.Data)
-                this.setState({ProfileContents:temp});
-            }
-        })
+
+        if(this.props.loginState.UserTypeId !== 7)
+        {
+            get_contact_details(this.props.loginState.AuthHeader).then(result=>{
+                if(result.IsSuccess)
+                {
+                    let temp=[]
+                    temp.push(result.Data)
+                    this.setState({ProfileContents:temp});
+                }
+            })
+    
+            get_registration_details(this.props.loginState.AuthHeader).then(result=>{
+                if(result.IsSuccess)
+                {
+                    let registrationTemp=[]
+                    registrationTemp.push(result.Data)
+                    this.setState({RegistrationContents:registrationTemp},()=>{
+                        console.log(this.state.RegistrationContents)
+                    });
+                }
+            })
+        }
     }
 
     UpsertContactDetails()
@@ -58,6 +75,106 @@ class Profile extends React.Component {
                 verbose(false,"Error Updating Values",result.DisplayMsg)
               }
           })
+    }
+
+    UpdateRegistrationDetails=()=>
+    {
+        let payload={
+            MobileNo: this.state.RegistrationContents[0].MobileNo,
+            NSEMemberId: this.state.RegistrationContents[0].NSEMemberId,
+            BSEMemberId:  this.state.RegistrationContents[0].BSEMemberId,
+            MCXMemberId:  this.state.RegistrationContents[0].MCXMemberId,
+            NCDEXMemberId: this.state.RegistrationContents[0].NCDEXMemberId,
+            CDSLNo:  this.state.RegistrationContents[0].CDSLNo,
+            NSDLNo:  this.state.RegistrationContents[0].NSDLNo,
+            MSEINo:  this.state.RegistrationContents[0].MSEINo,
+            SEBIRegistrationNo:  this.state.RegistrationContents[0].SEBIRegistrationNo,
+            ResearchAnalystNo:  this.state.RegistrationContents[0].ResearchAnalystNo,
+            InvestmentAdvisorNo:  this.state.RegistrationContents[0].InvestmentAdvisorNo,
+            ARNNo:  this.state.RegistrationContents[0].ARNNo,
+            IRDACorporateAgentNo:  this.state.RegistrationContents[0].IRDACorporateAgentNo,
+            AssetManagementCompanyNo:  this.state.RegistrationContents[0].AssetManagementCompanyNo,
+            PMSNo:  this.state.RegistrationContents[0].PMSNo,
+            CINNo:  this.state.RegistrationContents[0].CINNo
+          }
+
+          upsert_registration_detail(this.props.loginState.AuthHeader,payload).then(result=>{
+            if(result.IsSuccess)
+            {
+              verbose(true,"Values Updated","Registration Details Have Been Successfully Updated")
+            }
+            else
+            {
+              verbose(false,"Error Updating Values",result.DisplayMsg)
+            }
+          })
+    }
+
+    EditRegistrationInfo=(id,value)=>{
+        let RD=this.state.RegistrationContents[0]
+        switch(id)
+        {
+            case 0:
+                RD.NSEMemberId=value
+                break;
+            
+            case 1:
+                RD.BSEMemberId=value
+                break;
+
+            case 2:
+                RD.MCXMemberId=value
+                break;
+
+            case 3:
+                RD.NCDEXMemberId=value
+                break;
+
+            case 4:
+                RD.CDSLNo=value
+                break;
+
+            case 5:
+                RD.NSDLNo=value
+                break;
+
+            case 6:
+                RD.MSEINo=value
+                break;
+
+            case 7:
+                RD.SEBIRegistrationNo=value
+                break;
+
+            case 8:
+                RD.ResearchAnalystNo=value
+                break;
+
+             case 9:
+                RD.InvestmentAdvisorNo=value
+                break;
+
+            case 10:
+                RD.ARNNo=value
+                break;
+            
+            case 11:
+                RD.IRDACorporateAgentNo=value
+                break;
+
+             case 12:
+                RD.CINNo=value
+                break;
+
+            case 13:
+                RD.PMSNo=value
+                break;
+
+            default:
+                break;
+        }
+        // console.log(CD)
+        this.setState({ProfileContents:[RD]})
     }
 
     EditContactDetails=(id,value)=>{
@@ -135,6 +252,7 @@ class Profile extends React.Component {
                         </View>
                     </View>
 
+                    {this.props.loginState.UserTypeId !== 7 ? 
                     <View style={styles.UserDetails}>
                         {this.state.ProfileContents.length > 0 ?
                         <CollapsibleCard style={styles.CustomCollapsibleCard} Heading='Profile Inormation'>
@@ -261,18 +379,19 @@ class Profile extends React.Component {
                         </CollapsibleCard>
 
                         
+                        {this.state.RegistrationContents.length > 0 ? 
                         <CollapsibleCard style={styles.CustomCollapsibleCard} Heading='Registration Info'>
                             <View style={styles.CardInner}>
                                 <View style={{width:'45%'}}>
                                     <NormalText style={{fontSize:12,marginBottom:5}}>NSE Member ID</NormalText>
                                     <View style={styles.TextInputBox}>
-                                        <TextInput style={{height:35}}/>
+                                        <TextInput onChangeText={(e)=>this.EditRegistrationInfo(0,e)} value={this.state.RegistrationContents[0].NSEMemberId} style={{height:35}}/>
                                     </View>
                                 </View>
                                 <View style={{width:'45%'}}>
                                     <NormalText style={{fontSize:12,marginBottom:5}}>BSE Memeber ID</NormalText>
                                     <View style={styles.TextInputBox}>
-                                        <TextInput style={{height:35}}/>
+                                        <TextInput onChangeText={(e)=>this.EditRegistrationInfo(1,e)} value={this.state.RegistrationContents[0].BSEMemberId} style={{height:35}}/>
                                     </View>
                                 </View>
                             </View>
@@ -280,13 +399,13 @@ class Profile extends React.Component {
                                 <View style={{width:'45%'}}>
                                     <NormalText style={{fontSize:12,marginBottom:5}}>MCX Member ID</NormalText>
                                     <View style={styles.TextInputBox}>
-                                        <TextInput style={{height:35}}/>
+                                        <TextInput onChangeText={(e)=>this.EditRegistrationInfo(2,e)} value={this.state.RegistrationContents[0].MCXMemberId} style={{height:35}}/>
                                     </View>
                                 </View>
                                 <View style={{width:'45%'}}>
                                     <NormalText style={{fontSize:12,marginBottom:5}}>NCDEX Memeber ID</NormalText>
                                     <View style={styles.TextInputBox}>
-                                        <TextInput style={{height:35}}/>
+                                        <TextInput onChangeText={(e)=>this.EditRegistrationInfo(3,e)} value={this.state.RegistrationContents[0].NCDEXMemberId} style={{height:35}}/>
                                     </View>
                                 </View>
                             </View>
@@ -295,28 +414,13 @@ class Profile extends React.Component {
                                 <View style={{width:'45%'}}>
                                     <NormalText style={{fontSize:12,marginBottom:5}}>CSDL No.</NormalText>
                                     <View style={styles.TextInputBox}>
-                                        <TextInput style={{height:35}}/>
+                                        <TextInput onChangeText={(e)=>this.EditRegistrationInfo(4,e)} value={this.state.RegistrationContents[0].CDSLNo} style={{height:35}}/>
                                     </View>
                                 </View>
                                 <View style={{width:'45%'}}>
                                     <NormalText style={{fontSize:12,marginBottom:5}}>NSDL No.</NormalText>
                                     <View style={styles.TextInputBox}>
-                                        <TextInput style={{height:35}}/>
-                                    </View>
-                                </View>
-                            </View>
-
-                            <View style={styles.CardInner}>
-                                <View style={{width:'45%'}}>
-                                    <NormalText style={{fontSize:12,marginBottom:5}}>Website</NormalText>
-                                    <View style={styles.TextInputBox}>
-                                        <TextInput style={{height:35}}/>
-                                    </View>
-                                </View>
-                                <View style={{width:'45%'}}>
-                                    <NormalText style={{fontSize:12,marginBottom:5}}>Mobile No.</NormalText>
-                                    <View style={styles.TextInputBox}>
-                                        <TextInput style={{height:35}}/>
+                                        <TextInput onChangeText={(e)=>this.EditRegistrationInfo(5,e)} value={this.state.RegistrationContents[0].NSDLNo} style={{height:35}}/>
                                     </View>
                                 </View>
                             </View>
@@ -325,13 +429,13 @@ class Profile extends React.Component {
                                 <View style={{width:'45%'}}>
                                     <NormalText style={{fontSize:12,marginBottom:5}}>MSEI NO.</NormalText>
                                     <View style={styles.TextInputBox}>
-                                        <TextInput style={{height:35}}/>
+                                        <TextInput onChangeText={(e)=>this.EditRegistrationInfo(6,e)} value={this.state.RegistrationContents[0].MSEINo} style={{height:35}}/>
                                     </View>
                                 </View>
                                 <View style={{width:'45%'}}>
                                     <NormalText style={{fontSize:12,marginBottom:5}}>SEBI Registration No.</NormalText>
                                     <View style={styles.TextInputBox}>
-                                        <TextInput style={{height:35}}/>
+                                        <TextInput onChangeText={(e)=>this.EditRegistrationInfo(7,e)} value={this.state.RegistrationContents[0].SEBIRegistrationNo} style={{height:35}}/>
                                     </View>
                                 </View>
                             </View>
@@ -340,13 +444,13 @@ class Profile extends React.Component {
                                 <View style={{width:'45%'}}>
                                     <NormalText style={{fontSize:12,marginBottom:5}}>Research Analyst No.</NormalText>
                                     <View style={styles.TextInputBox}>
-                                        <TextInput style={{height:35}}/>
+                                        <TextInput onChangeText={(e)=>this.EditRegistrationInfo(8,e)} value={this.state.RegistrationContents[0].ResearchAnalystNo} style={{height:35}}/>
                                     </View>
                                 </View>
                                 <View style={{width:'45%'}}>
                                     <NormalText style={{fontSize:12,marginBottom:5}}>Investment Advisor No.</NormalText>
                                     <View style={styles.TextInputBox}>
-                                        <TextInput style={{height:35}}/>
+                                        <TextInput onChangeText={(e)=>this.EditRegistrationInfo(9,e)} value={this.state.RegistrationContents[0].InvestmentAdvisorNo} style={{height:35}}/>
                                     </View>
                                 </View>
                             </View>
@@ -355,13 +459,13 @@ class Profile extends React.Component {
                                 <View style={{width:'45%'}}>
                                     <NormalText style={{fontSize:12,marginBottom:5}}>ARN No.</NormalText>
                                     <View style={styles.TextInputBox}>
-                                        <TextInput style={{height:35}}/>
+                                        <TextInput onChangeText={(e)=>this.EditRegistrationInfo(10,e)} value={this.state.RegistrationContents[0].ARNNo} style={{height:35}}/>
                                     </View>
                                 </View>
                                 <View style={{width:'45%'}}>
                                     <NormalText style={{fontSize:12,marginBottom:5}}>IRDA No.</NormalText>
                                     <View style={styles.TextInputBox}>
-                                        <TextInput style={{height:35}}/>
+                                        <TextInput onChangeText={(e)=>this.EditRegistrationInfo(11,e)} value={this.state.RegistrationContents[0].IRDACorporateAgentNo} style={{height:35}}/>
                                     </View>
                                 </View>
                             </View>
@@ -370,18 +474,27 @@ class Profile extends React.Component {
                                 <View style={{width:'45%'}}>
                                     <NormalText style={{fontSize:12,marginBottom:5}}>CIN No.</NormalText>
                                     <View style={styles.TextInputBox}>
-                                        <TextInput style={{height:35}}/>
+                                        <TextInput onChangeText={(e)=>this.EditRegistrationInfo(12,e)} value={this.state.RegistrationContents[0].CINNo} style={{height:35}}/>
                                     </View>
                                 </View>
                                 <View style={{width:'45%'}}>
                                     <NormalText style={{fontSize:12,marginBottom:5}}>PMS No.</NormalText>
                                     <View style={styles.TextInputBox}>
-                                        <TextInput style={{height:35}}/>
+                                        <TextInput onChangeText={(e)=>this.EditRegistrationInfo(13,e)} value={this.state.RegistrationContents[0].PMSNo} style={{height:35}}/>
                                     </View>
                                 </View>
                             </View>
-                        </CollapsibleCard>
-                    </View>
+
+                            <View style={styles.ButtonContainer}>
+                                <TouchableOpacity onPress={()=>this.UpdateRegistrationDetails()}>
+                                    <CustomButton style={{width:100,borderRadius:5}}>
+                                        <NormalText style={{marginBottom:0,color:'white'}}>Update</NormalText>
+                                    </CustomButton>
+                                </TouchableOpacity>
+                            </View>
+                        </CollapsibleCard>:null}
+                    </View>:
+                    <CustomerAnswers UserName={this.props.loginState.UserName} UserId={this.props.loginState.UserId} AuthHeader={this.props.loginState.AuthHeader}/>}
                 </ScrollView>
             </Container>
         )
